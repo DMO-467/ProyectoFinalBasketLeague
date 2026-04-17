@@ -1,12 +1,24 @@
 package VISTAS;
+import CONTROLADORES.*;
+import OTROS.Regex;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+
 public class GUI {
-    public static void main(String[] args) {
 
 
+    public void mensaje(String dato){
+        JFrame informacion = new JFrame();
+        informacion.setSize(200, 80);
+        informacion.setLayout(new BorderLayout());
+        JPanel mensaje = new JPanel();
+        JLabel usuario = new JLabel(dato);
+        mensaje.add(usuario);
+        informacion.add(mensaje, BorderLayout.CENTER);
+        informacion.setVisible(true);
     }
 
     public void ventanaDeLogeo(){
@@ -22,6 +34,15 @@ public class GUI {
         contrasena.add(usuario);
         ActionListener accion = e -> {
             String password = new String(usuario.getPassword());
+            Regex comprobacion = new Regex();
+            GUI cambio = new GUI();
+            if (comprobacion.verificacionInicioSesion(password)) {
+                cambio.paginaPrincipal();
+                inicio.setVisible(false);
+            }else {
+                cambio.mensaje("Contraseña Incorrecta");
+            }
+
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -36,13 +57,13 @@ public class GUI {
         fondo.setSize(1000, 650);
         fondo.setLayout(new BorderLayout());
         JButton arbitros = new JButton("Arbitros");
-        JButton jugadores = new JButton("Jugadores");
+        JButton equipos = new JButton("Equipos");
         JButton partidos = new JButton("Partidos");
         JButton patrocinios = new JButton("Patrocinios");
         JButton patrocinadores = new JButton("Patrocinadores");
         JPanel tablas = new JPanel();
         tablas.add(arbitros);
-        tablas.add(jugadores);
+        tablas.add(equipos);
         tablas.add(partidos);
         tablas.add(patrocinios);
         tablas.add(patrocinadores);
@@ -59,5 +80,30 @@ public class GUI {
         opciones.add(modificar);
         fondo.add(opciones, BorderLayout.SOUTH);
         fondo.setVisible(true);
+        ActionListener listaArbitro = e -> {
+            ControladorArbitro mostrar = new ControladorArbitro();
+            mostrar.mostrarArbitro();
+        };
+        arbitros.addActionListener(listaArbitro);
+        ActionListener listaequipos = e -> {
+            ControladorEquipos mostrar = new ControladorEquipos();
+            mostrar.mostrarEquipos();
+        };
+        equipos.addActionListener(listaequipos);
+        ActionListener listaPartidos = e -> {
+            ControladorPartidos mostrar = new ControladorPartidos();
+            mostrar.mostrarPartidos();
+        };
+        partidos.addActionListener(listaPartidos);
+        ActionListener listaPatrocinios = e -> {
+            ControladorPatrocinios mostrar = new ControladorPatrocinios();
+            mostrar.mostrarPatrocinios();
+        };
+        patrocinios.addActionListener(listaPatrocinios);
+        ActionListener listaPatrocinador = e -> {
+            ControladorPatrocinador mostrar = new ControladorPatrocinador();
+            mostrar.mostrarPatrocinador();
+        };
+        patrocinadores.addActionListener(listaPatrocinador);
     }
 }
