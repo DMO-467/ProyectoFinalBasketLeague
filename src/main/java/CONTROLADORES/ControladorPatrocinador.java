@@ -1,11 +1,9 @@
 package CONTROLADORES;
 
+import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class ControladorPatrocinador {
 
@@ -22,6 +20,24 @@ public class ControladorPatrocinador {
                 String email = resultSet.getString("email");
                 System.out.println(id + "\t" + nombre + "\t" + telefono + "\t" + email);
             }
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public boolean anadirPatrocinador(Patrocinador patrocinador){
+        String sql = "INSERT INTO patrocinador(nombre_patrocinador, telefono, email) VALUES (?, ?, ?)";
+        try{
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
+            preparedStatement.setInt(2, patrocinador.getTelefono());
+            preparedStatement.setString(3, patrocinador.getEmail());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }

@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 
 public class GUI {
 
-
     public void mensaje(String dato){
         JFrame informacion = new JFrame();
         informacion.setSize(200, 80);
