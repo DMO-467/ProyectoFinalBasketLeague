@@ -47,4 +47,22 @@ public class ControladorPatrocinador {
             throw new RuntimeException(ex);
         }
     }
+
+    public boolean eliminarPatrocinador(int id){
+        String sql = "DELETE FROM patrocinador WHERE id_patrocinador = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
+
 }

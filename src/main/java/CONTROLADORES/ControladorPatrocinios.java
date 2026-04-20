@@ -43,4 +43,20 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean eliminarPatrocinio(int id){
+        String sql = "DELETE FROM patrocinio WHERE id_patrocinio = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
 }

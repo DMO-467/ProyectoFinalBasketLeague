@@ -48,6 +48,22 @@ public class ControladorEquipos {
         }
     }
 
+    public boolean eliminarEquipo(int id){
+        String sql = "DELETE FROM equipos WHERE id_equipo = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
     public boolean existeId(int id){
         String sql = "SELECT id_equipo FROM equipos WHERE id_equipo = ?";
         try {
@@ -74,6 +90,22 @@ public class ControladorEquipos {
                 return true;
             }
             return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+    public int cualId(String nombre){
+        String sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
+        try {
+         Conexion c = new Conexion();
+         PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+         preparedStatement.setString(1, nombre);
+
+         ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+               return resultSet.getInt("id_equipo");
+            }
+            return -1;
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }

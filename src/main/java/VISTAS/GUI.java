@@ -4,10 +4,23 @@ import OTROS.Regex;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
 public class GUI {
+    int tablaPartidos = 3;
+    int nTabla = tablaPartidos;
+    int tablaArbitro = 1;
+    int tablaEquipos = 2;
+    int tablaPatrocinador = 4;
+    int tablaPatrocinios = 5;
+    String[] camposArbitro = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
+    String[] camposEquipos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
+    String [] camposPartidos = {"Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
+    String[] camposPatrocinador = {"Nombre", "Telefono", "Email"};
+    String[] camposPatrocinios = {"Patrocinador", "Equipo"};
+
 
     public void mensaje(String dato){
         final JDialog dialog = new JDialog();
@@ -25,11 +38,28 @@ public class GUI {
             start();
         }};
     }
-    public void ventanaAnadir(){
+    public void ventanaAnadir(String[] textos){
         JFrame ventana = new JFrame("Añadir");
-        ventana.setLocationRelativeTo(null);
         ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ventana.setSize(1000, 650);
+        ventana.setLocationRelativeTo(null);
+        CardLayout cardLayout = new CardLayout();
+        JPanel panel = new JPanel(cardLayout);
+        // Add components
+        for (int i = 0; i < textos.length; i++) {
+            panel.add(new JLabel(textos[i]), textos[i]);
+        }
+        // Add a button to switch between cards
+        JButton button = new JButton("Confirmar");
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.next(panel);
+            }
+        });
+        ventana.add(panel, BorderLayout.CENTER);
+        ventana.add(button, BorderLayout.SOUTH);
+        ventana.setVisible(true);
 
     }
 
@@ -93,31 +123,58 @@ public class GUI {
         opciones.add(eliminar);
         opciones.add(modificar);
         fondo.add(opciones, BorderLayout.SOUTH);
+        ControladorPartidos tablaPrincipal = new ControladorPartidos();
+        tabla.setModel(tablaPrincipal.mostrarPartidos());
         fondo.setVisible(true);
         ActionListener listaArbitro = e -> {
+            nTabla = tablaArbitro;
             ControladorArbitro mostrar = new ControladorArbitro();
             tabla.setModel(mostrar.mostrarArbitro());
         };
         arbitros.addActionListener(listaArbitro);
         ActionListener listaequipos = e -> {
+            nTabla = tablaEquipos;
             ControladorEquipos mostrar = new ControladorEquipos();
             tabla.setModel(mostrar.mostrarEquipos());
         };
         equipos.addActionListener(listaequipos);
         ActionListener listaPartidos = e -> {
+            nTabla = tablaPartidos;
             ControladorPartidos mostrar = new ControladorPartidos();
             tabla.setModel(mostrar.mostrarPartidos());
         };
         partidos.addActionListener(listaPartidos);
         ActionListener listaPatrocinios = e -> {
+            nTabla = tablaPatrocinador;
             ControladorPatrocinios mostrar = new ControladorPatrocinios();
             tabla.setModel(mostrar.mostrarPatrocinios());
         };
         patrocinios.addActionListener(listaPatrocinios);
         ActionListener listaPatrocinador = e -> {
+            nTabla = tablaPatrocinios;
             ControladorPatrocinador mostrar = new ControladorPatrocinador();
             tabla.setModel(mostrar.mostrarPatrocinador());
         };
         patrocinadores.addActionListener(listaPatrocinador);
+
+        ActionListener anade = e -> {
+            if (nTabla == tablaArbitro) {
+                ventanaAnadir(camposArbitro);
+            }
+            if (nTabla == tablaEquipos) {
+                ventanaAnadir(camposEquipos);
+            }
+            if (nTabla == tablaPartidos) {
+                ventanaAnadir(camposPartidos);
+            }
+            if (nTabla == tablaPatrocinador) {
+                ventanaAnadir(camposPatrocinador);
+            }
+            if (nTabla == tablaPatrocinios) {
+                ventanaAnadir(camposPatrocinios);
+            }
+
+        };
+        anadir.addActionListener(anade);
     }
 }

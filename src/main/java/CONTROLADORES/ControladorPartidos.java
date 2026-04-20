@@ -9,7 +9,7 @@ import java.sql.*;
 public class ControladorPartidos {
 
     public DefaultTableModel mostrarPartidos(){
-        String sql = "SELECT * FROM partidos";
+        String sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
         String[] columnas = {"ID", "Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
@@ -20,14 +20,14 @@ public class ControladorPartidos {
                 int id = resultSet.getInt("id_partido");
                 Date fecha = resultSet.getDate("fecha");
                 Time hora = resultSet.getTime("hora");
-                int idEquipoLocal = resultSet.getInt("id_equipo_local");
-                int idEquipoVisitante = resultSet.getInt("id_equipo_visitante");
+                String equipoLocal = resultSet.getString("equipo_local");
+                String equipoVisitante = resultSet.getString("equipo_visitante");
                 int resultadoLocal = resultSet.getInt("resultado_local");
                 int resultadoVisitante = resultSet.getInt("resultado_visitante");
-                int arbitro1 = resultSet.getInt("arbitro1");
-                int arbitro2 = resultSet.getInt("arbitro2");
+                String arbitro1 = resultSet.getString("arbitro1");
+                String arbitro2 = resultSet.getString("arbitro2");
 
-                Object[] fila = {id, fecha, hora, idEquipoLocal, idEquipoVisitante, resultadoLocal, resultadoVisitante, arbitro1, arbitro2};
+                Object[] fila = {id, fecha, hora, equipoLocal, equipoVisitante, resultadoLocal, resultadoVisitante, arbitro1, arbitro2};
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -49,6 +49,22 @@ public class ControladorPartidos {
             preparedStatement.setInt(6, partido.getResultado_visitante());
             preparedStatement.setInt(7, partido.getArbitro1());
             preparedStatement.setInt(8, partido.getArbitro2());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public boolean eliminarPartido(int id){
+        String sql = "DELETE FROM partidos WHERE id_partido = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 return true;

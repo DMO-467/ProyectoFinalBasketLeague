@@ -4,7 +4,6 @@ import MODELOS.Arbitro;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
-import javax.xml.transform.Result;
 import java.sql.*;
 
 public class ControladorArbitro {
@@ -40,6 +39,22 @@ public class ControladorArbitro {
             preparedStatement.setDate(2, (Date) arbitro.getFecha_nacimiento());
             preparedStatement.setInt(3, arbitro.getPartidos_arbitrados());
             preparedStatement.setInt(4, arbitro.getAnos_experiencia());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public boolean eliminarArbitro(int id){
+        String sql = "DELETE FROM arbitro WHERE id_arbitro = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 return true;
