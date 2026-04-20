@@ -10,14 +10,27 @@ import java.awt.event.ActionListener;
 public class GUI {
 
     public void mensaje(String dato){
-        JFrame informacion = new JFrame();
-        informacion.setSize(200, 80);
-        informacion.setLayout(new BorderLayout());
-        JPanel mensaje = new JPanel();
-        JLabel usuario = new JLabel(dato);
-        mensaje.add(usuario);
-        informacion.add(mensaje, BorderLayout.CENTER);
-        informacion.setVisible(true);
+        final JDialog dialog = new JDialog();
+        dialog.setSize(200, 100);
+        dialog.setLayout(new BorderLayout());
+
+        JLabel label = new JLabel(dato, SwingConstants.CENTER);
+        dialog.add(label, BorderLayout.CENTER);
+
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+
+        new javax.swing.Timer(500, e -> dialog.dispose()) {{
+            setRepeats(false);
+            start();
+        }};
+    }
+    public void ventanaAnadir(){
+        JFrame ventana = new JFrame("Añadir");
+        ventana.setLocationRelativeTo(null);
+        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventana.setSize(1000, 650);
+
     }
 
     public void ventanaDeLogeo(){
@@ -25,6 +38,7 @@ public class GUI {
         inicio.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         inicio.setSize(400, 250);
         inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
         JPanel contrasena = new JPanel();
         JLabel texto = new JLabel("Contraseña");
         JPasswordField usuario = new JPasswordField();
@@ -55,6 +69,7 @@ public class GUI {
         fondo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         fondo.setSize(1000, 650);
         fondo.setLayout(new BorderLayout());
+        fondo.setLocationRelativeTo(null);
         JButton arbitros = new JButton("Arbitros");
         JButton equipos = new JButton("Equipos");
         JButton partidos = new JButton("Partidos");
@@ -81,27 +96,27 @@ public class GUI {
         fondo.setVisible(true);
         ActionListener listaArbitro = e -> {
             ControladorArbitro mostrar = new ControladorArbitro();
-            mostrar.mostrarArbitro();
+            tabla.setModel(mostrar.mostrarArbitro());
         };
         arbitros.addActionListener(listaArbitro);
         ActionListener listaequipos = e -> {
             ControladorEquipos mostrar = new ControladorEquipos();
-            mostrar.mostrarEquipos();
+            tabla.setModel(mostrar.mostrarEquipos());
         };
         equipos.addActionListener(listaequipos);
         ActionListener listaPartidos = e -> {
             ControladorPartidos mostrar = new ControladorPartidos();
-            mostrar.mostrarPartidos();
+            tabla.setModel(mostrar.mostrarPartidos());
         };
         partidos.addActionListener(listaPartidos);
         ActionListener listaPatrocinios = e -> {
             ControladorPatrocinios mostrar = new ControladorPatrocinios();
-            mostrar.mostrarPatrocinios();
+            tabla.setModel(mostrar.mostrarPatrocinios());
         };
         patrocinios.addActionListener(listaPatrocinios);
         ActionListener listaPatrocinador = e -> {
             ControladorPatrocinador mostrar = new ControladorPatrocinador();
-            mostrar.mostrarPatrocinador();
+            tabla.setModel(mostrar.mostrarPatrocinador());
         };
         patrocinadores.addActionListener(listaPatrocinador);
     }

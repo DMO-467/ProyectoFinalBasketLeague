@@ -3,12 +3,15 @@ package CONTROLADORES;
 import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
+import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
 public class ControladorPatrocinador {
 
-    public void mostrarPatrocinador(){
+    public DefaultTableModel mostrarPatrocinador(){
         String sql = "SELECT * FROM patrocinador";
+        String[] columnas = {"ID", "Nombre", "Telefono", "Email"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
             Conexion c = new Conexion();
             Statement statement = c.realizarConexion().createStatement();
@@ -18,11 +21,13 @@ public class ControladorPatrocinador {
                 String nombre = resultSet.getString("nombre_patrocinador");
                 int telefono = resultSet.getInt("telefono");
                 String email = resultSet.getString("email");
-                System.out.println(id + "\t" + nombre + "\t" + telefono + "\t" + email);
+                Object[] fila = {id, nombre, telefono, email};
+                modelo.addRow(fila);
             }
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+        return modelo;
     }
 
     public boolean anadirPatrocinador(Patrocinador patrocinador){

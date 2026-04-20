@@ -3,13 +3,16 @@ package CONTROLADORES;
 import MODELOS.Arbitro;
 import OTROS.Conexion;
 
+import javax.swing.table.DefaultTableModel;
 import javax.xml.transform.Result;
 import java.sql.*;
 
 public class ControladorArbitro {
 
-    public void mostrarArbitro(){
+    public DefaultTableModel mostrarArbitro(){
         String sql = "SELECT * FROM arbitro";
+        String[] columnas = {"ID", "Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
             Conexion c = new Conexion();
             Statement statement = c.realizarConexion().createStatement();
@@ -20,13 +23,15 @@ public class ControladorArbitro {
                 Date fechaNacimiento = resultSet.getDate("fecha_nacimiento");
                 int partidosArbitrados = resultSet.getInt("partidos_arbitrados");
                 int anosExperiencia = resultSet.getInt("Años_experiencia");
-                System.out.println(id + "\t" + nombre + "\t" + fechaNacimiento + "\t" + partidosArbitrados + "\t" + anosExperiencia);
+                Object[] fila = {id, nombre, fechaNacimiento, partidosArbitrados, anosExperiencia};
+                modelo.addRow(fila);
             }
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+        return modelo;
     }
-    public boolean anadirAlbitro(Arbitro arbitro){
+    public boolean anadirArbitro(Arbitro arbitro){
         String sql = "INSERT INTO arbitro(nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia) VALUES (?, ?, ?, ?)";
         try{
             Conexion c = new Conexion();

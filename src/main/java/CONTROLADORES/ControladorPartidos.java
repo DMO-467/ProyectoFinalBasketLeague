@@ -3,12 +3,15 @@ package CONTROLADORES;
 import MODELOS.Partidos;
 import OTROS.Conexion;
 
+import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
 public class ControladorPartidos {
 
-    public void mostrarPartidos(){
+    public DefaultTableModel mostrarPartidos(){
         String sql = "SELECT * FROM partidos";
+        String[] columnas = {"ID", "Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
             Conexion c = new Conexion();
             Statement statement = c.realizarConexion().createStatement();
@@ -24,11 +27,13 @@ public class ControladorPartidos {
                 int arbitro1 = resultSet.getInt("arbitro1");
                 int arbitro2 = resultSet.getInt("arbitro2");
 
-                System.out.println(id + "\t" + fecha + "\t" + hora + "\t" + idEquipoLocal + "\t" + idEquipoVisitante + "\t" + resultadoLocal + "\t" + resultadoVisitante + "\t" + arbitro1 + "\t" + arbitro2);
+                Object[] fila = {id, fecha, hora, idEquipoLocal, idEquipoVisitante, resultadoLocal, resultadoVisitante, arbitro1, arbitro2};
+                modelo.addRow(fila);
             }
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+        return modelo;
     }
 
     public boolean anadirPartido(Partidos partido){

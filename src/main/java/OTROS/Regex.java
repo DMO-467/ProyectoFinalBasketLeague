@@ -19,8 +19,13 @@ public class Regex {
     }
 
     public boolean comprobarTelefono(int telefono){
-        String filtro = "\\d{9}";
+        String filtro = "(679)\\d{8}|(679)\\d{11}";
         boolean esValido = Pattern.matches(filtro, String.valueOf(telefono));
+        return esValido;
+    }
+    public boolean comprobarEmail(String email){
+        String filtro = "\\w+@\\w+\\.[a-z]{2,3}";
+        boolean esValido = Pattern.matches(filtro, email);
         return esValido;
     }
 }

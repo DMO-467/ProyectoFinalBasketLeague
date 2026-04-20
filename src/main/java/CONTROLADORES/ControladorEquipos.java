@@ -3,11 +3,14 @@ package CONTROLADORES;
 import MODELOS.Equipos;
 import OTROS.Conexion;
 
+import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
 public class ControladorEquipos {
-    public void mostrarEquipos(){
+    public DefaultTableModel mostrarEquipos(){
         String sql = "SELECT * FROM equipos";
+        String[] columnas = {"ID", "Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
             Conexion c = new Conexion();
             Statement statement = c.realizarConexion().createStatement();
@@ -18,11 +21,13 @@ public class ControladorEquipos {
                 int partidosPerdidos = resultSet.getInt("partidos_perdidos");
                 int partidosGanados = resultSet.getInt("partidos_ganados");
                 int trofeosLiga = resultSet.getInt("trofeos_liga");
-                System.out.println(id + "\t" + nombre + "\t" + partidosPerdidos + "\t" + partidosGanados + "\t" + trofeosLiga);
+                Object[] fila = {id, nombre, partidosPerdidos, partidosGanados, trofeosLiga};
+                modelo.addRow(fila);
             }
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+        return modelo;
     }
     public boolean anadirEquipo(Equipos equipo){
         String sql = "INSERT INTO equipos(nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga) VALUES (?, ?, ?, ?)";
