@@ -40,27 +40,60 @@ public class GUI {
     }
     public void ventanaAnadir(String[] textos){
         JFrame ventana = new JFrame("Añadir");
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventana.setSize(1000, 650);
+        ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        ventana.setSize(400, 200);
         ventana.setLocationRelativeTo(null);
+
         CardLayout cardLayout = new CardLayout();
         JPanel panel = new JPanel(cardLayout);
-        // Add components
+
+        // Array para guardar los campos
+        JTextField[] campos = new JTextField[textos.length];
+
         for (int i = 0; i < textos.length; i++) {
-            panel.add(new JLabel(textos[i]), textos[i]);
+            JPanel tarjeta = new JPanel(new BorderLayout(10, 10));
+
+            JLabel label = new JLabel(textos[i], SwingConstants.CENTER);
+            JTextField campo = new JTextField();
+
+            campos[i] = campo;
+
+            tarjeta.add(label, BorderLayout.NORTH);
+            tarjeta.add(campo, BorderLayout.CENTER);
+
+            panel.add(tarjeta, "card" + i);
         }
-        // Add a button to switch between cards
-        JButton button = new JButton("Confirmar");
-        button.addActionListener(new ActionListener() {
+
+        JButton boton = new JButton("Siguiente");
+
+        boton.addActionListener(new ActionListener() {
+            int indice = 0;
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.next(panel);
+                if (indice < textos.length - 1) {
+                    indice++;
+                    cardLayout.next(panel);
+
+                    // Si estamos en la última tarjeta, cambiamos el texto del botón
+                    if (indice == textos.length - 1) {
+                        boton.setText("Guardar");
+                    }
+                } else {
+                    // Recoger datos
+                    System.out.println("Datos introducidos:");
+                    for (int i = 0; i < campos.length; i++) {
+                        System.out.println(textos[i] + ": " + campos[i].getText());
+                    }
+
+                    ventana.dispose(); // cerrar solo esta ventana
+                }
             }
         });
-        ventana.add(panel, BorderLayout.CENTER);
-        ventana.add(button, BorderLayout.SOUTH);
-        ventana.setVisible(true);
 
+        ventana.add(panel, BorderLayout.CENTER);
+        ventana.add(boton, BorderLayout.SOUTH);
+        ventana.setVisible(true);
     }
 
     public void ventanaDeLogeo(){

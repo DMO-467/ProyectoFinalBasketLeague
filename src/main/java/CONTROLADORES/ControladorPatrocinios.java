@@ -9,7 +9,7 @@ import java.sql.*;
 public class ControladorPatrocinios {
 
     public DefaultTableModel mostrarPatrocinios(){
-        String sql = "SELECT * FROM patrocinios";
+        String sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
         String[] columnas = {"Patrocinador", "Equipo"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
@@ -17,9 +17,9 @@ public class ControladorPatrocinios {
             Statement statement = c.realizarConexion().createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
-                int id_patrocinador = resultSet.getInt("id_patrocinador");
-                int id_equipo = resultSet.getInt("id_equipo");
-                Object[] fila = {id_patrocinador, id_equipo};
+                String patrocinador = resultSet.getString("nombre_patrocinador");
+                String equipo = resultSet.getString("nombre_equipo");
+                Object[] fila = {patrocinador, equipo};
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -58,5 +58,38 @@ public class ControladorPatrocinios {
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    public int localizarIdPatrocinador(String nombre){
+        String sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, nombre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id_patrocinador");
+            }
+            return -1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int localizarIdEquipo(String nombre){
+        String sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, nombre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id_equipo");
+            }
+            return -1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
