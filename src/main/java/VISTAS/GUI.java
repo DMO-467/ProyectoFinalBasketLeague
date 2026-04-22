@@ -43,6 +43,8 @@ public class GUI {
         ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         ventana.setSize(400, 200);
         ventana.setLocationRelativeTo(null);
+        int equipo = 1;
+        int arbitro = 1;
 
         CardLayout cardLayout = new CardLayout();
         JPanel panel = new JPanel(cardLayout);
@@ -54,6 +56,19 @@ public class GUI {
             JPanel tarjeta = new JPanel(new BorderLayout(10, 10));
 
             JLabel label = new JLabel(textos[i], SwingConstants.CENTER);
+            if (textos[i].equalsIgnoreCase("Equipo local") | textos[i].equalsIgnoreCase("Equipo visitante") ) {
+
+                if (equipo == 2) {
+
+                }
+                equipo++;
+            }
+            if (textos[i].equalsIgnoreCase("Arbitro 1")) {
+                if (arbitro == 2) {
+
+                }
+                arbitro++;
+            }
             JTextField campo = new JTextField();
 
             campos[i] = campo;
