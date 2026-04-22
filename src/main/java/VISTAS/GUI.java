@@ -20,7 +20,7 @@ public class GUI {
     String [] camposPartidos = {"Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
     String[] camposPatrocinador = {"Nombre", "Telefono", "Email"};
     String[] camposPatrocinios = {"Patrocinador", "Equipo"};
-
+    JComboBox<String> equipos;
 
     public void mensaje(String dato){
         final JDialog dialog = new JDialog();
@@ -45,37 +45,55 @@ public class GUI {
         ventana.setLocationRelativeTo(null);
         int equipo = 1;
         int arbitro = 1;
-
+        ControladorEquipos cEquipos = new ControladorEquipos();
         CardLayout cardLayout = new CardLayout();
         JPanel panel = new JPanel(cardLayout);
 
         // Array para guardar los campos
-        JTextField[] campos = new JTextField[textos.length];
-
+        String[] campos = new String[textos.length];
         for (int i = 0; i < textos.length; i++) {
             JPanel tarjeta = new JPanel(new BorderLayout(10, 10));
 
             JLabel label = new JLabel(textos[i], SwingConstants.CENTER);
             if (textos[i].equalsIgnoreCase("Equipo local") | textos[i].equalsIgnoreCase("Equipo visitante") ) {
-
                 if (equipo == 2) {
-
+                     equipos = new JComboBox<>(cEquipos.noMostrarNombreEquipo(campos[i-1]));
+                    JPanel panelCombo = new JPanel();
+                    panelCombo.add(equipos);
+                    tarjeta.add(panelCombo, BorderLayout.CENTER);
+                }else{
+                    JComboBox<String> equipos = new JComboBox<>(cEquipos.mostrarNombreEquipos());
+                    JPanel panelCombo = new JPanel();
+                    panelCombo.add(equipos);
+                   // String seleccion = (String) equipos.getSelectedItem();
+                   // campos[i] = seleccion;
+                   // System.out.println(seleccion);
+                    tarjeta.add(panelCombo, BorderLayout.CENTER);
                 }
                 equipo++;
             }
-            if (textos[i].equalsIgnoreCase("Arbitro 1")) {
+            if (textos[i].equalsIgnoreCase("Arbitro 1") | textos[i].equalsIgnoreCase("Arbitro 2")) {
                 if (arbitro == 2) {
-
+                    equipos = new JComboBox<>();
+                    JPanel panelCombo = new JPanel();
+                    panelCombo.add(equipos);
+                    tarjeta.add(panelCombo, BorderLayout.CENTER);
+                }else {
+                    equipos = new JComboBox<>();
+                    JPanel panelCombo = new JPanel();
+                    panelCombo.add(equipos);
+                    tarjeta.add(panelCombo, BorderLayout.CENTER);
                 }
                 arbitro++;
             }
-            JTextField campo = new JTextField();
+            if (!textos[i].equalsIgnoreCase("Equipo local") && !textos[i].equalsIgnoreCase("Equipo visitante")  && !textos[i].equalsIgnoreCase("Arbitro 1") && !textos[i].equalsIgnoreCase("Arbitro 2")) {
+                JTextField campo = new JTextField();
 
-            campos[i] = campo;
+                campos[i] = campo.getText();
 
-            tarjeta.add(label, BorderLayout.NORTH);
-            tarjeta.add(campo, BorderLayout.CENTER);
-
+                tarjeta.add(label, BorderLayout.NORTH);
+                tarjeta.add(campo, BorderLayout.CENTER);
+            }
             panel.add(tarjeta, "card" + i);
         }
 
@@ -86,6 +104,7 @@ public class GUI {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 if (indice < textos.length - 1) {
                     indice++;
                     cardLayout.next(panel);
@@ -98,7 +117,7 @@ public class GUI {
                     // Recoger datos
                     System.out.println("Datos introducidos:");
                     for (int i = 0; i < campos.length; i++) {
-                        System.out.println(textos[i] + ": " + campos[i].getText());
+                        System.out.println(textos[i] + ": " + campos[i]);
                     }
 
                     ventana.dispose(); // cerrar solo esta ventana

@@ -5,6 +5,8 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorEquipos {
     public DefaultTableModel mostrarEquipos(){
@@ -108,6 +110,45 @@ public class ControladorEquipos {
             return -1;
         }catch (SQLException ex){
             throw new RuntimeException(ex);
+        }
+    }
+    public String[] mostrarNombreEquipos(){
+       String sql = "SELECT nombre_equipo FROM equipos";
+       try {
+           List<String> equipos = new ArrayList<>();
+           Conexion c = new Conexion();
+           Statement statement = c.realizarConexion().createStatement();
+           ResultSet resultSet = statement.executeQuery(sql);
+           while (resultSet.next()){
+               equipos.add(resultSet.getString("nombre_equipo"));
+           }
+           String[] devolver = new String[equipos.size()];
+           for (int i = 0; i < devolver.length; i++) {
+               devolver[i] = equipos.get(i);
+           }
+           return devolver;
+       } catch (SQLException e) {
+           throw new RuntimeException(e);
+       }
+    }
+    public String[] noMostrarNombreEquipo(String nombre){
+        String sql = "SELECT nombre_equipo FROM equipos WHERE UPPER(nombre_equipo) != UPPER(?)";
+        try {
+            List<String> equipos = new ArrayList<>();
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, nombre);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                equipos.add(resultSet.getString("nombre_equipo"));
+            }
+            String[] devolver = new String[equipos.size()];
+            for (int i = 0; i < devolver.length; i++) {
+                devolver[i] = equipos.get(i);
+            }
+            return devolver;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
