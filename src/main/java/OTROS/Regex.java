@@ -12,7 +12,7 @@ public class Regex {
     }
     public boolean cambiarContrasena(String antigua, String nueva){
         if (antigua.equals(contrasena)) {
-            contrasena = nueva;
+            setContrasena(nueva);
             return true;
         }
         return false;
@@ -27,5 +27,9 @@ public class Regex {
         String filtro = "\\w+@\\w+\\.[a-z]{2,3}";
         boolean esValido = Pattern.matches(filtro, email);
         return esValido;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 }

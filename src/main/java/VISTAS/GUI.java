@@ -15,16 +15,25 @@ public class GUI {
     int tablaEquipos = 2;
     int tablaPatrocinador = 4;
     int tablaPatrocinios = 5;
-    String[] camposArbitro = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
-    String[] camposEquipos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
-    String [] camposPartidos = {"Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
-    String[] camposPatrocinador = {"Nombre", "Telefono", "Email"};
-    String[] camposPatrocinios = {"Patrocinador", "Equipo"};
-    JComboBox<String> equipos;
+
+    private static int reglaDeTres(int n){
+        int uno = 21;
+        int uno2 = 200;
+        return n*uno2/uno;
+    }
+    private static GridBagConstraints configurarConstraints(int x, int y) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = x;
+        gbc.gridy = y;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        return gbc;
+    }
 
     public void mensaje(String dato){
         final JDialog dialog = new JDialog();
-        dialog.setSize(200, 100);
+        int ancho = reglaDeTres(dato.length());
+        dialog.setSize(ancho, 100);
         dialog.setLayout(new BorderLayout());
 
         JLabel label = new JLabel(dato, SwingConstants.CENTER);
@@ -33,101 +42,173 @@ public class GUI {
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
 
-        new javax.swing.Timer(500, e -> dialog.dispose()) {{
+        new javax.swing.Timer(1500, e -> dialog.dispose()) {{
             setRepeats(false);
             start();
         }};
     }
-    public void ventanaAnadir(String[] textos){
-        JFrame ventana = new JFrame("Añadir");
-        ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        ventana.setSize(400, 200);
-        ventana.setLocationRelativeTo(null);
-        int equipo = 1;
-        int arbitro = 1;
-        ControladorEquipos cEquipos = new ControladorEquipos();
-        CardLayout cardLayout = new CardLayout();
-        JPanel panel = new JPanel(cardLayout);
+    public static void ventanaArbitro() {
+        JFrame frame = new JFrame("Añadir Árbitro");
+        frame.setSize(400, 300);
+        frame.setLocationRelativeTo(null);
 
-        // Array para guardar los campos
-        String[] campos = new String[textos.length];
-        for (int i = 0; i < textos.length; i++) {
-            JPanel tarjeta = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new GridBagLayout());
 
-            JLabel label = new JLabel(textos[i], SwingConstants.CENTER);
-            if (textos[i].equalsIgnoreCase("Equipo local") | textos[i].equalsIgnoreCase("Equipo visitante") ) {
-                if (equipo == 2) {
-                     equipos = new JComboBox<>(cEquipos.noMostrarNombreEquipo(campos[i-1]));
-                    JPanel panelCombo = new JPanel();
-                    panelCombo.add(equipos);
-                    tarjeta.add(panelCombo, BorderLayout.CENTER);
-                }else{
-                    JComboBox<String> equipos = new JComboBox<>(cEquipos.mostrarNombreEquipos());
-                    JPanel panelCombo = new JPanel();
-                    panelCombo.add(equipos);
-                   // String seleccion = (String) equipos.getSelectedItem();
-                   // campos[i] = seleccion;
-                   // System.out.println(seleccion);
-                    tarjeta.add(panelCombo, BorderLayout.CENTER);
-                }
-                equipo++;
-            }
-            if (textos[i].equalsIgnoreCase("Arbitro 1") | textos[i].equalsIgnoreCase("Arbitro 2")) {
-                if (arbitro == 2) {
-                    equipos = new JComboBox<>();
-                    JPanel panelCombo = new JPanel();
-                    panelCombo.add(equipos);
-                    tarjeta.add(panelCombo, BorderLayout.CENTER);
-                }else {
-                    equipos = new JComboBox<>();
-                    JPanel panelCombo = new JPanel();
-                    panelCombo.add(equipos);
-                    tarjeta.add(panelCombo, BorderLayout.CENTER);
-                }
-                arbitro++;
-            }
-            if (!textos[i].equalsIgnoreCase("Equipo local") && !textos[i].equalsIgnoreCase("Equipo visitante")  && !textos[i].equalsIgnoreCase("Arbitro 1") && !textos[i].equalsIgnoreCase("Arbitro 2")) {
-                JTextField campo = new JTextField();
+        String[] campos = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
 
-                campos[i] = campo.getText();
-
-                tarjeta.add(label, BorderLayout.NORTH);
-                tarjeta.add(campo, BorderLayout.CENTER);
-            }
-            panel.add(tarjeta, "card" + i);
+        for (int i = 0; i < campos.length; i++) {
+            panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
+            panel.add(new JTextField(15), configurarConstraints(1, i));
         }
 
-        JButton boton = new JButton("Siguiente");
+        JButton boton = new JButton("Guardar");
+        GridBagConstraints gbc = configurarConstraints(1, campos.length);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(boton, gbc);
 
-        boton.addActionListener(new ActionListener() {
-            int indice = 0;
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+    public static void ventanaEquipos() {
+        JFrame frame = new JFrame("Añadir Equipo");
+        frame.setSize(400, 300);
+        frame.setLocationRelativeTo(null);
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        JPanel panel = new JPanel(new GridBagLayout());
 
-                if (indice < textos.length - 1) {
-                    indice++;
-                    cardLayout.next(panel);
+        String[] campos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
 
-                    // Si estamos en la última tarjeta, cambiamos el texto del botón
-                    if (indice == textos.length - 1) {
-                        boton.setText("Guardar");
-                    }
-                } else {
-                    // Recoger datos
-                    System.out.println("Datos introducidos:");
-                    for (int i = 0; i < campos.length; i++) {
-                        System.out.println(textos[i] + ": " + campos[i]);
-                    }
+        for (int i = 0; i < campos.length; i++) {
+            panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
+            panel.add(new JTextField(15), configurarConstraints(1, i));
+        }
 
-                    ventana.dispose(); // cerrar solo esta ventana
-                }
+        JButton boton = new JButton("Guardar");
+        GridBagConstraints gbc = configurarConstraints(1, campos.length);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(boton, gbc);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+    public static void ventanaPartidos(String[] equipos, String[] arbitros) {
+        JFrame frame = new JFrame("Añadir Partido");
+        frame.setSize(500, 400);
+        frame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        String[] camposTexto = {"Fecha", "Hora", "Resultado local", "Resultado visitante"};
+
+        for (int i = 0; i < camposTexto.length; i++) {
+            panel.add(new JLabel(camposTexto[i] + ":"), configurarConstraints(0, i));
+            panel.add(new JTextField(15), configurarConstraints(1, i));
+        }
+        int fila = camposTexto.length;
+
+        panel.add(new JLabel("Equipo local:"), configurarConstraints(0, fila));
+        panel.add(new JComboBox<>(equipos), configurarConstraints(1, fila++));
+
+        panel.add(new JLabel("Equipo visitante:"), configurarConstraints(0, fila));
+        panel.add(new JComboBox<>(equipos), configurarConstraints(1, fila++));
+
+        panel.add(new JLabel("Árbitro 1:"), configurarConstraints(0, fila));
+        panel.add(new JComboBox<>(arbitros), configurarConstraints(1, fila++));
+
+        panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
+        panel.add(new JComboBox<>(arbitros), configurarConstraints(1, fila++));
+
+        JButton boton = new JButton("Guardar");
+        GridBagConstraints gbc = configurarConstraints(1, fila);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(boton, gbc);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+    public static void ventanaPatrocinador() {
+        JFrame frame = new JFrame("Añadir Patrocinador");
+        frame.setSize(400, 250);
+        frame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        String[] campos = {"Nombre", "Telefono", "Email"};
+
+        for (int i = 0; i < campos.length; i++) {
+            panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
+            panel.add(new JTextField(15), configurarConstraints(1, i));
+        }
+
+        JButton boton = new JButton("Guardar");
+        GridBagConstraints gbc = configurarConstraints(1, campos.length);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(boton, gbc);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+    public static void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
+        JFrame frame = new JFrame("Asignar Patrocinio");
+        frame.setSize(400, 200);
+        frame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        panel.add(new JLabel("Patrocinador:"), configurarConstraints(0, 0));
+        panel.add(new JComboBox<>(patrocinadores), configurarConstraints(1, 0));
+
+        panel.add(new JLabel("Equipo:"), configurarConstraints(0, 1));
+        panel.add(new JComboBox<>(equipos), configurarConstraints(1, 1));
+
+        JButton boton = new JButton("Guardar");
+        GridBagConstraints gbc = configurarConstraints(1, 2);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(boton, gbc);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+    public void ventanaCambioPassword() {
+        JFrame frame = new JFrame("Cambiar contraseña");
+        frame.setSize(350, 200);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        JLabel texto = new JLabel("Contraseña antigua:");
+        javax.swing.JPasswordField contrasenaAntigua = new JPasswordField(15);
+        panel.add(texto, configurarConstraints(0, 0));
+
+        JPasswordField contrasenaNueva = new JPasswordField(15);
+        panel.add(new JLabel("Contraseña nueva:"), configurarConstraints(0, 1));
+        panel.add(contrasenaNueva, configurarConstraints(1, 1));
+        panel.add(contrasenaAntigua, configurarConstraints(1, 0));
+
+        ActionListener accion = e -> {
+            String password = new String(contrasenaAntigua.getPassword());
+            String nueva = new String(contrasenaNueva.getPassword());
+            Regex comprobacion = new Regex();
+            if (comprobacion.cambiarContrasena(password, nueva)) {
+                mensaje("La contraseña se ha cambiado correctamente");
+                frame.dispose();
+                ventanaDeLogeo();
+            }else {
+                mensaje("Contraseña Incorrecta");
             }
-        });
 
-        ventana.add(panel, BorderLayout.CENTER);
-        ventana.add(boton, BorderLayout.SOUTH);
-        ventana.setVisible(true);
+        };
+
+        // Botón (solo visual)
+        GridBagConstraints gbcBoton = configurarConstraints(1, 2);
+        gbcBoton.anchor = GridBagConstraints.CENTER;
+        JButton confirmar = new JButton("Aceptar");
+        panel.add(confirmar, gbcBoton);
+
+        frame.add(panel);
+        frame.setVisible(true);
+        confirmar.addActionListener(accion);
     }
 
     public void ventanaDeLogeo(){
@@ -145,21 +226,29 @@ public class GUI {
         ActionListener accion = e -> {
             String password = new String(usuario.getPassword());
             Regex comprobacion = new Regex();
-            GUI cambio = new GUI();
             if (comprobacion.verificacionInicioSesion(password)) {
-                cambio.paginaPrincipal();
+                paginaPrincipal();
                 inicio.setVisible(false);
             }else {
-                cambio.mensaje("Contraseña Incorrecta");
+                mensaje("Contraseña Incorrecta");
             }
 
         };
+        ActionListener accion2 = e -> {
+            ventanaCambioPassword();
+            inicio.setVisible(false);
+        };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        JButton cambiar = new JButton("Cambiar contraseña");
+        JPanel cContrasena = new JPanel();
+        cContrasena.add(cambiar);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(contrasena, BorderLayout.CENTER);
+        inicio.add(cContrasena, BorderLayout.SOUTH);
         inicio.setVisible(true);
         usuario.addActionListener(accion);
+        cambiar.addActionListener(accion2);
     }
     public void paginaPrincipal(){
         JFrame fondo = new JFrame("Basket League");
@@ -225,20 +314,23 @@ public class GUI {
         patrocinadores.addActionListener(listaPatrocinador);
 
         ActionListener anade = e -> {
+            ControladorEquipos eq = new ControladorEquipos();
             if (nTabla == tablaArbitro) {
-                ventanaAnadir(camposArbitro);
+                ventanaArbitro();
             }
             if (nTabla == tablaEquipos) {
-                ventanaAnadir(camposEquipos);
+                ventanaEquipos();
             }
             if (nTabla == tablaPartidos) {
-                ventanaAnadir(camposPartidos);
+                ControladorArbitro ar = new ControladorArbitro();
+                ventanaPartidos(eq.mostrarNombreEquipos(), ar.mostrarNombreArbitro());
             }
             if (nTabla == tablaPatrocinador) {
-                ventanaAnadir(camposPatrocinador);
+                ControladorPatrocinador pa = new ControladorPatrocinador();
+                ventanaPatrocinios(pa.mostrarNombrePatrocinador(), eq.mostrarNombreEquipos());
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaAnadir(camposPatrocinios);
+                ventanaPatrocinador();
             }
 
         };

@@ -5,6 +5,8 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorArbitro {
 
@@ -93,6 +95,25 @@ public class ControladorArbitro {
             return false;
         }catch (SQLException ex){
             throw new RuntimeException(ex);
+        }
+    }
+    public String[] mostrarNombreArbitro(){
+        String sql = "SELECT nombreCompleto FROM arbitro";
+        try {
+            List<String> arbitro = new ArrayList<>();
+            Conexion c = new Conexion();
+            Statement statement = c.realizarConexion().createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                arbitro.add(resultSet.getString("nombreCompleto"));
+            }
+            String[] devolver = new String[arbitro.size()];
+            for (int i = 0; i < devolver.length; i++) {
+                devolver[i] = arbitro.get(i);
+            }
+            return devolver;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

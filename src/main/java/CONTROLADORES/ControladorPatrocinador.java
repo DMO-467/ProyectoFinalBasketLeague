@@ -5,6 +5,8 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorPatrocinador {
 
@@ -61,6 +63,25 @@ public class ControladorPatrocinador {
             return false;
         }catch (SQLException ex){
             throw new RuntimeException(ex);
+        }
+    }
+    public String[] mostrarNombrePatrocinador(){
+        String sql = "SELECT nombre_patrocinador FROM patrocinador";
+        try {
+            List<String> patrocinador = new ArrayList<>();
+            Conexion c = new Conexion();
+            Statement statement = c.realizarConexion().createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                patrocinador.add(resultSet.getString("nombre_patrocinador"));
+            }
+            String[] devolver = new String[patrocinador.size()];
+            for (int i = 0; i < devolver.length; i++) {
+                devolver[i] = patrocinador.get(i);
+            }
+            return devolver;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
