@@ -1,18 +1,26 @@
 package MODELOS;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Arbitro {
     private int id_arbitro;
     private String nombreCompleto;
-    private Date fecha_nacimiento;
+    private LocalDate fecha_nacimiento;
     private int partidos_arbitrados;
     private int anos_experiencia;
 
     public Arbitro() {
     }
 
-    public Arbitro(int id_arbitro, String nombreCompleto, Date fecha_nacimiento, int partidos_arbitrados, int anos_experiencia) {
+    public Arbitro(String nombreCompleto, LocalDate fecha_nacimiento, int partidos_arbitrados, int anos_experiencia) {
+        this.nombreCompleto = nombreCompleto;
+        this.fecha_nacimiento = fecha_nacimiento;
+        this.partidos_arbitrados = partidos_arbitrados;
+        this.anos_experiencia = anos_experiencia;
+    }
+
+    public Arbitro(int id_arbitro, String nombreCompleto, LocalDate fecha_nacimiento, int partidos_arbitrados, int anos_experiencia) {
         this.id_arbitro = id_arbitro;
         this.nombreCompleto = nombreCompleto;
         this.fecha_nacimiento = fecha_nacimiento;
@@ -36,11 +44,11 @@ public class Arbitro {
         this.nombreCompleto = nombreCompleto;
     }
 
-    public Date getFecha_nacimiento() {
+    public LocalDate getFecha_nacimiento() {
         return fecha_nacimiento;
     }
 
-    public void setFecha_nacimiento(Date fecha_nacimiento) {
+    public void setFecha_nacimiento(LocalDate fecha_nacimiento) {
         this.fecha_nacimiento = fecha_nacimiento;
     }
 

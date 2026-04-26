@@ -9,6 +9,12 @@ public class Patrocinador {
     public Patrocinador() {
     }
 
+    public Patrocinador(String nombre_patrocinador, int telefono, String email) {
+        this.nombre_patrocinador = nombre_patrocinador;
+        this.telefono = telefono;
+        this.email = email;
+    }
+
     public Patrocinador(int id_patrocinador, String nombre_patrocinador, int telefono, String email) {
         this.id_patrocinador = id_patrocinador;
         this.nombre_patrocinador = nombre_patrocinador;

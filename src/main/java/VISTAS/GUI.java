@@ -1,11 +1,13 @@
 package VISTAS;
 import CONTROLADORES.*;
+import MODELOS.Arbitro;
 import OTROS.Regex;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -46,6 +48,26 @@ public class GUI {
             start();
         }};
     }
+    public void mensaje(String dato) {
+        final JDialog dialog = new JDialog();
+        dialog.setTitle("Aviso");
+
+        int ancho = reglaDeTres(dato.length(), 200, 21);
+        dialog.setSize(ancho, 100);
+        dialog.setLayout(new BorderLayout());
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JLabel label = new JLabel(dato, SwingConstants.CENTER);
+        dialog.add(label, BorderLayout.CENTER);
+
+        dialog.setLocationRelativeTo(null);
+
+        dialog.setModal(true);
+
+        dialog.setVisible(true);
+    }
+
     public static void ventanaArbitro() {
         JFrame frame = new JFrame("Añadir Árbitro");
         frame.setSize(400, 300);
@@ -67,13 +89,35 @@ public class GUI {
         ActionListener guardado = e -> {
             String nombreCompleto = nombre.getText();
             String fechaNacimiento = fecha.getText();
-            Date.parse(fechaNacimiento);
-            int partidosArbitrados = Integer.parseInt(partidos.getText());
-            int anosExperiencia = Integer.parseInt(anos.getText());
-            ControladorArbitro anadir = new ControladorArbitro();
-            if (anadir.anadirArbitro()) {
-                GUI g = new GUI();
-                g.mensaje("Fila añadida", 800);
+            String partidosArbitrados = partidos.getText();
+            String anosExperiencia = anos.getText();
+            Regex comprobacion = new Regex();
+            GUI g = new GUI();
+            if (comprobacion.comprobarTexto(nombreCompleto)) {
+                if (comprobacion.comprobarFecha(fechaNacimiento)) {
+                    LocalDate fechaNacimientoParseada = comprobacion.textoFecha(fechaNacimiento);
+                    if (comprobacion.comprobarNumero(partidosArbitrados)) {
+                        int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
+                        if (comprobacion.comprobarNumero(anosExperiencia)) {
+                            int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
+                            Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada, partidosArbitradosNumero, anosExperienciaNumero);
+                            ControladorArbitro anadir = new ControladorArbitro();
+                            if (anadir.anadirArbitro(arbitro)) {
+                                g.mensaje("Fila añadida", 800);
+                            }else {
+                                g.mensaje("ERROR, valor no valido");
+                            }
+                        }else {
+                            g.mensaje("ERROR, años de experiencia no validos");
+                        }
+                    }else {
+                        g.mensaje("ERROR, partidos arbitrados no valido");
+                    }
+                }else {
+                    g.mensaje("ERROR, fecha no valida");
+                }
+            }else {
+                g.mensaje("ERROR, nombre no valido");
             }
         };
 
@@ -84,6 +128,7 @@ public class GUI {
 
         frame.add(panel);
         frame.setVisible(true);
+        boton.addActionListener(guardado);
     }
     public static void ventanaEquipos() {
         JFrame frame = new JFrame("Añadir Equipo");
@@ -207,7 +252,7 @@ public class GUI {
             String nueva = new String(contrasenaNueva.getPassword());
             Regex comprobacion = new Regex();
             if (comprobacion.cambiarContrasena(password, nueva)) {
-                mensaje("La contraseña se ha cambiado correctamente", 100000000);
+                mensaje("La contraseña se ha cambiado correctamente");
                 frame.dispose();
                 ventanaDeLogeo();
             }else {

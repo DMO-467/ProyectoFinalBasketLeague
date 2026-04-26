@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class Regex {
@@ -52,23 +55,38 @@ public class Regex {
 
     public boolean comprobarTelefono(int telefono){
         String filtro = "(679)\\d{8}|(679)\\d{11}";
-        boolean esValido = Pattern.matches(filtro, String.valueOf(telefono));
-        return esValido;
+        return Pattern.matches(filtro, String.valueOf(telefono));
+
     }
     public boolean comprobarEmail(String email){
         String filtro = "\\w+@\\w+\\.[a-z]{2,3}";
-        boolean esValido = Pattern.matches(filtro, email);
-        return esValido;
+        return Pattern.matches(filtro, email);
     }
     public boolean comprobarFecha(String fecha){
-        DateTimeFormatter filtro = DateTimeFormatter.ofLocalizedDate("dd/mm/yyyy");
+        try {
+            DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
+            if (fechaConvertida.isBefore(LocalDate.now())) {
+                return true;
+            }
+            return false;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public LocalDate textoFecha(String texto){
+        DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return LocalDate.parse(texto, filtro);
     }
 
     public boolean comprobarNumero(String numero){
-
+        String filtro = "\\d+";
+        return Pattern.matches(filtro, numero);
     }
-    public boolean comprobarTexto(){
-
+    public boolean comprobarTexto(String texto){
+        String filtro = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";
+        return Pattern.matches(filtro,texto);
     }
 
 }

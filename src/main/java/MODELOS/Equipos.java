@@ -10,6 +10,13 @@ public class Equipos {
     public Equipos() {
     }
 
+    public Equipos(String nombre_equipo, int partidos_perdidos, int partidos_ganados, int trofeos_liga) {
+        this.nombre_equipo = nombre_equipo;
+        this.partidos_perdidos = partidos_perdidos;
+        this.partidos_ganados = partidos_ganados;
+        this.trofeos_liga = trofeos_liga;
+    }
+
     public Equipos(int id_equipo, String nombre_equipo, int partidos_perdidos, int partidos_ganados, int trofeos_liga) {
         this.id_equipo = id_equipo;
         this.nombre_equipo = nombre_equipo;

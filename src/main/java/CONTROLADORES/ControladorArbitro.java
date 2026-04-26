@@ -5,6 +5,7 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class ControladorArbitro {
             Conexion c = new Conexion();
             PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, arbitro.getNombreCompleto());
-            preparedStatement.setDate(2, (Date) arbitro.getFecha_nacimiento());
+            preparedStatement.setDate(2, Date.valueOf(arbitro.getFecha_nacimiento()));
             preparedStatement.setInt(3, arbitro.getPartidos_arbitrados());
             preparedStatement.setInt(4, arbitro.getAnos_experiencia());
             int rowsAffected = preparedStatement.executeUpdate();
