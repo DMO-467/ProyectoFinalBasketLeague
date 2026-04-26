@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 
 public class GUI {
@@ -16,10 +17,8 @@ public class GUI {
     int tablaPatrocinador = 4;
     int tablaPatrocinios = 5;
 
-    private static int reglaDeTres(int n){
-        int uno = 21;
-        int uno2 = 200;
-        return n*uno2/uno;
+    private static int reglaDeTres(int n, int a, int b){
+        return n*a/b;
     }
     private static GridBagConstraints configurarConstraints(int x, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -30,9 +29,9 @@ public class GUI {
         return gbc;
     }
 
-    public void mensaje(String dato){
+    public void mensaje(String dato, int tiempo){
         final JDialog dialog = new JDialog();
-        int ancho = reglaDeTres(dato.length());
+        int ancho = reglaDeTres(dato.length(), 200, 21);
         dialog.setSize(ancho, 100);
         dialog.setLayout(new BorderLayout());
 
@@ -42,7 +41,7 @@ public class GUI {
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
 
-        new javax.swing.Timer(1500, e -> dialog.dispose()) {{
+        new javax.swing.Timer(tiempo, e -> dialog.dispose()) {{
             setRepeats(false);
             start();
         }};
@@ -55,11 +54,28 @@ public class GUI {
         JPanel panel = new JPanel(new GridBagLayout());
 
         String[] campos = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
-
+        int columnas = 15;
+        JTextField nombre = new JTextField(columnas);
+        JTextField fecha = new JTextField(columnas);
+        JTextField partidos = new JTextField(columnas);
+        JTextField anos = new JTextField(columnas);
+        JTextField[] textos = {nombre, fecha, partidos, anos};
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
-            panel.add(new JTextField(15), configurarConstraints(1, i));
+            panel.add(textos[i], configurarConstraints(1, i));
         }
+        ActionListener guardado = e -> {
+            String nombreCompleto = nombre.getText();
+            String fechaNacimiento = fecha.getText();
+            Date.parse(fechaNacimiento);
+            int partidosArbitrados = Integer.parseInt(partidos.getText());
+            int anosExperiencia = Integer.parseInt(anos.getText());
+            ControladorArbitro anadir = new ControladorArbitro();
+            if (anadir.anadirArbitro()) {
+                GUI g = new GUI();
+                g.mensaje("Fila añadida", 800);
+            }
+        };
 
         JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
@@ -191,16 +207,15 @@ public class GUI {
             String nueva = new String(contrasenaNueva.getPassword());
             Regex comprobacion = new Regex();
             if (comprobacion.cambiarContrasena(password, nueva)) {
-                mensaje("La contraseña se ha cambiado correctamente");
+                mensaje("La contraseña se ha cambiado correctamente", 100000000);
                 frame.dispose();
                 ventanaDeLogeo();
             }else {
-                mensaje("Contraseña Incorrecta");
+                mensaje("Contraseña Incorrecta", 500);
             }
 
         };
 
-        // Botón (solo visual)
         GridBagConstraints gbcBoton = configurarConstraints(1, 2);
         gbcBoton.anchor = GridBagConstraints.CENTER;
         JButton confirmar = new JButton("Aceptar");
@@ -230,7 +245,7 @@ public class GUI {
                 paginaPrincipal();
                 inicio.setVisible(false);
             }else {
-                mensaje("Contraseña Incorrecta");
+                mensaje("Contraseña Incorrecta", 500);
             }
 
         };
