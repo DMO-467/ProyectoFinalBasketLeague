@@ -85,5 +85,9 @@ public class ControladorPatrocinador {
         }
     }
 
+    public boolean ExistePatrocinador(){
+
+    }
+
 
 }

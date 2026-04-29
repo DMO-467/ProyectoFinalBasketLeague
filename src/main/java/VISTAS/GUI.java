@@ -1,6 +1,8 @@
 package VISTAS;
 import CONTROLADORES.*;
 import MODELOS.Arbitro;
+import MODELOS.Patrocinador;
+import MODELOS.Patrocinios;
 import OTROS.Regex;
 
 import javax.swing.*;
@@ -190,12 +192,15 @@ public class GUI {
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-
+        JTextField nombre = new JTextField(15);
+        JTextField telefono = new JTextField(15);
+        JTextField email = new JTextField(15);
+        JTextField[] jTextFields = {nombre, telefono, email};
         String[] campos = {"Nombre", "Telefono", "Email"};
 
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
-            panel.add(new JTextField(15), configurarConstraints(1, i));
+            panel.add(jTextFields[i], configurarConstraints(1, i));
         }
 
         JButton boton = new JButton("Guardar");
@@ -203,8 +208,37 @@ public class GUI {
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
 
+        ActionListener accion = e -> {
+            Regex filtros = new Regex();
+            ControladorPatrocinador anadir = new ControladorPatrocinador();
+            GUI g = new GUI();
+            String nombrePatrocinador = nombre.getText();
+            String telefonoPatrocinador = telefono.getText();
+            String emailPatrocinador = email.getText();
+            if (filtros.comprobarTexto(nombrePatrocinador)) {
+                if (filtros.comprobarTelefono(telefonoPatrocinador)) {
+                    int numeroTelefonico = Integer.parseInt(telefonoPatrocinador);
+                    if (filtros.comprobarEmail(emailPatrocinador)) {
+                        Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
+                        if (anadir.anadirPatrocinador(p)) {
+                            g.mensaje("Fila añadida correctamente");
+                        }else {
+                            g.mensaje("No se ha podido añadir la fila");
+                        }
+                    }else {
+                        g.mensaje("ERROR, email no valido");
+                    }
+                }else {
+                    g.mensaje("ERROR, telefono no valido");
+                }
+            }else {
+                g.mensaje("ERROR, nombre no valido");
+            }
+        };
+
         frame.add(panel);
         frame.setVisible(true);
+        boton.addActionListener(accion);
     }
     public static void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
         JFrame frame = new JFrame("Asignar Patrocinio");
@@ -212,20 +246,39 @@ public class GUI {
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-
+        JComboBox<String> cPatrocinadores = new JComboBox<>();
         panel.add(new JLabel("Patrocinador:"), configurarConstraints(0, 0));
-        panel.add(new JComboBox<>(patrocinadores), configurarConstraints(1, 0));
+        panel.add(cPatrocinadores, configurarConstraints(1, 0));
 
+        JComboBox<String> cEquipos = new JComboBox<>();
         panel.add(new JLabel("Equipo:"), configurarConstraints(0, 1));
-        panel.add(new JComboBox<>(equipos), configurarConstraints(1, 1));
+        panel.add(cEquipos, configurarConstraints(1, 1));
 
         JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, 2);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
 
+        String[] seleccionados = new String[2];
+        int[] ides = new int[2];
+        ActionListener accion = e -> {
+            ControladorPatrocinios anadir = new ControladorPatrocinios();
+            seleccionados[0] = (String) cPatrocinadores.getSelectedItem();
+            seleccionados[1] = (String) cEquipos.getSelectedItem();
+            ides[0] = anadir.localizarIdPatrocinador(seleccionados[0]);
+            ides[1] = anadir.localizarIdEquipo(seleccionados[1]);
+            Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
+            GUI g = new GUI();
+            if (anadir.anadirPatrocinio(patrocinios)) {
+                g.mensaje("Fila añadida correctamente");
+            }else {
+                g.mensaje("No se ha podido añadir la fila");
+            }
+        };
+
         frame.add(panel);
         frame.setVisible(true);
+        boton.addActionListener(accion);
     }
     public void ventanaCambioPassword() {
         JFrame frame = new JFrame("Cambiar contraseña");

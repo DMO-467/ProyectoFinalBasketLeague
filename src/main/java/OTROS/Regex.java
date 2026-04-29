@@ -53,7 +53,7 @@ public class Regex {
         }
     }
 
-    public boolean comprobarTelefono(int telefono){
+    public boolean comprobarTelefono(String telefono){
         String filtro = "(679)\\d{8}|(679)\\d{11}";
         return Pattern.matches(filtro, String.valueOf(telefono));
 
