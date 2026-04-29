@@ -85,8 +85,22 @@ public class ControladorPatrocinador {
         }
     }
 
-    public boolean ExistePatrocinador(){
-
+    public boolean ExistePatrocinador(Patrocinador patrocinador){
+        String sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
+            preparedStatement.setInt(2, patrocinador.getTelefono());
+            preparedStatement.setString(3, patrocinador.getEmail());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            return false;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
 

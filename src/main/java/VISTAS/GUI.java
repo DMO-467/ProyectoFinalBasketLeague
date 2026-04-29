@@ -1,6 +1,7 @@
 package VISTAS;
 import CONTROLADORES.*;
 import MODELOS.Arbitro;
+import MODELOS.Equipos;
 import MODELOS.Patrocinador;
 import MODELOS.Patrocinios;
 import OTROS.Regex;
@@ -15,8 +16,8 @@ public class GUI {
     int nTabla = tablaPartidos;
     int tablaArbitro = 1;
     int tablaEquipos = 2;
-    int tablaPatrocinador = 4;
-    int tablaPatrocinios = 5;
+    int tablaPatrocinador = 5;
+    int tablaPatrocinios = 4;
 
     private static int reglaDeTres(int n, int a, int b){
         return n*a/b;
@@ -136,11 +137,17 @@ public class GUI {
 
         JPanel panel = new JPanel(new GridBagLayout());
 
+        JTextField nombre = new JTextField(15);
+        JTextField partidosPerdidos = new JTextField(15);
+        JTextField partidosGanados = new JTextField(15);
+        JTextField trofeosLiga = new JTextField(15);
+        JTextField[] valores = {nombre, partidosPerdidos, partidosGanados, trofeosLiga};
+
         String[] campos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
 
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
-            panel.add(new JTextField(15), configurarConstraints(1, i));
+            panel.add(valores[i], configurarConstraints(1, i));
         }
 
         JButton boton = new JButton("Guardar");
@@ -148,8 +155,48 @@ public class GUI {
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
 
+        ActionListener accion = e -> {
+          String nombreEquipo = nombre.getText();
+          String partidosPerdidosValor = partidosPerdidos.getText();
+          String partidosGanadosValor = partidosGanados.getText();
+          String trofeosLigaValor = trofeosLiga.getText();
+          ControladorEquipos comprobaciones = new ControladorEquipos();
+          Regex filtros = new Regex();
+          GUI g = new GUI();
+          if (filtros.comprobarTexto(nombreEquipo)) {
+              if (filtros.comprobarNumero(partidosPerdidosValor)) {
+                  int partidosPerdidosFiltrado = Integer.parseInt(partidosPerdidosValor);
+                  if (filtros.comprobarNumero(partidosGanadosValor)) {
+                      int partidosGanadosFiltrado = Integer.parseInt(partidosGanadosValor);
+                      if (filtros.comprobarNumero(trofeosLigaValor)) {
+                          int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
+                          Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
+                          if (comprobaciones.existeNombre(nombreEquipo)) {
+                              g.mensaje("Este equipo ya existe");
+                          }else {
+                              if (comprobaciones.anadirEquipo(equipo)) {
+                                  g.mensaje("Se ha añadido correctamente");
+                              }else {
+                                  g.mensaje("No se ha podido añadir el equipo");
+                              }
+                          }
+                      }else {
+                          g.mensaje("ERROR trofeos liga, solo se valen numeros");
+                      }
+                  }else {
+                    g.mensaje("ERROR en partidos ganados, solo se valen numeros");
+                  }
+              }else {
+                  g.mensaje("ERROR en partidos perdidos, solo se valen numeros");
+              }
+          }else {
+             g.mensaje("ERROR nombre no valido, Solo se valen letras y cada palabra empieza con una mayuscula");
+          }
+        };
+
         frame.add(panel);
         frame.setVisible(true);
+        boton.addActionListener(accion);
     }
     public static void ventanaPartidos(String[] equipos, String[] arbitros) {
         JFrame frame = new JFrame("Añadir Partido");
@@ -159,24 +206,37 @@ public class GUI {
         JPanel panel = new JPanel(new GridBagLayout());
 
         String[] camposTexto = {"Fecha", "Hora", "Resultado local", "Resultado visitante"};
+        JTextField fecha = new JTextField(15);
+        JTextField hora = new JTextField(15);
+        JTextField resultadoLocal = new JTextField(15);
+        JTextField resultadoVisitante = new JTextField(15);
+        JTextField[] valores = {fecha, hora, resultadoLocal, resultadoVisitante};
 
         for (int i = 0; i < camposTexto.length; i++) {
             panel.add(new JLabel(camposTexto[i] + ":"), configurarConstraints(0, i));
-            panel.add(new JTextField(15), configurarConstraints(1, i));
+            panel.add(valores[i], configurarConstraints(1, i));
         }
         int fila = camposTexto.length;
 
+        JComboBox<String> cEquipoLocal = new JComboBox<>(equipos);
+
         panel.add(new JLabel("Equipo local:"), configurarConstraints(0, fila));
-        panel.add(new JComboBox<>(equipos), configurarConstraints(1, fila++));
+        panel.add(cEquipoLocal, configurarConstraints(1, fila++));
+
+        JComboBox<String> cEquipoVisitante = new JComboBox<>(equipos);
 
         panel.add(new JLabel("Equipo visitante:"), configurarConstraints(0, fila));
-        panel.add(new JComboBox<>(equipos), configurarConstraints(1, fila++));
+        panel.add(cEquipoVisitante, configurarConstraints(1, fila++));
+
+        JComboBox<String> cArbitro1 = new JComboBox<>(arbitros);
 
         panel.add(new JLabel("Árbitro 1:"), configurarConstraints(0, fila));
-        panel.add(new JComboBox<>(arbitros), configurarConstraints(1, fila++));
+        panel.add(cArbitro1, configurarConstraints(1, fila++));
+
+        JComboBox<String> cArbitro2 = new JComboBox<>(arbitros);
 
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
-        panel.add(new JComboBox<>(arbitros), configurarConstraints(1, fila++));
+        panel.add(cArbitro2, configurarConstraints(1, fila++));
 
         JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, fila);
@@ -220,19 +280,23 @@ public class GUI {
                     int numeroTelefonico = Integer.parseInt(telefonoPatrocinador);
                     if (filtros.comprobarEmail(emailPatrocinador)) {
                         Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
-                        if (anadir.anadirPatrocinador(p)) {
-                            g.mensaje("Fila añadida correctamente");
+                        if (anadir.ExistePatrocinador(p)) {
+                            g.mensaje("Este patrocinador ya existe");
                         }else {
-                            g.mensaje("No se ha podido añadir la fila");
+                            if (anadir.anadirPatrocinador(p)) {
+                                g.mensaje("Fila añadida correctamente");
+                            }else {
+                                g.mensaje("No se ha podido añadir la fila");
+                            }
                         }
                     }else {
-                        g.mensaje("ERROR, email no valido");
+                        g.mensaje("ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
                 }else {
-                    g.mensaje("ERROR, telefono no valido");
+                    g.mensaje("ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje("ERROR, nombre no valido");
+                g.mensaje("ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
             }
         };
 
@@ -246,11 +310,11 @@ public class GUI {
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        JComboBox<String> cPatrocinadores = new JComboBox<>();
+        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
         panel.add(new JLabel("Patrocinador:"), configurarConstraints(0, 0));
         panel.add(cPatrocinadores, configurarConstraints(1, 0));
 
-        JComboBox<String> cEquipos = new JComboBox<>();
+        JComboBox<String> cEquipos = new JComboBox<>(equipos);
         panel.add(new JLabel("Equipo:"), configurarConstraints(0, 1));
         panel.add(cEquipos, configurarConstraints(1, 1));
 
@@ -269,10 +333,14 @@ public class GUI {
             ides[1] = anadir.localizarIdEquipo(seleccionados[1]);
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
             GUI g = new GUI();
-            if (anadir.anadirPatrocinio(patrocinios)) {
-                g.mensaje("Fila añadida correctamente");
+            if (anadir.existePatrocinio(patrocinios)) {
+                g.mensaje("Este patrocinio ya existe");
             }else {
-                g.mensaje("No se ha podido añadir la fila");
+                if (anadir.anadirPatrocinio(patrocinios)) {
+                    g.mensaje("Fila añadida correctamente");
+                }else {
+                    g.mensaje("No se ha podido añadir la fila");
+                }
             }
         };
 
@@ -411,13 +479,13 @@ public class GUI {
         };
         partidos.addActionListener(listaPartidos);
         ActionListener listaPatrocinios = e -> {
-            nTabla = tablaPatrocinador;
+            nTabla = tablaPatrocinios;
             ControladorPatrocinios mostrar = new ControladorPatrocinios();
             tabla.setModel(mostrar.mostrarPatrocinios());
         };
         patrocinios.addActionListener(listaPatrocinios);
         ActionListener listaPatrocinador = e -> {
-            nTabla = tablaPatrocinios;
+            nTabla = tablaPatrocinador;
             ControladorPatrocinador mostrar = new ControladorPatrocinador();
             tabla.setModel(mostrar.mostrarPatrocinador());
         };
@@ -436,11 +504,12 @@ public class GUI {
                 ventanaPartidos(eq.mostrarNombreEquipos(), ar.mostrarNombreArbitro());
             }
             if (nTabla == tablaPatrocinador) {
-                ControladorPatrocinador pa = new ControladorPatrocinador();
-                ventanaPatrocinios(pa.mostrarNombrePatrocinador(), eq.mostrarNombreEquipos());
+
+                ventanaPatrocinador();
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaPatrocinador();
+                ControladorPatrocinador pa = new ControladorPatrocinador();
+                ventanaPatrocinios(pa.mostrarNombrePatrocinador(), eq.mostrarNombreEquipos());
             }
 
         };

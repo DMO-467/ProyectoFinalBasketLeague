@@ -2,6 +2,7 @@ package CONTROLADORES;
 
 import MODELOS.Patrocinios;
 import OTROS.Conexion;
+import OTROS.Regex;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
@@ -17,8 +18,8 @@ public class ControladorPatrocinios {
             Statement statement = c.realizarConexion().createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
-                String patrocinador = resultSet.getString("nombre_patrocinador");
-                String equipo = resultSet.getString("nombre_equipo");
+                String patrocinador = resultSet.getString("patrocinador");
+                String equipo = resultSet.getString("equipo");
                 Object[] fila = {patrocinador, equipo};
                 modelo.addRow(fila);
             }
@@ -91,5 +92,22 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public boolean existePatrocinio(Patrocinios patrocinios){
+        String sql = "SELECT * FROM patrocinios WHERE id_patrocinador = ? AND id_equipo = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, patrocinios.getId_patrocinador());
+            preparedStatement.setInt(2, patrocinios.getId_equipo());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            return false;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 }
