@@ -1,15 +1,14 @@
 package VISTAS;
 import CONTROLADORES.*;
-import MODELOS.Arbitro;
-import MODELOS.Equipos;
-import MODELOS.Patrocinador;
-import MODELOS.Patrocinios;
+import MODELOS.*;
 import OTROS.Regex;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.sql.Time;
 import java.time.LocalDate;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GUI {
     int tablaPartidos = 3;
@@ -18,6 +17,7 @@ public class GUI {
     int tablaEquipos = 2;
     int tablaPatrocinador = 5;
     int tablaPatrocinios = 4;
+    int mensajeDeAcierto = 800;
 
     private static int reglaDeTres(int n, int a, int b){
         return n*a/b;
@@ -103,9 +103,9 @@ public class GUI {
                             Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada, partidosArbitradosNumero, anosExperienciaNumero);
                             ControladorArbitro anadir = new ControladorArbitro();
                             if (anadir.anadirArbitro(arbitro)) {
-                                g.mensaje("Fila añadida", 800);
+                                g.mensaje("Fila añadida", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("ERROR, valor no valido");
+                                g.mensaje("ERROR, no se ha podido añadir el arbitro");
                             }
                         }else {
                             g.mensaje("ERROR, años de experiencia no validos");
@@ -175,7 +175,7 @@ public class GUI {
                               g.mensaje("Este equipo ya existe");
                           }else {
                               if (comprobaciones.anadirEquipo(equipo)) {
-                                  g.mensaje("Se ha añadido correctamente");
+                                  g.mensaje("Se ha añadido correctamente", g.mensajeDeAcierto);
                               }else {
                                   g.mensaje("No se ha podido añadir el equipo");
                               }
@@ -238,6 +238,58 @@ public class GUI {
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
 
+        ActionListener accion = e -> {
+            Regex filtros = new Regex();
+            ControladorPartidos comprobaciones = new ControladorPartidos();
+            GUI interfaz = new GUI();
+            ControladorEquipos controladorEquipos = new ControladorEquipos();
+            ControladorArbitro controladorArbitro = new ControladorArbitro();
+            String fechaPartido = fecha.getText();
+            String horaPartido = hora.getText();
+            String resultadoLocalPartido = resultadoLocal.getText();
+            String resultadoVisitantePartido = resultadoVisitante.getText();
+            String equipoLocalPartido = (String) cEquipoLocal.getSelectedItem();
+            String equipoVisitantePartido = (String) cEquipoVisitante.getSelectedItem();
+            String arbitro1Partido = (String) cArbitro1.getSelectedItem();
+            String arbitro2Partido = (String) cArbitro2.getSelectedItem();
+            if (filtros.comprobarFechaPartido(fechaPartido)) {
+                LocalDate fechaPartidoParseada = filtros.textoFecha(fechaPartido);
+                if (filtros.comprobarHora(horaPartido)) {
+                    horaPartido = horaPartido + ":00";
+                    Time horaPartidoParseado = Time.valueOf(horaPartido);
+                    if (filtros.comprobarNumero(resultadoLocalPartido)) {
+                        int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
+                        if (filtros.comprobarNumero(resultadoVisitantePartido)) {
+                            int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
+                            if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
+                                if (!arbitro1Partido.equals(arbitro2Partido)) {
+                                    Partidos partido = new Partidos(fechaPartidoParseada, horaPartidoParseado, controladorEquipos.cualId(equipoLocalPartido), controladorEquipos.cualId(equipoVisitantePartido), resultadoLocalPartidoParseado, resultadoVisitantePartidoParseado, controladorArbitro.cualId(arbitro1Partido), controladorArbitro.cualId(arbitro2Partido));
+                                    if (comprobaciones.anadirPartido(partido)) {
+                                        interfaz.mensaje("Partido añadido correctamente", interfaz.mensajeDeAcierto);
+                                    }else {
+                                        interfaz.mensaje("ERROR, no se ha podido añadir el partido");
+                                    }
+                                }else {
+                                    interfaz.mensaje("ERROR, los arbitros tienen que ser distintos");
+                                }
+                            }else {
+                                interfaz.mensaje("ERROR, los equipos tienen que ser distintos");
+                            }
+                        }else {
+                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero");
+                        }
+                    }else {
+                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero");
+                    }
+                }else {
+                    interfaz.mensaje("ERROR, hora no valida, ejemplo: 16:12");
+                }
+            }else {
+                interfaz.mensaje("ERROR, fecha no valida, ejemplo: 04/05/2026");
+            }
+
+        };
+
         JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, fila);
         gbc.anchor = GridBagConstraints.CENTER;
@@ -245,6 +297,7 @@ public class GUI {
 
         frame.add(panel);
         frame.setVisible(true);
+        boton.addActionListener(accion);
     }
     public static void ventanaPatrocinador() {
         JFrame frame = new JFrame("Añadir Patrocinador");
@@ -284,9 +337,9 @@ public class GUI {
                             g.mensaje("Este patrocinador ya existe");
                         }else {
                             if (anadir.anadirPatrocinador(p)) {
-                                g.mensaje("Fila añadida correctamente");
+                                g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("No se ha podido añadir la fila");
+                                g.mensaje("No se ha podido añadir al patrocinador");
                             }
                         }
                     }else {
@@ -337,7 +390,7 @@ public class GUI {
                 g.mensaje("Este patrocinio ya existe");
             }else {
                 if (anadir.anadirPatrocinio(patrocinios)) {
-                    g.mensaje("Fila añadida correctamente");
+                    g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
                 }else {
                     g.mensaje("No se ha podido añadir la fila");
                 }
@@ -348,11 +401,105 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(accion);
     }
+
+    public void ventanaConfirmarEliminacionArbitro(String arbitro){
+        JFrame inicio = new JFrame("Eliminar");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(700, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel contrasena = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este arbitro? Se eliminaran todas las filas relacionadas con él en partidos");
+        contrasena.add(texto);
+        ActionListener accion = e -> {
+            ControladorArbitro controladorArbitro = new ControladorArbitro();
+            if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
+                mensaje("Arbitro eliminado correctamente", mensajeDeAcierto);
+                paginaPrincipal();
+                inicio.setVisible(false);
+            }else {
+                mensaje("No se ha podido eliminar al arbitro");
+            }
+        };
+        ActionListener accion2 = e -> {
+            inicio.dispose();
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        JButton confirmar = new JButton("Confirmar");
+        JButton cancelar = new JButton("Cancelar");
+        JPanel cContrasena = new JPanel();
+        cContrasena.add(confirmar);
+        cContrasena.add(cancelar);
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(contrasena, BorderLayout.CENTER);
+        inicio.add(cContrasena, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
+    }
+
+    public void ventanaConfirmarEliminacionEquipo(){
+
+    };
+
+    public void ventanaConfirmarEliminacionPartido(){
+
+    };
+
+    public void ventanaConfirmarEliminacionPatrocinio(){
+
+    };
+
+    public void ventanaConfirmarEliminacionPatrocinador(){
+
+    };
+
+
+
+
+
+    public void ventanaEliminarArbitro(String[] arbitrosNombre){
+        JFrame inicio = new JFrame("Eliminar arbitro");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(400, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel contrasena = new JPanel();
+        JLabel texto = new JLabel("Arbitro:");
+        JComboBox<String> arbitros = new JComboBox<>(arbitrosNombre);
+        arbitros.setPreferredSize(new  Dimension(100, 25));
+        contrasena.add(texto);
+        contrasena.add(arbitros);
+        ActionListener accion = e -> {
+            String arbitro = (String) arbitros.getSelectedItem();
+            ventanaConfirmarEliminacionArbitro(arbitro);
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(contrasena, BorderLayout.CENTER);
+        inicio.setVisible(true);
+        arbitros.addActionListener(accion);
+    }
+    public void ventanaEliminarEquipo(String[] equiposNombre){
+
+    }
+    public void ventanaEliminarPartido(int[] idesPartidos){
+
+    }
+    public void ventanaEliminarPatrocinio(String[] patrocinadoresNombre, String[] equiposNombre){
+
+    }
+    public void ventanaEliminarPatrocinador(String[] patrocinadoresNombre){
+
+    }
+
     public void ventanaCambioPassword() {
         JFrame frame = new JFrame("Cambiar contraseña");
         frame.setSize(350, 200);
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel(new GridBagLayout());
 
@@ -514,5 +661,28 @@ public class GUI {
 
         };
         anadir.addActionListener(anade);
+        ActionListener elimina = e -> {
+            ControladorEquipos controladorEquipos = new ControladorEquipos();
+            ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
+            if (nTabla == tablaArbitro) {
+                ControladorArbitro ar = new ControladorArbitro();
+                ventanaEliminarArbitro(ar.mostrarNombreArbitro());
+            }
+            if (nTabla == tablaEquipos) {
+                ventanaEliminarEquipo(controladorEquipos.mostrarNombreEquipos());
+            }
+            if (nTabla == tablaPartidos) {
+                ControladorPartidos controladorPartidos = new ControladorPartidos();
+                ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
+            }
+            if (nTabla == tablaPatrocinador) {
+                ventanaEliminarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());
+            }
+            if (nTabla == tablaPatrocinios) {
+                ventanaEliminarPatrocinio(controladorPatrocinador.mostrarNombrePatrocinador(), controladorEquipos.mostrarNombreEquipos());
+            }
+
+        };
+        eliminar.addActionListener(elimina);
     }
 }

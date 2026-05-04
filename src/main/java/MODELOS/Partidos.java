@@ -1,11 +1,12 @@
 package MODELOS;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Partidos {
     private int id_partido;
-    private Date fecha;
+    private LocalDate fecha;
     private Time hora;
     private int id_equipo_local;
     private int id_equipo_visitante;
@@ -17,7 +18,7 @@ public class Partidos {
     public Partidos() {
     }
 
-    public Partidos(Date fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int resultado_local, int resultado_visitante, int arbitro1, int arbitro2) {
+    public Partidos(LocalDate fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int resultado_local, int resultado_visitante, int arbitro1, int arbitro2) {
         this.fecha = fecha;
         this.hora = hora;
         this.id_equipo_local = id_equipo_local;
@@ -28,7 +29,7 @@ public class Partidos {
         this.arbitro2 = arbitro2;
     }
 
-    public Partidos(int id_partido, Date fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int resultado_local, int resultado_visitante, int arbitro1, int arbitro2) {
+    public Partidos(int id_partido, LocalDate fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int resultado_local, int resultado_visitante, int arbitro1, int arbitro2) {
         this.id_partido = id_partido;
         this.fecha = fecha;
         this.hora = hora;
@@ -48,11 +49,11 @@ public class Partidos {
         this.id_partido = id_partido;
     }
 
-    public Date getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 

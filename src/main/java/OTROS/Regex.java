@@ -2,10 +2,7 @@ package OTROS;
 
 import VISTAS.GUI;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -54,12 +51,12 @@ public class Regex {
     }
 
     public boolean comprobarTelefono(String telefono){
-        String filtro = "[679]\\d{8}|[679]\\d{11}";
+        String filtro = "^[679]\\d{8}|[679]\\d{11}$";
         return Pattern.matches(filtro, String.valueOf(telefono));
 
     }
     public boolean comprobarEmail(String email){
-        String filtro = "\\w+@\\w+\\.[a-z]{2,3}";
+        String filtro = "^\\w+@\\w+\\.[a-z]{2,3}$";
         return Pattern.matches(filtro, email);
     }
     public boolean comprobarFecha(String fecha){
@@ -74,6 +71,18 @@ public class Regex {
             return false;
         }
     }
+    public boolean comprobarFechaPartido(String fecha){
+        try {
+            DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
+            if (fechaConvertida.isBefore(LocalDate.now()) || fechaConvertida.equals(LocalDate.now())) {
+                return true;
+            }
+            return false;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public LocalDate textoFecha(String texto){
         DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -81,12 +90,17 @@ public class Regex {
     }
 
     public boolean comprobarNumero(String numero){
-        String filtro = "\\d+";
+        String filtro = "^\\d+$";
         return Pattern.matches(filtro, numero);
     }
     public boolean comprobarTexto(String texto){
         String filtro = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";
         return Pattern.matches(filtro,texto);
     }
+
+    public boolean comprobarHora(String hora){
+        String filtro = "^(2[0123]:[012345][0-9])|(1[0-9]:[012345][0-9])|(0[0-9]:[012345][0-9])|([0-9]:[012345][0-9])$";
+        return Pattern.matches(filtro, hora);
+    };
 
 }

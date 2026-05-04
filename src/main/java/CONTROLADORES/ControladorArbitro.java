@@ -5,7 +5,6 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +114,22 @@ public class ControladorArbitro {
             return devolver;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+    public int cualId(String nombre){
+        String sql = "SELECT id_arbitro FROM arbitro WHERE nombreCompleto = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, nombre);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id_arbitro");
+            }
+            return -1;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
         }
     }
 }

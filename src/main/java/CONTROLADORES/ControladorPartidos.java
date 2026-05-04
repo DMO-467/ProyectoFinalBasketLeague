@@ -17,13 +17,13 @@ public class ControladorPartidos {
             Statement statement = c.realizarConexion().createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
-                int id = resultSet.getInt("id_partido");
-                Date fecha = resultSet.getDate("fecha");
-                Time hora = resultSet.getTime("hora");
-                String equipoLocal = resultSet.getString("equipo_local");
-                String equipoVisitante = resultSet.getString("equipo_visitante");
-                int resultadoLocal = resultSet.getInt("resultado_local");
-                int resultadoVisitante = resultSet.getInt("resultado_visitante");
+                int id = resultSet.getInt("p.id_partido");
+                Date fecha = resultSet.getDate("p.fecha");
+                Time hora = resultSet.getTime("p.hora");
+                String equipoLocal = resultSet.getString("equipoLocal");
+                String equipoVisitante = resultSet.getString("equipoVisitante");
+                int resultadoLocal = resultSet.getInt("p.resultado_local");
+                int resultadoVisitante = resultSet.getInt("p.resultado_visitante");
                 String arbitro1 = resultSet.getString("arbitro1");
                 String arbitro2 = resultSet.getString("arbitro2");
 
@@ -41,7 +41,7 @@ public class ControladorPartidos {
         try{
             Conexion c = new Conexion();
             PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
-            preparedStatement.setDate(1, (Date) partido.getFecha());
+            preparedStatement.setDate(1, Date.valueOf(partido.getFecha()));
             preparedStatement.setTime(2, partido.getHora());
             preparedStatement.setInt(3, partido.getId_equipo_local());
             preparedStatement.setInt(4, partido.getId_equipo_visitante());
@@ -73,6 +73,10 @@ public class ControladorPartidos {
         }catch (SQLException ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    public int[] mostrarIdesEquipos(){
+
     }
 
 }
