@@ -18,6 +18,15 @@ public class Partidos {
     public Partidos() {
     }
 
+    public Partidos(LocalDate fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int arbitro1, int arbitro2) {
+        this.fecha = fecha;
+        this.hora = hora;
+        this.id_equipo_local = id_equipo_local;
+        this.id_equipo_visitante = id_equipo_visitante;
+        this.arbitro1 = arbitro1;
+        this.arbitro2 = arbitro2;
+    }
+
     public Partidos(LocalDate fecha, Time hora, int id_equipo_local, int id_equipo_visitante, int resultado_local, int resultado_visitante, int arbitro1, int arbitro2) {
         this.fecha = fecha;
         this.hora = hora;

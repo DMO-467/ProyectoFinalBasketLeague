@@ -2,12 +2,15 @@ package VISTAS;
 import CONTROLADORES.*;
 import MODELOS.*;
 import OTROS.Regex;
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GUI {
@@ -77,46 +80,71 @@ public class GUI {
 
         String[] campos = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
         int columnas = 15;
+
         JTextField nombre = new JTextField(columnas);
-        JTextField fecha = new JTextField(columnas);
+
+        JDateChooser fecha = new JDateChooser();
+        fecha.setDateFormatString("dd/MM/yyyy");
+
         JTextField partidos = new JTextField(columnas);
         JTextField anos = new JTextField(columnas);
-        JTextField[] textos = {nombre, fecha, partidos, anos};
+
+        JComponent[] textos = {nombre, fecha, partidos, anos};
+
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
             panel.add(textos[i], configurarConstraints(1, i));
         }
+
         ActionListener guardado = e -> {
             String nombreCompleto = nombre.getText();
-            String fechaNacimiento = fecha.getText();
+            Date fechaSeleccionada = fecha.getDate();
             String partidosArbitrados = partidos.getText();
             String anosExperiencia = anos.getText();
+
             Regex comprobacion = new Regex();
             GUI g = new GUI();
+
             if (comprobacion.comprobarTexto(nombreCompleto)) {
-                if (comprobacion.comprobarFecha(fechaNacimiento)) {
-                    LocalDate fechaNacimientoParseada = comprobacion.textoFecha(fechaNacimiento);
+                if (fechaSeleccionada != null) {
+
+                    LocalDate fechaNacimientoParseada = fechaSeleccionada.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+                    if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
+
+                    }
+
                     if (comprobacion.comprobarNumero(partidosArbitrados)) {
                         int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
+
                         if (comprobacion.comprobarNumero(anosExperiencia)) {
                             int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
-                            Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada, partidosArbitradosNumero, anosExperienciaNumero);
+
+                            Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                    partidosArbitradosNumero, anosExperienciaNumero);
+
                             ControladorArbitro anadir = new ControladorArbitro();
+
                             if (anadir.anadirArbitro(arbitro)) {
                                 g.mensaje("Fila añadida", g.mensajeDeAcierto);
-                            }else {
+                            } else {
                                 g.mensaje("ERROR, no se ha podido añadir el arbitro");
                             }
-                        }else {
+
+                        } else {
                             g.mensaje("ERROR, años de experiencia no validos");
                         }
-                    }else {
+
+                    } else {
                         g.mensaje("ERROR, partidos arbitrados no valido");
                     }
-                }else {
-                    g.mensaje("ERROR, fecha no valida");
+
+                } else {
+                    g.mensaje("ERROR, selecciona una fecha");
                 }
-            }else {
+
+            } else {
                 g.mensaje("ERROR, nombre no valido");
             }
         };
@@ -130,6 +158,7 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(guardado);
     }
+
     public static void ventanaEquipos() {
         JFrame frame = new JFrame("Añadir Equipo");
         frame.setSize(400, 300);
@@ -206,35 +235,36 @@ public class GUI {
         JPanel panel = new JPanel(new GridBagLayout());
 
         String[] camposTexto = {"Fecha", "Hora", "Resultado local", "Resultado visitante"};
-        JTextField fecha = new JTextField(15);
+
+        JDateChooser fecha = new JDateChooser();
+        fecha.setDateFormatString("dd/MM/yyyy");
+
         JTextField hora = new JTextField(15);
         JTextField resultadoLocal = new JTextField(15);
         JTextField resultadoVisitante = new JTextField(15);
-        JTextField[] valores = {fecha, hora, resultadoLocal, resultadoVisitante};
+
+        JComponent[] valores = {fecha, hora, resultadoLocal, resultadoVisitante};
 
         for (int i = 0; i < camposTexto.length; i++) {
             panel.add(new JLabel(camposTexto[i] + ":"), configurarConstraints(0, i));
             panel.add(valores[i], configurarConstraints(1, i));
         }
+
         int fila = camposTexto.length;
 
         JComboBox<String> cEquipoLocal = new JComboBox<>(equipos);
-
         panel.add(new JLabel("Equipo local:"), configurarConstraints(0, fila));
         panel.add(cEquipoLocal, configurarConstraints(1, fila++));
 
         JComboBox<String> cEquipoVisitante = new JComboBox<>(equipos);
-
         panel.add(new JLabel("Equipo visitante:"), configurarConstraints(0, fila));
         panel.add(cEquipoVisitante, configurarConstraints(1, fila++));
 
         JComboBox<String> cArbitro1 = new JComboBox<>(arbitros);
-
         panel.add(new JLabel("Árbitro 1:"), configurarConstraints(0, fila));
         panel.add(cArbitro1, configurarConstraints(1, fila++));
 
         JComboBox<String> cArbitro2 = new JComboBox<>(arbitros);
-
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
 
@@ -244,50 +274,78 @@ public class GUI {
             GUI interfaz = new GUI();
             ControladorEquipos controladorEquipos = new ControladorEquipos();
             ControladorArbitro controladorArbitro = new ControladorArbitro();
-            String fechaPartido = fecha.getText();
+
+            Date fechaSeleccionada = fecha.getDate();
             String horaPartido = hora.getText();
             String resultadoLocalPartido = resultadoLocal.getText();
             String resultadoVisitantePartido = resultadoVisitante.getText();
+
             String equipoLocalPartido = (String) cEquipoLocal.getSelectedItem();
             String equipoVisitantePartido = (String) cEquipoVisitante.getSelectedItem();
             String arbitro1Partido = (String) cArbitro1.getSelectedItem();
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
-            if (filtros.comprobarFechaPartido(fechaPartido)) {
-                LocalDate fechaPartidoParseada = filtros.textoFecha(fechaPartido);
+
+            if (fechaSeleccionada != null) {
+
+                LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+
                 if (filtros.comprobarHora(horaPartido)) {
+
                     horaPartido = horaPartido + ":00";
                     Time horaPartidoParseado = Time.valueOf(horaPartido);
+
                     if (filtros.comprobarNumero(resultadoLocalPartido)) {
                         int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
+
                         if (filtros.comprobarNumero(resultadoVisitantePartido)) {
                             int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
+
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
+
                                 if (!arbitro1Partido.equals(arbitro2Partido)) {
-                                    Partidos partido = new Partidos(fechaPartidoParseada, horaPartidoParseado, controladorEquipos.cualId(equipoLocalPartido), controladorEquipos.cualId(equipoVisitantePartido), resultadoLocalPartidoParseado, resultadoVisitantePartidoParseado, controladorArbitro.cualId(arbitro1Partido), controladorArbitro.cualId(arbitro2Partido));
+
+                                    Partidos partido = new Partidos(
+                                            fechaPartidoParseada,
+                                            horaPartidoParseado,
+                                            controladorEquipos.cualId(equipoLocalPartido),
+                                            controladorEquipos.cualId(equipoVisitantePartido),
+                                            resultadoLocalPartidoParseado,
+                                            resultadoVisitantePartidoParseado,
+                                            controladorArbitro.cualId(arbitro1Partido),
+                                            controladorArbitro.cualId(arbitro2Partido)
+                                    );
+
                                     if (comprobaciones.anadirPartido(partido)) {
                                         interfaz.mensaje("Partido añadido correctamente", interfaz.mensajeDeAcierto);
-                                    }else {
+                                    } else {
                                         interfaz.mensaje("ERROR, no se ha podido añadir el partido");
                                     }
-                                }else {
+
+                                } else {
                                     interfaz.mensaje("ERROR, los arbitros tienen que ser distintos");
                                 }
-                            }else {
+
+                            } else {
                                 interfaz.mensaje("ERROR, los equipos tienen que ser distintos");
                             }
-                        }else {
+
+                        } else {
                             interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero");
                         }
-                    }else {
+
+                    } else {
                         interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero");
                     }
-                }else {
+
+                } else {
                     interfaz.mensaje("ERROR, hora no valida, ejemplo: 16:12");
                 }
-            }else {
-                interfaz.mensaje("ERROR, fecha no valida, ejemplo: 04/05/2026");
-            }
 
+            } else {
+                interfaz.mensaje("ERROR, selecciona una fecha");
+            }
         };
 
         JButton boton = new JButton("Guardar");
@@ -415,7 +473,6 @@ public class GUI {
             ControladorArbitro controladorArbitro = new ControladorArbitro();
             if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
                 mensaje("Arbitro eliminado correctamente", mensajeDeAcierto);
-                paginaPrincipal();
                 inicio.setVisible(false);
             }else {
                 mensaje("No se ha podido eliminar al arbitro");
@@ -673,7 +730,7 @@ public class GUI {
             }
             if (nTabla == tablaPartidos) {
                 ControladorPartidos controladorPartidos = new ControladorPartidos();
-                ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
+                //ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
             }
             if (nTabla == tablaPatrocinador) {
                 ventanaEliminarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());

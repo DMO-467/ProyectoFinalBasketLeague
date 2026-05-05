@@ -59,11 +59,9 @@ public class Regex {
         String filtro = "^\\w+@\\w+\\.[a-z]{2,3}$";
         return Pattern.matches(filtro, email);
     }
-    public boolean comprobarFecha(String fecha){
+    public boolean comprobarFecha(LocalDate fecha){
         try {
-            DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
-            if (fechaConvertida.isBefore(LocalDate.now())) {
+            if (fecha.isBefore(LocalDate.now())) {
                 return true;
             }
             return false;

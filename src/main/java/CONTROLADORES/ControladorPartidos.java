@@ -74,9 +74,9 @@ public class ControladorPartidos {
             throw new RuntimeException(ex);
         }
     }
-
+/*
     public int[] mostrarIdesEquipos(){
 
     }
-
+    */
 }
