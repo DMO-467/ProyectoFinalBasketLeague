@@ -112,34 +112,33 @@ public class GUI {
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
+                        if (comprobacion.comprobarNumero(partidosArbitrados)) {
+                            int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
 
-                    }
+                            if (comprobacion.comprobarNumero(anosExperiencia)) {
+                                int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
 
-                    if (comprobacion.comprobarNumero(partidosArbitrados)) {
-                        int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
+                                Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                        partidosArbitradosNumero, anosExperienciaNumero);
 
-                        if (comprobacion.comprobarNumero(anosExperiencia)) {
-                            int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
+                                ControladorArbitro anadir = new ControladorArbitro();
 
-                            Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                    partidosArbitradosNumero, anosExperienciaNumero);
+                                if (anadir.anadirArbitro(arbitro)) {
+                                    g.mensaje("Fila añadida", g.mensajeDeAcierto);
+                                } else {
+                                    g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                }
 
-                            ControladorArbitro anadir = new ControladorArbitro();
-
-                            if (anadir.anadirArbitro(arbitro)) {
-                                g.mensaje("Fila añadida", g.mensajeDeAcierto);
                             } else {
-                                g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                g.mensaje("ERROR, años de experiencia no validos");
                             }
 
                         } else {
-                            g.mensaje("ERROR, años de experiencia no validos");
+                            g.mensaje("ERROR, partidos arbitrados no valido");
                         }
-
-                    } else {
-                        g.mensaje("ERROR, partidos arbitrados no valido");
+                    }else {
+                        g.mensaje("ERROR, fecha de nacimiento no valida");
                     }
-
                 } else {
                     g.mensaje("ERROR, selecciona una fecha");
                 }
@@ -730,7 +729,7 @@ public class GUI {
             }
             if (nTabla == tablaPartidos) {
                 ControladorPartidos controladorPartidos = new ControladorPartidos();
-                //ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
+                ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
             }
             if (nTabla == tablaPatrocinador) {
                 ventanaEliminarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());

@@ -5,6 +5,8 @@ import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorPartidos {
 
@@ -74,9 +76,25 @@ public class ControladorPartidos {
             throw new RuntimeException(ex);
         }
     }
-/*
-    public int[] mostrarIdesEquipos(){
 
+    public int[] mostrarIdesEquipos(){
+        String sql = "SELECT id_partido FROM partidos";
+        try {
+            Conexion c = new Conexion();
+            Statement statement = c.realizarConexion().createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            List<Integer> ides = new ArrayList<>();
+            while (resultSet.next()){
+                ides.add(resultSet.getInt("id_partido"));
+            }
+            int[] devolver = new int[ides.size()];
+            for (int i = 0; i < devolver.length; i++) {
+                devolver[i] = ides.get(i);
+            }
+            return devolver;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
-    */
+
 }
