@@ -77,7 +77,7 @@ public class ControladorPartidos {
         }
     }
 
-    public int[] mostrarIdesEquipos(){
+    public Integer[] mostrarIdesPartidos(){
         String sql = "SELECT id_partido FROM partidos";
         try {
             Conexion c = new Conexion();
@@ -87,7 +87,7 @@ public class ControladorPartidos {
             while (resultSet.next()){
                 ides.add(resultSet.getInt("id_partido"));
             }
-            int[] devolver = new int[ides.size()];
+            Integer[] devolver = new Integer[ides.size()];
             for (int i = 0; i < devolver.length; i++) {
                 devolver[i] = ides.get(i);
             }

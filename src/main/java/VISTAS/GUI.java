@@ -465,9 +465,9 @@ public class GUI {
         inicio.setSize(700, 250);
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
-        JPanel contrasena = new JPanel();
-        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este arbitro? Se eliminaran todas las filas relacionadas con él en partidos");
-        contrasena.add(texto);
+        JPanel mensaje = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este arbitro: " + arbitro + "? Se eliminaran todas las filas relacionadas con él en partidos");
+        mensaje.add(texto);
         ActionListener accion = e -> {
             ControladorArbitro controladorArbitro = new ControladorArbitro();
             if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
@@ -484,27 +484,129 @@ public class GUI {
         espacio.setPreferredSize(new Dimension(100, 80));
         JButton confirmar = new JButton("Confirmar");
         JButton cancelar = new JButton("Cancelar");
-        JPanel cContrasena = new JPanel();
-        cContrasena.add(confirmar);
-        cContrasena.add(cancelar);
+        JPanel botones = new JPanel();
+        botones.add(confirmar);
+        botones.add(cancelar);
         inicio.add(espacio, BorderLayout.NORTH);
-        inicio.add(contrasena, BorderLayout.CENTER);
-        inicio.add(cContrasena, BorderLayout.SOUTH);
+        inicio.add(mensaje, BorderLayout.CENTER);
+        inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
         confirmar.addActionListener(accion);
         cancelar.addActionListener(accion2);
     }
 
-    public void ventanaConfirmarEliminacionEquipo(){
-
+    public void ventanaConfirmarEliminacionEquipo(String equipo){
+        JFrame inicio = new JFrame("Eliminar");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(700, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel mensaje = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este equipo: " + equipo + "? Se eliminaran todas las filas relacionadas con él en partidos y patrocinios");
+        mensaje.add(texto);
+        ActionListener accion = e -> {
+            ControladorEquipos controladorEquipos = new ControladorEquipos();
+            if (controladorEquipos.eliminarEquipo(controladorEquipos.cualId(equipo))) {
+                mensaje("Equipo eliminado correctamente", mensajeDeAcierto);
+                inicio.setVisible(false);
+            }else {
+                mensaje("No se ha podido eliminar al equipo");
+            }
+        };
+        ActionListener accion2 = e -> {
+            inicio.dispose();
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        JButton confirmar = new JButton("Confirmar");
+        JButton cancelar = new JButton("Cancelar");
+        JPanel cContrasena = new JPanel();
+        cContrasena.add(confirmar);
+        cContrasena.add(cancelar);
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(mensaje, BorderLayout.CENTER);
+        inicio.add(cContrasena, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
     };
 
-    public void ventanaConfirmarEliminacionPartido(){
-
+    public void ventanaConfirmarEliminacionPartido(Integer id){
+        JFrame inicio = new JFrame("Eliminar");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(700, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel mensaje = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este partido? id: " + id);
+        mensaje.add(texto);
+        ActionListener accion = e -> {
+            ControladorPartidos controladorPartidos = new ControladorPartidos();
+            if (controladorPartidos.eliminarPartido(id)) {
+                mensaje("Partido eliminado correctamente", mensajeDeAcierto);
+                inicio.setVisible(false);
+            }else {
+                mensaje("No se ha podido eliminar al Partido");
+            }
+        };
+        ActionListener accion2 = e -> {
+            inicio.dispose();
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        JButton confirmar = new JButton("Confirmar");
+        JButton cancelar = new JButton("Cancelar");
+        JPanel botones = new JPanel();
+        botones.add(confirmar);
+        botones.add(cancelar);
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(mensaje, BorderLayout.CENTER);
+        inicio.add(botones, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
     };
 
-    public void ventanaConfirmarEliminacionPatrocinio(){
+    public void ventanaConfirmarEliminacionPatrocinio(String patrocinador, String equipo){
+        JFrame inicio = new JFrame("Eliminar");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(700, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel mensaje = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este patrocinio: " + patrocinador + " " + equipo + "?");
+        mensaje.add(texto);
+        ActionListener accion = e -> {
+            ControladorPatrocinios controladorPatrocinios = new ControladorPatrocinios();
+            Patrocinios patrocinio = new Patrocinios(controladorPatrocinios.localizarIdPatrocinador(patrocinador), controladorPatrocinios.localizarIdEquipo(equipo));
+            if (controladorPatrocinios.existePatrocinio(patrocinio)) {
+                if (controladorPatrocinios.eliminarPatrocinio(patrocinio)) {
+                    mensaje("Patrocinio eliminado correctamente", mensajeDeAcierto);
+                    inicio.setVisible(false);
+                }else {
+                    mensaje("No se ha podido eliminar el patrocinio");
+                }
+            }else {
+                mensaje("ERROR, no existe este patrocinio");
+            }
 
+        };
+        ActionListener accion2 = e -> {
+            inicio.dispose();
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        JButton confirmar = new JButton("Confirmar");
+        JButton cancelar = new JButton("Cancelar");
+        JPanel botones = new JPanel();
+        botones.add(confirmar);
+        botones.add(cancelar);
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(mensaje, BorderLayout.CENTER);
+        inicio.add(botones, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
     };
 
     public void ventanaConfirmarEliminacionPatrocinador(){
@@ -539,13 +641,83 @@ public class GUI {
         arbitros.addActionListener(accion);
     }
     public void ventanaEliminarEquipo(String[] equiposNombre){
-
+        JFrame inicio = new JFrame("Eliminar equipo");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(400, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel listaEquipos = new JPanel();
+        JLabel texto = new JLabel("equipo:");
+        JComboBox<String> equipos = new JComboBox<>(equiposNombre);
+        equipos.setPreferredSize(new  Dimension(100, 25));
+        listaEquipos.add(texto);
+        listaEquipos.add(equipos);
+        ActionListener accion = e -> {
+            String equipo = (String) equipos.getSelectedItem();
+            ventanaConfirmarEliminacionEquipo(equipo);
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(listaEquipos, BorderLayout.CENTER);
+        inicio.setVisible(true);
+        equipos.addActionListener(accion);
     }
-    public void ventanaEliminarPartido(int[] idesPartidos){
-
+    public void ventanaEliminarPartido(Integer[] idesPartidos){
+        JFrame inicio = new JFrame("Eliminar partido");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(400, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel listaPartidos = new JPanel();
+        JLabel texto = new JLabel("partido:");
+        JComboBox<Integer> partidos = new JComboBox<>(idesPartidos);
+        partidos.setPreferredSize(new  Dimension(100, 25));
+        listaPartidos.add(texto);
+        listaPartidos.add(partidos);
+        ActionListener accion = e -> {
+            Integer partido = (Integer) partidos.getSelectedItem();
+            ventanaConfirmarEliminacionPartido(partido);
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(listaPartidos, BorderLayout.CENTER);
+        inicio.setVisible(true);
+        partidos.addActionListener(accion);
     }
-    public void ventanaEliminarPatrocinio(String[] patrocinadoresNombre, String[] equiposNombre){
-
+    public void ventanaEliminarPatrocinio(String[] patrocinadores, String[] equipos){
+        JFrame inicio = new JFrame("Eliminar patrocinio");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(500, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel listaPatrocinios = new JPanel();
+        JLabel texto = new JLabel("patrocinador:");
+        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
+        JLabel texto2 = new JLabel("Equipo:");
+        JComboBox<String> cEquipos = new JComboBox<>(equipos);
+        cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
+        cEquipos.setPreferredSize(new Dimension(100, 25));
+        JButton confirmar = new JButton("Confirmar");
+        JPanel botones = new JPanel();
+        botones.add(confirmar);
+        listaPatrocinios.add(texto);
+        listaPatrocinios.add(cPatrocinadores);
+        listaPatrocinios.add(texto2);
+        listaPatrocinios.add(cEquipos);
+        ActionListener accion = e -> {
+            String patrocinador = (String) cPatrocinadores.getSelectedItem();
+            String equipo = (String) cEquipos.getSelectedItem();
+            ventanaConfirmarEliminacionPatrocinio(patrocinador, equipo);
+        };
+        JPanel espacio = new JPanel();
+        espacio.setPreferredSize(new Dimension(100, 80));
+        inicio.add(espacio, BorderLayout.NORTH);
+        inicio.add(listaPatrocinios, BorderLayout.CENTER);
+        inicio.add(botones, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
     }
     public void ventanaEliminarPatrocinador(String[] patrocinadoresNombre){
 
@@ -729,7 +901,7 @@ public class GUI {
             }
             if (nTabla == tablaPartidos) {
                 ControladorPartidos controladorPartidos = new ControladorPartidos();
-                ventanaEliminarPartido(controladorPartidos.mostrarIdesEquipos());
+                ventanaEliminarPartido(controladorPartidos.mostrarIdesPartidos());
             }
             if (nTabla == tablaPatrocinador) {
                 ventanaEliminarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());

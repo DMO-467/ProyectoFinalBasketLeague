@@ -6,6 +6,8 @@ import OTROS.Regex;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorPatrocinios {
 
@@ -45,12 +47,13 @@ public class ControladorPatrocinios {
         }
     }
 
-    public boolean eliminarPatrocinio(int id){
-        String sql = "DELETE FROM patrocinio WHERE id_patrocinio = ?";
+    public boolean eliminarPatrocinio(Patrocinios patrocinio){
+        String sql = "DELETE FROM patrocinios WHERE id_patrocinador = ? AND id_equipo = ?";
         try {
             Conexion c = new Conexion();
             PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
-            preparedStatement.setInt(1, id);
+            preparedStatement.setInt(1, patrocinio.getId_patrocinador());
+            preparedStatement.setInt(2, patrocinio.getId_equipo());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 return true;
@@ -106,6 +109,29 @@ public class ControladorPatrocinios {
                 return true;
             }
             return false;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String[] mostrarPatrociniosNombres(){
+        String sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
+        try {
+            Conexion c = new Conexion();
+            Statement statement = c.realizarConexion().createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            List<String> patrocinios = new ArrayList<>();
+            while (resultSet.next()){
+                String patrocinador = resultSet.getString("patrocinador");
+                String equipo = resultSet.getString("equipo");
+                String patrocinio = patrocinador + equipo;
+                patrocinios.add(patrocinio);
+            }
+            String[] devolver = new String[patrocinios.size()];
+            for (int i = 0; i < devolver.length; i++) {
+                devolver[i] = patrocinios.get(i);
+            }
+            return devolver;
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
