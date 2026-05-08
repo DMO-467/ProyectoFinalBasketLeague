@@ -11,7 +11,6 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GUI {
     int tablaPartidos = 3;
