@@ -459,16 +459,16 @@ public class GUI {
     }
 
     public void ventanaConfirmarEliminacionArbitro(String arbitro){
+        ControladorArbitro controladorArbitro = new ControladorArbitro();
         JFrame inicio = new JFrame("Eliminar");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        inicio.setSize(700, 250);
+        inicio.setSize(1000, 650);
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
-        JPanel mensaje = new JPanel();
-        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este arbitro: " + arbitro + "? Se eliminaran todas las filas relacionadas con él en partidos");
-        mensaje.add(texto);
+        JTable tabla = new JTable();
+        JScrollPane subeYBaja = new JScrollPane(tabla);
+        tabla.setModel(controladorArbitro.mostrarFilasAfectadasPorArbitro(controladorArbitro.cualId(arbitro)));
         ActionListener accion = e -> {
-            ControladorArbitro controladorArbitro = new ControladorArbitro();
             if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
                 mensaje("Arbitro eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
@@ -479,15 +479,17 @@ public class GUI {
         ActionListener accion2 = e -> {
             inicio.dispose();
         };
-        JPanel espacio = new JPanel();
-        espacio.setPreferredSize(new Dimension(100, 80));
+        JPanel mensaje = new JPanel();
+        mensaje.setPreferredSize(new Dimension(100, 80));
+        JLabel texto = new JLabel("Estas seguro de que quieres eliminar a " + arbitro + "? se eliminaran también las siguientes filas relacionadas");
+        mensaje.add(texto);
         JButton confirmar = new JButton("Confirmar");
         JButton cancelar = new JButton("Cancelar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
-        inicio.add(espacio, BorderLayout.NORTH);
-        inicio.add(mensaje, BorderLayout.CENTER);
+        inicio.add(mensaje, BorderLayout.NORTH);
+        inicio.add(subeYBaja, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
         confirmar.addActionListener(accion);
@@ -608,8 +610,42 @@ public class GUI {
         cancelar.addActionListener(accion2);
     };
 
-    public void ventanaConfirmarEliminacionPatrocinador(){
+    public void ventanaConfirmarEliminacionPatrocinador(String patrocinadorNombre){
+        ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
+        JFrame inicio = new JFrame("Eliminar");
+        inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        inicio.setSize(700, 250);
+        inicio.setLayout(new BorderLayout());
+        inicio.setLocationRelativeTo(null);
+        JPanel mensaje = new JPanel();
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar " + patrocinadorNombre + "? Se eliminaran las siguientes filas relacionadas con " + patrocinadorNombre);
+        mensaje.add(texto);
+        JTable tabla = new JTable();
+        JScrollPane subeYBaja = new JScrollPane(tabla);
+        tabla.setModel(controladorPatrocinador.mostrarFilasAfectadasPorPatrocinador(controladorPatrocinador.cualId(patrocinadorNombre)));
+        ActionListener accion = e -> {
+            if (controladorPatrocinador.eliminarPatrocinador(controladorPatrocinador.cualId(patrocinadorNombre))) {
+                mensaje("Patrocinador eliminado correctamente", mensajeDeAcierto);
+                inicio.setVisible(false);
+            }else {
+                mensaje("No se ha podido eliminar el patrocinador");
+            }
 
+        };
+        ActionListener accion2 = e -> {
+            inicio.dispose();
+        };
+        JButton confirmar = new JButton("Confirmar");
+        JButton cancelar = new JButton("Cancelar");
+        JPanel botones = new JPanel();
+        botones.add(confirmar);
+        botones.add(cancelar);
+        inicio.add(mensaje, BorderLayout.NORTH);
+        inicio.add(subeYBaja, BorderLayout.CENTER);
+        inicio.add(botones, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
     };
 
 

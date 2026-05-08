@@ -31,6 +31,43 @@ public class ControladorPatrocinador {
         }
         return modelo;
     }
+    public DefaultTableModel mostrarFilasAfectadasPorPatrocinador(int id){
+        String sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo WHERE pe.id_patrocinador = ?";
+        String[] columnas = {"Patrocinador", "Equipo"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                String patrocinador = resultSet.getString("patrocinador");
+                String equipo = resultSet.getString("equipo");
+                Object[] fila = {patrocinador, equipo};
+                modelo.addRow(fila);
+            }
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+        return modelo;
+    }
+
+    public int cualId(String patrocinador){
+        String sql = "SELECT id_patrocinador FROM patrocinador WHERE  nombre_patrocinador= ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, patrocinador);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id_patrocinador");
+            }
+            return -1;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
 
     public boolean anadirPatrocinador(Patrocinador patrocinador){
         String sql = "INSERT INTO patrocinador(nombre_patrocinador, telefono, email) VALUES (?, ?, ?)";
