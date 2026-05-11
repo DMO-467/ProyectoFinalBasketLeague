@@ -1,5 +1,6 @@
 package CONTROLADORES;
 
+import MODELOS.Equipos;
 import MODELOS.Partidos;
 import OTROS.Conexion;
 
@@ -76,6 +77,29 @@ public class ControladorPartidos {
             throw new RuntimeException(ex);
         }
     }
+    public boolean modificarPartido(Partidos partido){
+        String sql = "UPDATE partidos SET fecha= ?, hora = ?, id_equipo_local = ?, id_equipo_visitante = ?, resultado_local = ?, resultado_visitante = ?, arbitro1= ?, arbitro2 = ? WHERE id_partido = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setDate(1, Date.valueOf(partido.getFecha()));
+            preparedStatement.setTime(2, partido.getHora());
+            preparedStatement.setInt(3, partido.getId_equipo_local());
+            preparedStatement.setInt(4, partido.getId_equipo_visitante());
+            preparedStatement.setInt(5, partido.getResultado_local());
+            preparedStatement.setInt(6, partido.getResultado_visitante());
+            preparedStatement.setInt(7, partido.getArbitro1());
+            preparedStatement.setInt(8, partido.getArbitro2());
+            preparedStatement.setInt(9, partido.getId_partido());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
 
     public Integer[] mostrarIdesPartidos(){
         String sql = "SELECT id_partido FROM partidos";
@@ -93,6 +117,23 @@ public class ControladorPartidos {
             }
             return devolver;
         }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Partidos encontrarPartido(Integer id) {
+        String sql = "SELECT fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2 FROM partidos WHERE id_partido = ?";
+        Partidos partido = new Partidos();
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                partido = new Partidos(resultSet.getDate("fecha").toLocalDate(), resultSet.getTime("hora"), resultSet.getInt("id_equipo_local"), resultSet.getInt("id_equipo_visitante"), resultSet.getInt("arbitro1"), resultSet.getInt("arbitro2"));
+            }
+            return partido;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

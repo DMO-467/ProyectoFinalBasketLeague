@@ -2,7 +2,6 @@ package MODELOS;
 
 import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Partidos {
     private int id_partido;

@@ -31,26 +31,6 @@ public class ControladorPatrocinador {
         }
         return modelo;
     }
-    public DefaultTableModel mostrarFilasAfectadasPorPatrocinador(int id){
-        String sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo WHERE pe.id_patrocinador = ?";
-        String[] columnas = {"Patrocinador", "Equipo"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
-        try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
-            preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
-                String patrocinador = resultSet.getString("patrocinador");
-                String equipo = resultSet.getString("equipo");
-                Object[] fila = {patrocinador, equipo};
-                modelo.addRow(fila);
-            }
-        }catch (SQLException ex){
-            throw new RuntimeException(ex);
-        }
-        return modelo;
-    }
 
     public int cualId(String patrocinador){
         String sql = "SELECT id_patrocinador FROM patrocinador WHERE  nombre_patrocinador= ?";
@@ -140,5 +120,43 @@ public class ControladorPatrocinador {
         }
     }
 
+    public DefaultTableModel mostrarFilasAfectadasPorPatrocinadorEnPatrocinios(int id){
+        String sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_patrocinador= ?";
+        String[] columnas = {"Equipo", "Patrocinador"};
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                String equipo = resultSet.getString("e.nombre_equipo");
+                String patrocinador = resultSet.getString("p.nombre_patrocinador");
+                Object[] fila = {equipo, patrocinador};
+                modelo.addRow(fila);
+            }
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+        return modelo;
+    }
+
+    public Patrocinador encontrarPatrocinador(int id){
+        String sql = "SELECT nombre_patrocinador, telefono, email FROM patrocinador WHERE id_patrocinador = ?";
+        Patrocinador patrocinador = new Patrocinador();
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                patrocinador = new Patrocinador(resultSet.getString("nombre_patrocinador"), resultSet.getInt("telefono"), resultSet.getString("email"));
+            }
+            return patrocinador;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+    };
 
 }

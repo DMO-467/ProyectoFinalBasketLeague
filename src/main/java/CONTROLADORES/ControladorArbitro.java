@@ -67,6 +67,26 @@ public class ControladorArbitro {
         }
     }
 
+    public boolean modificarArbitro(Arbitro arbitro){
+        String sql = "UPDATE arbitro SET nombreCompleto = ?, fecha_nacimiento = ?, partidos_arbitrados = ?, años_experiencia = ? WHERE id_arbitro = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, arbitro.getNombreCompleto());
+            preparedStatement.setDate(2, Date.valueOf(arbitro.getFecha_nacimiento()));
+            preparedStatement.setInt(3, arbitro.getPartidos_arbitrados());
+            preparedStatement.setInt(4, arbitro.getAnos_experiencia());
+            preparedStatement.setInt(5, arbitro.getId_arbitro());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
     public boolean existeId(int id){
         String sql = "SELECT id_arbitro FROM arbitro WHERE id_arbitro = ?";
         try {
@@ -132,6 +152,22 @@ public class ControladorArbitro {
             throw new RuntimeException(ex);
         }
     }
+    public String cualNombre(int id){
+        String sql = "SELECT nombreCompleto FROM arbitro WHERE id_arbitro = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("nombreCompleto");
+            }
+            return "";
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
 
     public DefaultTableModel mostrarFilasAfectadasPorArbitro(int id){
         String sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro WHERE arbitro1 = ? OR arbitro2 = ?";
@@ -161,5 +197,22 @@ public class ControladorArbitro {
             throw new RuntimeException(ex);
         }
         return modelo;
+    }
+
+    public Arbitro encontrarArbitro(int id) {
+        String sql = "SELECT nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia FROM arbitro WHERE id_arbitro = ?";
+        Arbitro arbitro = new Arbitro();
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                arbitro = new Arbitro(resultSet.getString("nombreCompleto"), resultSet.getDate("fecha_nacimiento").toLocalDate(), resultSet.getInt("partidos_arbitrados"), resultSet.getInt("años_experiencia"));
+            }
+            return arbitro;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
