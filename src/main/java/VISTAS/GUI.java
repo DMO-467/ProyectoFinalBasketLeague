@@ -103,7 +103,7 @@ public class GUI {
 
             Regex comprobacion = new Regex();
             GUI g = new GUI();
-
+            nombreCompleto = comprobacion.mayusculasNombres(nombreCompleto);
             if (comprobacion.comprobarTexto(nombreCompleto)) {
                 if (fechaSeleccionada != null) {
 
@@ -129,21 +129,21 @@ public class GUI {
                                 }
 
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos");
+                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido");
+                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero");
                         }
                     }else {
-                        g.mensaje("ERROR, fecha de nacimiento no valida");
+                        g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
                     g.mensaje("ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje("ERROR, nombre no valido");
+                g.mensaje("ERROR, nombre no valido. Solo se valen letras");
             }
         };
 
@@ -190,6 +190,7 @@ public class GUI {
           ControladorEquipos comprobaciones = new ControladorEquipos();
           Regex filtros = new Regex();
           GUI g = new GUI();
+          nombreEquipo = filtros.mayusculasNombres(nombreEquipo);
           if (filtros.comprobarTexto(nombreEquipo)) {
               if (filtros.comprobarNumero(partidosPerdidosValor)) {
                   int partidosPerdidosFiltrado = Integer.parseInt(partidosPerdidosValor);
@@ -217,7 +218,7 @@ public class GUI {
                   g.mensaje("ERROR en partidos perdidos, solo se valen numeros");
               }
           }else {
-             g.mensaje("ERROR nombre no valido, Solo se valen letras y cada palabra empieza con una mayuscula");
+             g.mensaje("ERROR nombre no valido, Solo se valen letras");
           }
         };
 
@@ -384,6 +385,7 @@ public class GUI {
             String nombrePatrocinador = nombre.getText();
             String telefonoPatrocinador = telefono.getText();
             String emailPatrocinador = email.getText();
+            nombrePatrocinador = filtros.mayusculasNombres(nombrePatrocinador);
             if (filtros.comprobarTexto(nombrePatrocinador)) {
                 if (filtros.comprobarTelefono(telefonoPatrocinador)) {
                     int numeroTelefonico = Integer.parseInt(telefonoPatrocinador);
@@ -405,7 +407,7 @@ public class GUI {
                     g.mensaje("ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje("ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
+                g.mensaje("ERROR, nombre no valido (Solo se valen letras)");
             }
         };
 
@@ -796,7 +798,7 @@ public class GUI {
     }
 
     public void ventanaConfirmarModificacionArbitro(Arbitro arbitro){
-        JFrame frame = new JFrame("Añadir Árbitro");
+        JFrame frame = new JFrame("Modificar Árbitro");
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
 
@@ -805,13 +807,13 @@ public class GUI {
         String[] campos = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
         int columnas = 15;
 
-        JTextField nombre = new JTextField(columnas);
+        JTextField nombre = new JTextField(arbitro.getNombreCompleto(), columnas);
 
-        JDateChooser fecha = new JDateChooser();
+        JDateChooser fecha = new JDateChooser(Date.from(arbitro.getFecha_nacimiento().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         fecha.setDateFormatString("dd/MM/yyyy");
 
-        JTextField partidos = new JTextField(columnas);
-        JTextField anos = new JTextField(columnas);
+        JTextField partidos = new JTextField(String.valueOf(arbitro.getPartidos_arbitrados()), columnas);
+        JTextField anos = new JTextField(String.valueOf(arbitro.getAnos_experiencia()), columnas);
 
         JComponent[] textos = {nombre, fecha, partidos, anos};
 
@@ -828,47 +830,41 @@ public class GUI {
 
             Regex comprobacion = new Regex();
             GUI g = new GUI();
-
+            nombreCompleto = comprobacion.mayusculasNombres(nombreCompleto);
             if (comprobacion.comprobarTexto(nombreCompleto)) {
+                arbitro.setNombreCompleto(nombreCompleto);
                 if (fechaSeleccionada != null) {
-
-                    LocalDate fechaNacimientoParseada = fechaSeleccionada.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+                    LocalDate fechaNacimientoParseada = fechaSeleccionada.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
+                        arbitro.setFecha_nacimiento(fechaNacimientoParseada);
                         if (comprobacion.comprobarNumero(partidosArbitrados)) {
-                            int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
-
+                            arbitro.setPartidos_arbitrados(Integer.parseInt(partidosArbitrados));
                             if (comprobacion.comprobarNumero(anosExperiencia)) {
-                                int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
-
-                                Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                        partidosArbitradosNumero, anosExperienciaNumero);
-
+                                arbitro.setAnos_experiencia(Integer.parseInt(anosExperiencia));
                                 ControladorArbitro anadir = new ControladorArbitro();
 
-                                if (anadir.anadirArbitro(arbitro)) {
-                                    g.mensaje("Fila añadida", g.mensajeDeAcierto);
+                                if (anadir.modificarArbitro(arbitro)) {
+                                    g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
                                 } else {
-                                    g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                    g.mensaje("ERROR, no se ha podido modificar el arbitro");
                                 }
 
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos");
+                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido");
+                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero");
                         }
                     }else {
-                        g.mensaje("ERROR, fecha de nacimiento no valida");
+                        g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
                     g.mensaje("ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje("ERROR, nombre no valido");
+                g.mensaje("ERROR, nombre no valido solo se valen letras");
             }
         };
 
@@ -881,7 +877,7 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(guardado);
     }
-
+/*
     public void ventanaConfirmarModificacionEquipo(Equipos equipo){
         JFrame frame = new JFrame("Añadir Equipo");
         frame.setSize(400, 300);
@@ -1126,16 +1122,17 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(accion);
     }
+    */
 
     public void ventanaConfirmarModificacionPatrocinador(Patrocinador patrocinador){
-        JFrame frame = new JFrame("Añadir Patrocinador");
+        JFrame frame = new JFrame("Modificar Patrocinador");
         frame.setSize(400, 250);
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        JTextField nombre = new JTextField(15);
-        JTextField telefono = new JTextField(15);
-        JTextField email = new JTextField(15);
+        JTextField nombre = new JTextField(patrocinador.getNombre_patrocinador(),15);
+        JTextField telefono = new JTextField(String.valueOf(patrocinador.getTelefono()),15);
+        JTextField email = new JTextField(patrocinador.getEmail(),15);
         JTextField[] jTextFields = {nombre, telefono, email};
         String[] campos = {"Nombre", "Telefono", "Email"};
 
@@ -1157,17 +1154,18 @@ public class GUI {
             String telefonoPatrocinador = telefono.getText();
             String emailPatrocinador = email.getText();
             if (filtros.comprobarTexto(nombrePatrocinador)) {
+                patrocinador.setNombre_patrocinador(nombrePatrocinador);
                 if (filtros.comprobarTelefono(telefonoPatrocinador)) {
-                    int numeroTelefonico = Integer.parseInt(telefonoPatrocinador);
+                    patrocinador.setTelefono(Integer.parseInt(telefonoPatrocinador));
                     if (filtros.comprobarEmail(emailPatrocinador)) {
-                        Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
-                        if (anadir.ExistePatrocinador(p)) {
+                        patrocinador.setEmail(emailPatrocinador);
+                        if (anadir.ExistePatrocinador(patrocinador)) {
                             g.mensaje("Este patrocinador ya existe");
                         }else {
-                            if (anadir.anadirPatrocinador(p)) {
-                                g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
+                            if (anadir.modificarPatrocinador(patrocinador)) {
+                                g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("No se ha podido añadir al patrocinador");
+                                g.mensaje("No se ha podido modificar al patrocinador");
                             }
                         }
                     }else {
@@ -1188,7 +1186,7 @@ public class GUI {
 
     public void ventanaModificarArbitro(String[] arbitrosNombre){
         ControladorArbitro controladorArbitro = new ControladorArbitro();
-        JFrame inicio = new JFrame("Eliminar arbitro");
+        JFrame inicio = new JFrame("Modificar arbitro");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
         inicio.setLayout(new BorderLayout());
@@ -1212,7 +1210,7 @@ public class GUI {
     }
     public void ventanaModificarEquipo(String[] equiposNombre){
         ControladorEquipos controladorEquipos = new ControladorEquipos();
-        JFrame inicio = new JFrame("Eliminar equipo");
+        JFrame inicio = new JFrame("Modificar equipo");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
         inicio.setLayout(new BorderLayout());
@@ -1225,7 +1223,7 @@ public class GUI {
         listaEquipos.add(equipos);
         ActionListener accion = e -> {
             String equipo = (String) equipos.getSelectedItem();
-            ventanaConfirmarModificacionEquipo(controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
+            //ventanaConfirmarModificacionEquipo(controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1236,7 +1234,7 @@ public class GUI {
     }
     public void ventanaModificarPartido(Integer[] idesPartidos){
         ControladorPartidos controladorPartidos = new ControladorPartidos();
-        JFrame inicio = new JFrame("Eliminar partido");
+        JFrame inicio = new JFrame("Modificar partido");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
         inicio.setLayout(new BorderLayout());
@@ -1249,7 +1247,7 @@ public class GUI {
         listaPartidos.add(partidos);
         ActionListener accion = e -> {
             Integer partido = (Integer) partidos.getSelectedItem();
-            ventanaConfirmarModificacionPartido(controladorPartidos.encontrarPartido(partido));
+            //ventanaConfirmarModificacionPartido(controladorPartidos.encontrarPartido(partido));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1261,7 +1259,7 @@ public class GUI {
     public void ventanaModificarPatrocinio(String[] equipos, String[] patrocinadores){
         ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
         ControladorEquipos controladorEquipos = new ControladorEquipos();
-        JFrame inicio = new JFrame("Eliminar patrocinio");
+        JFrame inicio = new JFrame("Modificar patrocinio");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
         inicio.setLayout(new BorderLayout());
@@ -1283,7 +1281,7 @@ public class GUI {
         ActionListener accion = e -> {
             String patrocinador = (String) cPatrocinadores.getSelectedItem();
             String equipo = (String) cEquipos.getSelectedItem();
-            ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)), controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
+            //ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)), controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1294,7 +1292,7 @@ public class GUI {
         confirmar.addActionListener(accion);
     }
     public void ventanaModificarPatrocinador(String[] patrocinadoresNombre){
-        JFrame inicio = new JFrame("Eliminar patrocinador");
+        JFrame inicio = new JFrame("Modificar patrocinador");
         inicio.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
         inicio.setLayout(new BorderLayout());

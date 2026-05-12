@@ -1,5 +1,6 @@
 package CONTROLADORES;
 
+import MODELOS.Arbitro;
 import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
@@ -82,6 +83,26 @@ public class ControladorPatrocinador {
             throw new RuntimeException(ex);
         }
     }
+
+    public boolean modificarPatrocinador(Patrocinador patrocinador){
+        String sql = "UPDATE patrocinador SET nombre_patrocinador = ?, telefono = ?, email = ? WHERE id_patrocinador = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
+            preparedStatement.setInt(2, patrocinador.getTelefono());
+            preparedStatement.setString(3, patrocinador.getEmail());
+            preparedStatement.setInt(4, patrocinador.getId_patrocinador());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
     public String[] mostrarNombrePatrocinador(){
         String sql = "SELECT nombre_patrocinador FROM patrocinador";
         try {
@@ -150,7 +171,7 @@ public class ControladorPatrocinador {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                patrocinador = new Patrocinador(resultSet.getString("nombre_patrocinador"), resultSet.getInt("telefono"), resultSet.getString("email"));
+                patrocinador = new Patrocinador(id, resultSet.getString("nombre_patrocinador"), resultSet.getInt("telefono"), resultSet.getString("email"));
             }
             return patrocinador;
         }catch (SQLException e){

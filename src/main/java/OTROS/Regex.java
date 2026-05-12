@@ -5,9 +5,12 @@ import VISTAS.GUI;
 import java.sql.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Regex {
     public boolean verificacionInicioSesion(String usuario){
@@ -61,10 +64,8 @@ public class Regex {
     }
     public boolean comprobarFecha(LocalDate fecha){
         try {
-            if (fecha.isBefore(LocalDate.now())) {
-                return true;
-            }
-            return false;
+            int edad = Period.between(fecha, LocalDate.now()).getYears();
+            return edad >= 16;
         }catch (Exception e){
             return false;
         }
@@ -99,6 +100,13 @@ public class Regex {
     public boolean comprobarHora(String hora){
         String filtro = "^(2[0123]:[012345][0-9])|(1[0-9]:[012345][0-9])|(0[0-9]:[012345][0-9])|([0-9]:[012345][0-9])$";
         return Pattern.matches(filtro, hora);
-    };
+    }
+    public String mayusculasNombres(String texto) {
+
+        return Arrays.stream(texto.trim().split("\\s+"))
+                .map(p -> p.substring(0, 1).toUpperCase()
+                        + p.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+    }
 
 }

@@ -1,5 +1,6 @@
 package CONTROLADORES;
 
+import MODELOS.Patrocinador;
 import MODELOS.Patrocinios;
 import OTROS.Conexion;
 import OTROS.Regex;
@@ -54,6 +55,25 @@ public class ControladorPatrocinios {
             PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, patrocinio.getId_patrocinador());
             preparedStatement.setInt(2, patrocinio.getId_equipo());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            return false;
+        }catch (SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public boolean modificarPatrocinio(Patrocinios patrocinio, int patrocinadorAntiguo, int equipoAntiguo){
+        String sql = "UPDATE patrocinios SET id_patrocinador = ?, id_equipo = ? WHERE id_patrocinador = ? AND id_equipo = ?";
+        try {
+            Conexion c = new Conexion();
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setInt(1, patrocinio.getId_patrocinador());
+            preparedStatement.setInt(2, patrocinio.getId_equipo());
+            preparedStatement.setInt(3, patrocinadorAntiguo);
+            preparedStatement.setInt(4, equipoAntiguo);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 return true;
