@@ -130,11 +130,17 @@ public class ControladorPartidos {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                partido = new Partidos(resultSet.getDate("fecha").toLocalDate(), resultSet.getTime("hora"), resultSet.getInt("id_equipo_local"), resultSet.getInt("id_equipo_visitante"), resultSet.getInt("arbitro1"), resultSet.getInt("arbitro2"));
+                partido = new Partidos(id, resultSet.getDate("fecha").toLocalDate(), resultSet.getTime("hora"), resultSet.getInt("id_equipo_local"), resultSet.getInt("id_equipo_visitante"), resultSet.getInt("resultado_local"), resultSet.getInt("resultado_visitante"), resultSet.getInt("arbitro1"), resultSet.getInt("arbitro2"));
             }
             return partido;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+    public Time horaModificar(Time hora){
+        String horaTexto = String.valueOf(hora);
+        for (int i = 0; i < horaTexto.length(); i++) {
+
         }
     }
 

@@ -249,7 +249,7 @@ public class ControladorEquipos {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                equipo = new Equipos(resultSet.getString("nombre_equipo"), resultSet.getInt("partidos_perdidos"), resultSet.getInt("partidos_ganados"), resultSet.getInt("trofeos_liga"));
+                equipo = new Equipos(id, resultSet.getString("nombre_equipo"), resultSet.getInt("partidos_perdidos"), resultSet.getInt("partidos_ganados"), resultSet.getInt("trofeos_liga"));
             }
             return equipo;
         } catch (SQLException e) {

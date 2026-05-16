@@ -49,6 +49,8 @@ public class Partidos {
         this.arbitro2 = arbitro2;
     }
 
+
+
     public int getId_partido() {
         return id_partido;
     }

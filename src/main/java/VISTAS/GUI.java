@@ -877,18 +877,18 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(guardado);
     }
-/*
+
     public void ventanaConfirmarModificacionEquipo(Equipos equipo){
-        JFrame frame = new JFrame("Añadir Equipo");
+        JFrame frame = new JFrame("Modificar Equipo");
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
 
-        JTextField nombre = new JTextField(15);
-        JTextField partidosPerdidos = new JTextField(15);
-        JTextField partidosGanados = new JTextField(15);
-        JTextField trofeosLiga = new JTextField(15);
+        JTextField nombre = new JTextField(equipo.getNombre_equipo(), 15);
+        JTextField partidosPerdidos = new JTextField(String.valueOf(equipo.getPartidos_perdidos()), 15);
+        JTextField partidosGanados = new JTextField(String.valueOf(equipo.getPartidos_ganados()), 15);
+        JTextField trofeosLiga = new JTextField(String.valueOf(equipo.getTrofeos_liga()), 15);
         JTextField[] valores = {nombre, partidosPerdidos, partidosGanados, trofeosLiga};
 
         String[] campos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
@@ -912,21 +912,17 @@ public class GUI {
             Regex filtros = new Regex();
             GUI g = new GUI();
             if (filtros.comprobarTexto(nombreEquipo)) {
+                equipo.setNombre_equipo(nombreEquipo);
                 if (filtros.comprobarNumero(partidosPerdidosValor)) {
-                    int partidosPerdidosFiltrado = Integer.parseInt(partidosPerdidosValor);
+                    equipo.setPartidos_perdidos(Integer.parseInt(partidosPerdidosValor));
                     if (filtros.comprobarNumero(partidosGanadosValor)) {
-                        int partidosGanadosFiltrado = Integer.parseInt(partidosGanadosValor);
+                        equipo.setPartidos_ganados(Integer.parseInt(partidosGanadosValor));
                         if (filtros.comprobarNumero(trofeosLigaValor)) {
-                            int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
-                            Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
-                            if (comprobaciones.existeNombre(nombreEquipo)) {
-                                g.mensaje("Este equipo ya existe");
+                            equipo.setTrofeos_liga(Integer.parseInt(trofeosLigaValor));
+                            if (comprobaciones.modificarEquipo(equipo)) {
+                                g.mensaje("El equipo ha sido modificado correctamente", g.mensajeDeAcierto);
                             }else {
-                                if (comprobaciones.anadirEquipo(equipo)) {
-                                    g.mensaje("Se ha añadido correctamente", g.mensajeDeAcierto);
-                                }else {
-                                    g.mensaje("No se ha podido añadir el equipo");
-                                }
+                                g.mensaje("No se ha podido modificar el equipo");
                             }
                         }else {
                             g.mensaje("ERROR trofeos liga, solo se valen numeros");
@@ -938,7 +934,7 @@ public class GUI {
                     g.mensaje("ERROR en partidos perdidos, solo se valen numeros");
                 }
             }else {
-                g.mensaje("ERROR nombre no valido, Solo se valen letras y cada palabra empieza con una mayuscula");
+                g.mensaje("ERROR nombre no valido, Solo se valen letras");
             }
         };
 
@@ -948,7 +944,9 @@ public class GUI {
     }
 
     public void ventanaConfirmarModificacionPartido(Partidos partido){
-        JFrame frame = new JFrame("Añadir Partido");
+        ControladorEquipos controladorEquipos = new ControladorEquipos();
+        ControladorArbitro controladorArbitro = new ControladorArbitro();
+        JFrame frame = new JFrame("Modificar Partido");
         frame.setSize(500, 400);
         frame.setLocationRelativeTo(null);
 
@@ -956,12 +954,11 @@ public class GUI {
 
         String[] camposTexto = {"Fecha", "Hora", "Resultado local", "Resultado visitante"};
 
-        JDateChooser fecha = new JDateChooser();
+        JDateChooser fecha = new JDateChooser(Date.from(partido.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         fecha.setDateFormatString("dd/MM/yyyy");
-
-        JTextField hora = new JTextField(15);
-        JTextField resultadoLocal = new JTextField(15);
-        JTextField resultadoVisitante = new JTextField(15);
+        JTextField hora = new JTextField(String.valueOf(partido.getHora()), 15);
+        JTextField resultadoLocal = new JTextField(String.valueOf(partido.getResultado_local()), 15);
+        JTextField resultadoVisitante = new JTextField(String.valueOf(partido.getResultado_visitante()), 15);
 
         JComponent[] valores = {fecha, hora, resultadoLocal, resultadoVisitante};
 
@@ -972,19 +969,23 @@ public class GUI {
 
         int fila = camposTexto.length;
 
-        JComboBox<String> cEquipoLocal = new JComboBox<>(equipos);
+        JComboBox<String> cEquipoLocal = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
+        cEquipoLocal.setSelectedItem(controladorEquipos.cualNombre(partido.getId_equipo_local()));
         panel.add(new JLabel("Equipo local:"), configurarConstraints(0, fila));
         panel.add(cEquipoLocal, configurarConstraints(1, fila++));
 
-        JComboBox<String> cEquipoVisitante = new JComboBox<>(equipos);
+        JComboBox<String> cEquipoVisitante = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
+        cEquipoVisitante.setSelectedItem(controladorEquipos.cualNombre(partido.getId_equipo_visitante()));
         panel.add(new JLabel("Equipo visitante:"), configurarConstraints(0, fila));
         panel.add(cEquipoVisitante, configurarConstraints(1, fila++));
 
-        JComboBox<String> cArbitro1 = new JComboBox<>(arbitros);
+        JComboBox<String> cArbitro1 = new JComboBox<>(controladorArbitro.mostrarNombreArbitro());
+        cArbitro1.setSelectedItem(controladorArbitro.cualNombre(partido.getArbitro1()));
         panel.add(new JLabel("Árbitro 1:"), configurarConstraints(0, fila));
         panel.add(cArbitro1, configurarConstraints(1, fila++));
 
-        JComboBox<String> cArbitro2 = new JComboBox<>(arbitros);
+        JComboBox<String> cArbitro2 = new JComboBox<>(controladorArbitro.mostrarNombreArbitro());
+        cArbitro2.setSelectedItem(controladorArbitro.cualNombre(partido.getArbitro2()));
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
 
@@ -992,8 +993,6 @@ public class GUI {
             Regex filtros = new Regex();
             ControladorPartidos comprobaciones = new ControladorPartidos();
             GUI interfaz = new GUI();
-            ControladorEquipos controladorEquipos = new ControladorEquipos();
-            ControladorArbitro controladorArbitro = new ControladorArbitro();
 
             Date fechaSeleccionada = fecha.getDate();
             String horaPartido = hora.getText();
@@ -1006,41 +1005,28 @@ public class GUI {
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
 
             if (fechaSeleccionada != null) {
-
-                LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
+                partido.setFecha(fechaSeleccionada.toInstant()
                         .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
-
+                        .toLocalDate());
                 if (filtros.comprobarHora(horaPartido)) {
-
                     horaPartido = horaPartido + ":00";
-                    Time horaPartidoParseado = Time.valueOf(horaPartido);
-
+                    partido.setHora(Time.valueOf(horaPartido));
                     if (filtros.comprobarNumero(resultadoLocalPartido)) {
-                        int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
+                        partido.setResultado_local(Integer.parseInt(resultadoLocalPartido));
 
                         if (filtros.comprobarNumero(resultadoVisitantePartido)) {
                             int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
 
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
-
+                                partido.setId_equipo_local(controladorEquipos.cualId(equipoLocalPartido));
+                                partido.setId_equipo_visitante(controladorEquipos.cualId(equipoVisitantePartido));
                                 if (!arbitro1Partido.equals(arbitro2Partido)) {
-
-                                    Partidos partido = new Partidos(
-                                            fechaPartidoParseada,
-                                            horaPartidoParseado,
-                                            controladorEquipos.cualId(equipoLocalPartido),
-                                            controladorEquipos.cualId(equipoVisitantePartido),
-                                            resultadoLocalPartidoParseado,
-                                            resultadoVisitantePartidoParseado,
-                                            controladorArbitro.cualId(arbitro1Partido),
-                                            controladorArbitro.cualId(arbitro2Partido)
-                                    );
-
-                                    if (comprobaciones.anadirPartido(partido)) {
-                                        interfaz.mensaje("Partido añadido correctamente", interfaz.mensajeDeAcierto);
+                                    partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
+                                    partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
+                                    if (comprobaciones.modificarPartido(partido)) {
+                                        interfaz.mensaje("Partido modificado correctamente", interfaz.mensajeDeAcierto);
                                     } else {
-                                        interfaz.mensaje("ERROR, no se ha podido añadir el partido");
+                                        interfaz.mensaje("ERROR, no se ha podido modificar el partido");
                                     }
 
                                 } else {
@@ -1077,7 +1063,7 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(accion);
     }
-
+/*
     public void ventanaConfirmarModificacionPatrocinio(Patrocinador patrocinador, Equipos equipo){
         JFrame frame = new JFrame("Asignar Patrocinio");
         frame.setSize(400, 200);
@@ -1122,7 +1108,8 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(accion);
     }
-    */
+
+ */
 
     public void ventanaConfirmarModificacionPatrocinador(Patrocinador patrocinador){
         JFrame frame = new JFrame("Modificar Patrocinador");
@@ -1223,7 +1210,7 @@ public class GUI {
         listaEquipos.add(equipos);
         ActionListener accion = e -> {
             String equipo = (String) equipos.getSelectedItem();
-            //ventanaConfirmarModificacionEquipo(controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
+            ventanaConfirmarModificacionEquipo(controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1247,7 +1234,7 @@ public class GUI {
         listaPartidos.add(partidos);
         ActionListener accion = e -> {
             Integer partido = (Integer) partidos.getSelectedItem();
-            //ventanaConfirmarModificacionPartido(controladorPartidos.encontrarPartido(partido));
+            ventanaConfirmarModificacionPartido(controladorPartidos.encontrarPartido(partido));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
