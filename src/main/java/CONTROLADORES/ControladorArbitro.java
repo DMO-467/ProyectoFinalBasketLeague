@@ -237,11 +237,6 @@ public class ControladorArbitro {
                 String partidos = String.valueOf(resultSet.getInt("partidos_arbitrados"));
                 String anios = String.valueOf(resultSet.getInt("años_experiencia"));
 
-                // Escapar comas y comillas si existieran en el nombre
-                if (nombre.contains(",") || nombre.contains("\"")) {
-                    nombre = "\"" + nombre.replace("\"", "\"\"") + "\"";
-                }
-
                 escribir.write(String.join(",", id, nombre, fecha, partidos, anios));
                 escribir.newLine();
             }

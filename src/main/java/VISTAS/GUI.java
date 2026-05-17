@@ -1527,26 +1527,32 @@ public class GUI {
             if (nTabla == tablaArbitro) {
                 ControladorArbitro ar = new ControladorArbitro();
                 if (ar.imprimirArbitros()) {
-                    mensaje("Se ha creado el documento correctamente", mensajeDeAcierto);
+                    mensaje("Se ha creado el documento arbitros correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaEquipos) {
                 ControladorEquipos controladorEquipos = new ControladorEquipos();
                 if (controladorEquipos.imprimirEquipos()) {
-                    mensaje("Se ha creado el documento correctamente", mensajeDeAcierto);
+                    mensaje("Se ha creado el documento equipos correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaPartidos) {
                 ControladorPartidos controladorPartidos = new ControladorPartidos();
-                //controladorPartidos.imprimirPartidos();
+                if (controladorPartidos.imprimirPartidos()) {
+                    mensaje("Se ha creado el documento partidos correctamente", mensajeDeAcierto);
+                }
             }
             if (nTabla == tablaPatrocinador) {
                 ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
-                //controladorPatrocinador.imprimirPatrocinadores();
+                if (controladorPatrocinador.imprimirPatrocinadores()) {
+                    mensaje("Se ha creado el documento patrocinadores correctamente", mensajeDeAcierto);
+                }
             }
             if (nTabla == tablaPatrocinios) {
                 ControladorPatrocinios controladorPatrocinios = new ControladorPatrocinios();
-                //controladorPatrocinios.imprimirPatrocinios();
+                if (controladorPatrocinios.imprimirPatrocinios()) {
+                    mensaje("Se ha creado el documento patrocinios correctamente", mensajeDeAcierto);
+                }
             }
         };
         documento.addActionListener(imprimirDocumento);

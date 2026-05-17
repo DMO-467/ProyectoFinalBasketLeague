@@ -278,10 +278,6 @@ public class ControladorEquipos {
                 String ganados = String.valueOf(resultSet.getInt("partidos_ganados"));
                 String trofeos = String.valueOf(resultSet.getInt("trofeos_Liga"));
 
-                // Escapar comas y comillas en nombres
-                if (nombre.contains(",") || nombre.contains("\"")) {
-                    nombre = "\"" + nombre.replace("\"", "\"\"") + "\"";
-                }
 
                 escribir.write(String.join(",", id, nombre, perdidos, ganados, trofeos));
                 escribir.newLine();

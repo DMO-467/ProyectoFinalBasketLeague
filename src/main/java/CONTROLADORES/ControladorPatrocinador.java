@@ -5,20 +5,28 @@ import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorPatrocinador {
+    Conexion c = new Conexion();
+    PreparedStatement preparedStatement = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    String sql;
 
     public DefaultTableModel mostrarPatrocinador(){
-        String sql = "SELECT * FROM patrocinador";
+        sql = "SELECT * FROM patrocinador";
         String[] columnas = {"ID", "Nombre", "Telefono", "Email"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 int id = resultSet.getInt("id_patrocinador");
                 String nombre = resultSet.getString("nombre_patrocinador");
@@ -34,13 +42,11 @@ public class ControladorPatrocinador {
     }
 
     public int cualId(String patrocinador){
-        String sql = "SELECT id_patrocinador FROM patrocinador WHERE  nombre_patrocinador= ?";
+        sql = "SELECT id_patrocinador FROM patrocinador WHERE  nombre_patrocinador= ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, patrocinador);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("id_patrocinador");
             }
@@ -51,10 +57,9 @@ public class ControladorPatrocinador {
     }
 
     public boolean anadirPatrocinador(Patrocinador patrocinador){
-        String sql = "INSERT INTO patrocinador(nombre_patrocinador, telefono, email) VALUES (?, ?, ?)";
+        sql = "INSERT INTO patrocinador(nombre_patrocinador, telefono, email) VALUES (?, ?, ?)";
         try{
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
             preparedStatement.setInt(2, patrocinador.getTelefono());
             preparedStatement.setString(3, patrocinador.getEmail());
@@ -69,10 +74,9 @@ public class ControladorPatrocinador {
     }
 
     public boolean eliminarPatrocinador(int id){
-        String sql = "DELETE FROM patrocinador WHERE id_patrocinador = ?";
+        sql = "DELETE FROM patrocinador WHERE id_patrocinador = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -85,10 +89,9 @@ public class ControladorPatrocinador {
     }
 
     public boolean modificarPatrocinador(Patrocinador patrocinador){
-        String sql = "UPDATE patrocinador SET nombre_patrocinador = ?, telefono = ?, email = ? WHERE id_patrocinador = ?";
+        sql = "UPDATE patrocinador SET nombre_patrocinador = ?, telefono = ?, email = ? WHERE id_patrocinador = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
             preparedStatement.setInt(2, patrocinador.getTelefono());
             preparedStatement.setString(3, patrocinador.getEmail());
@@ -104,12 +107,11 @@ public class ControladorPatrocinador {
     }
 
     public String[] mostrarNombrePatrocinador(){
-        String sql = "SELECT nombre_patrocinador FROM patrocinador";
+        sql = "SELECT nombre_patrocinador FROM patrocinador";
         try {
             List<String> patrocinador = new ArrayList<>();
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 patrocinador.add(resultSet.getString("nombre_patrocinador"));
             }
@@ -124,14 +126,13 @@ public class ControladorPatrocinador {
     }
 
     public boolean ExistePatrocinador(Patrocinador patrocinador){
-        String sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";
+        sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
             preparedStatement.setInt(2, patrocinador.getTelefono());
             preparedStatement.setString(3, patrocinador.getEmail());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return true;
             }
@@ -142,14 +143,13 @@ public class ControladorPatrocinador {
     }
 
     public DefaultTableModel mostrarFilasAfectadasPorPatrocinadorEnPatrocinios(int id){
-        String sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_patrocinador= ?";
+        sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_patrocinador= ?";
         String[] columnas = {"Equipo", "Patrocinador"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 String equipo = resultSet.getString("e.nombre_equipo");
                 String patrocinador = resultSet.getString("p.nombre_patrocinador");
@@ -163,13 +163,12 @@ public class ControladorPatrocinador {
     }
 
     public Patrocinador encontrarPatrocinador(int id){
-        String sql = "SELECT nombre_patrocinador, telefono, email FROM patrocinador WHERE id_patrocinador = ?";
+        sql = "SELECT nombre_patrocinador, telefono, email FROM patrocinador WHERE id_patrocinador = ?";
         Patrocinador patrocinador = new Patrocinador();
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 patrocinador = new Patrocinador(id, resultSet.getString("nombre_patrocinador"), resultSet.getInt("telefono"), resultSet.getString("email"));
             }
@@ -178,10 +177,42 @@ public class ControladorPatrocinador {
             throw new RuntimeException(e);
         }
 
-    }/*
-    public boolean imprimirPatrocinadores(){
-
     }
-    */
+
+    public boolean imprimirPatrocinadores(){
+        sql = "SELECT * FROM patrocinador";
+
+        // Carpeta documentos en la raíz del proyecto
+        File directorioDocumentos = new File(System.getProperty("user.dir"), "documentos");
+        if (!directorioDocumentos.exists()) {
+            directorioDocumentos.mkdir();
+        }
+
+        File documento = new File(directorioDocumentos, "patrocinadores.csv");
+
+        try (Statement statement = c.realizarConexion().createStatement();
+             ResultSet resultSet = statement.executeQuery(sql);
+             BufferedWriter escribir = new BufferedWriter(new FileWriter(documento))) {
+
+            // Encabezado CSV
+            escribir.write("ID, Nombre, Telefono, Email");
+            escribir.newLine();
+
+            // Filas
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("id_patrocinador"));
+                String nombre = resultSet.getString("nombre_patrocinador");
+                String telefono = String.valueOf(resultSet.getInt("telefono"));
+                String email = resultSet.getString("email");
+
+                escribir.write(String.join(",", id, nombre, telefono, email));
+                escribir.newLine();
+            }
+            return true;
+        }catch (SQLException | IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

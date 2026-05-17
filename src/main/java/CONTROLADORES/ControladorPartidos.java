@@ -5,20 +5,28 @@ import MODELOS.Partidos;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorPartidos {
+        Conexion c = new Conexion();
+        PreparedStatement preparedStatement = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        String sql;
 
     public DefaultTableModel mostrarPartidos(){
-        String sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
+        sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
         String[] columnas = {"ID", "Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 int id = resultSet.getInt("p.id_partido");
                 Date fecha = resultSet.getDate("p.fecha");
@@ -40,10 +48,9 @@ public class ControladorPartidos {
     }
 
     public boolean anadirPartido(Partidos partido){
-        String sql = "INSERT INTO partidos(fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        sql = "INSERT INTO partidos(fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try{
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setDate(1, Date.valueOf(partido.getFecha()));
             preparedStatement.setTime(2, partido.getHora());
             preparedStatement.setInt(3, partido.getId_equipo_local());
@@ -63,10 +70,9 @@ public class ControladorPartidos {
     }
 
     public boolean eliminarPartido(int id){
-        String sql = "DELETE FROM partidos WHERE id_partido = ?";
+        sql = "DELETE FROM partidos WHERE id_partido = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -78,10 +84,9 @@ public class ControladorPartidos {
         }
     }
     public boolean modificarPartido(Partidos partido){
-        String sql = "UPDATE partidos SET fecha= ?, hora = ?, id_equipo_local = ?, id_equipo_visitante = ?, resultado_local = ?, resultado_visitante = ?, arbitro1= ?, arbitro2 = ? WHERE id_partido = ?";
+        sql = "UPDATE partidos SET fecha= ?, hora = ?, id_equipo_local = ?, id_equipo_visitante = ?, resultado_local = ?, resultado_visitante = ?, arbitro1= ?, arbitro2 = ? WHERE id_partido = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setDate(1, Date.valueOf(partido.getFecha()));
             preparedStatement.setTime(2, partido.getHora());
             preparedStatement.setInt(3, partido.getId_equipo_local());
@@ -102,11 +107,10 @@ public class ControladorPartidos {
     }
 
     public Integer[] mostrarIdesPartidos(){
-        String sql = "SELECT id_partido FROM partidos";
+        sql = "SELECT id_partido FROM partidos";
         try {
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             List<Integer> ides = new ArrayList<>();
             while (resultSet.next()){
                 ides.add(resultSet.getInt("id_partido"));
@@ -122,7 +126,7 @@ public class ControladorPartidos {
     }
 
     public Partidos encontrarPartido(Integer id) {
-        String sql = "SELECT fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2 FROM partidos WHERE id_partido = ?";
+        sql = "SELECT fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2 FROM partidos WHERE id_partido = ?";
         Partidos partido = new Partidos();
         try {
             Conexion c = new Conexion();
@@ -136,9 +140,45 @@ public class ControladorPartidos {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }/*
-    public boolean imprimirPartidos(){
-
     }
-    */
+    public boolean imprimirPartidos(){
+        sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
+
+        // Carpeta documentos en la raíz del proyecto
+        File directorioDocumentos = new File(System.getProperty("user.dir"), "documentos");
+        if (!directorioDocumentos.exists()) {
+            directorioDocumentos.mkdir();
+        }
+
+        File documento = new File(directorioDocumentos, "partidos.csv");
+
+        try (Statement statement = c.realizarConexion().createStatement();
+             ResultSet resultSet = statement.executeQuery(sql);
+             BufferedWriter escribir = new BufferedWriter(new FileWriter(documento))) {
+
+            // Encabezado CSV
+            escribir.write("ID, Fecha, Hora, Equipo local, Equipo visitante, Resultado local, Resultado visitante, Arbitro 1 , Arbitro 2");
+            escribir.newLine();
+
+            // Filas
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("p.id_partido"));
+                String fecha = resultSet.getDate("p.fecha").toString();
+                String hora = resultSet.getTime("p.hora").toString();
+                String equipoLocal = resultSet.getString("equipoLocal");
+                String equipoVisitante = resultSet.getString("equipoVisitante");
+                String resultadoLocal = String.valueOf(resultSet.getInt("p.resultado_local"));
+                String resultadoVisitante = String.valueOf(resultSet.getInt("p.resultado_visitante"));
+                String arbitro1 = resultSet.getString("arbitro1");
+                String arbitro2 = resultSet.getString("arbitro2");
+
+                escribir.write(String.join(",", id, fecha, hora, equipoLocal, equipoVisitante, resultadoLocal, resultadoVisitante, arbitro1, arbitro2));
+                escribir.newLine();
+            }
+            return true;
+        }catch (SQLException | IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
 }
