@@ -116,18 +116,21 @@ public class GUI {
 
                             if (comprobacion.comprobarNumero(anosExperiencia)) {
                                 int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
+                                if (anosExperienciaNumero < 60) {
+                                    Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                            partidosArbitradosNumero, anosExperienciaNumero);
 
-                                Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                        partidosArbitradosNumero, anosExperienciaNumero);
+                                    ControladorArbitro anadir = new ControladorArbitro();
 
-                                ControladorArbitro anadir = new ControladorArbitro();
+                                    if (anadir.anadirArbitro(arbitro)) {
+                                        g.mensaje("Fila añadida", g.mensajeDeAcierto);
+                                    } else {
+                                        g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                    }
 
-                                if (anadir.anadirArbitro(arbitro)) {
-                                    g.mensaje("Fila añadida", g.mensajeDeAcierto);
-                                } else {
-                                    g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                }else {
+                                    g.mensaje("ERROR, no puede tener mas de 60 años de experiencia");
                                 }
-
                             } else {
                                 g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
                             }
@@ -956,7 +959,8 @@ public class GUI {
 
         JDateChooser fecha = new JDateChooser(Date.from(partido.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         fecha.setDateFormatString("dd/MM/yyyy");
-        JTextField hora = new JTextField(String.valueOf(partido.getHora()), 15);
+        String horaFormateada = partido.getHora().toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        JTextField hora = new JTextField(horaFormateada, 15);
         JTextField resultadoLocal = new JTextField(String.valueOf(partido.getResultado_local()), 15);
         JTextField resultadoVisitante = new JTextField(String.valueOf(partido.getResultado_visitante()), 15);
 
@@ -1063,18 +1067,22 @@ public class GUI {
         frame.setVisible(true);
         boton.addActionListener(accion);
     }
-/*
+
     public void ventanaConfirmarModificacionPatrocinio(Patrocinador patrocinador, Equipos equipo){
+        ControladorEquipos controladorEquipos = new ControladorEquipos();
+        ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
         JFrame frame = new JFrame("Asignar Patrocinio");
         frame.setSize(400, 200);
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
+        JComboBox<String> cPatrocinadores = new JComboBox<>(controladorPatrocinador.mostrarNombrePatrocinador());
+        cPatrocinadores.setSelectedItem(patrocinador.getNombre_patrocinador());
         panel.add(new JLabel("Patrocinador:"), configurarConstraints(0, 0));
         panel.add(cPatrocinadores, configurarConstraints(1, 0));
 
-        JComboBox<String> cEquipos = new JComboBox<>(equipos);
+        JComboBox<String> cEquipos = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
+        cEquipos.setSelectedItem(equipo.getNombre_equipo());
         panel.add(new JLabel("Equipo:"), configurarConstraints(0, 1));
         panel.add(cEquipos, configurarConstraints(1, 1));
 
@@ -1093,14 +1101,10 @@ public class GUI {
             ides[1] = anadir.localizarIdEquipo(seleccionados[1]);
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
             GUI g = new GUI();
-            if (anadir.existePatrocinio(patrocinios)) {
-                g.mensaje("Este patrocinio ya existe");
+            if (anadir.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
+                g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
             }else {
-                if (anadir.anadirPatrocinio(patrocinios)) {
-                    g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
-                }else {
-                    g.mensaje("No se ha podido añadir la fila");
-                }
+                g.mensaje("No se ha podido modificar la fila");
             }
         };
 
@@ -1109,7 +1113,6 @@ public class GUI {
         boton.addActionListener(accion);
     }
 
- */
 
     public void ventanaConfirmarModificacionPatrocinador(Patrocinador patrocinador){
         JFrame frame = new JFrame("Modificar Patrocinador");
@@ -1268,7 +1271,7 @@ public class GUI {
         ActionListener accion = e -> {
             String patrocinador = (String) cPatrocinadores.getSelectedItem();
             String equipo = (String) cEquipos.getSelectedItem();
-            //ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)), controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
+            ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)), controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1411,10 +1414,12 @@ public class GUI {
         JButton anadir = new JButton("Añadir");
         JButton eliminar = new JButton("Eliminar");
         JButton modificar = new JButton("Modificar");
+        JButton documento = new JButton("Documento");
         JPanel opciones = new JPanel();
         opciones.add(anadir);
         opciones.add(eliminar);
         opciones.add(modificar);
+        opciones.add(documento);
         fondo.add(opciones, BorderLayout.SOUTH);
         ControladorPartidos tablaPrincipal = new ControladorPartidos();
         tabla.setModel(tablaPrincipal.mostrarPartidos());
@@ -1514,9 +1519,36 @@ public class GUI {
                 ventanaModificarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaModificarPatrocinio(controladorPatrocinador.mostrarNombrePatrocinador(), controladorEquipos.mostrarNombreEquipos());
+                ventanaModificarPatrocinio(controladorEquipos.mostrarNombreEquipos(), controladorPatrocinador.mostrarNombrePatrocinador());
             }
         };
         modificar.addActionListener(modifica);
+        ActionListener imprimirDocumento = e -> {
+            if (nTabla == tablaArbitro) {
+                ControladorArbitro ar = new ControladorArbitro();
+                if (ar.imprimirArbitros()) {
+                    mensaje("Se ha creado el documento correctamente", mensajeDeAcierto);
+                }
+            }
+            if (nTabla == tablaEquipos) {
+                ControladorEquipos controladorEquipos = new ControladorEquipos();
+                if (controladorEquipos.imprimirEquipos()) {
+                    mensaje("Se ha creado el documento correctamente", mensajeDeAcierto);
+                }
+            }
+            if (nTabla == tablaPartidos) {
+                ControladorPartidos controladorPartidos = new ControladorPartidos();
+                //controladorPartidos.imprimirPartidos();
+            }
+            if (nTabla == tablaPatrocinador) {
+                ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
+                //controladorPatrocinador.imprimirPatrocinadores();
+            }
+            if (nTabla == tablaPatrocinios) {
+                ControladorPatrocinios controladorPatrocinios = new ControladorPatrocinios();
+                //controladorPatrocinios.imprimirPatrocinios();
+            }
+        };
+        documento.addActionListener(imprimirDocumento);
     }
 }

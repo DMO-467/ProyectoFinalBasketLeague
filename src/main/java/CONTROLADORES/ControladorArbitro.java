@@ -4,20 +4,26 @@ import MODELOS.Arbitro;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorArbitro {
-
+    Conexion c = new Conexion();
+    Statement statement = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
     public DefaultTableModel mostrarArbitro(){
         String sql = "SELECT * FROM arbitro";
         String[] columnas = {"ID", "Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 int id = resultSet.getInt("id_arbitro");
                 String nombre = resultSet.getString("nombreCompleto");
@@ -35,8 +41,7 @@ public class ControladorArbitro {
     public boolean anadirArbitro(Arbitro arbitro){
         String sql = "INSERT INTO arbitro(nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia) VALUES (?, ?, ?, ?)";
         try{
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, arbitro.getNombreCompleto());
             preparedStatement.setDate(2, Date.valueOf(arbitro.getFecha_nacimiento()));
             preparedStatement.setInt(3, arbitro.getPartidos_arbitrados());
@@ -54,8 +59,7 @@ public class ControladorArbitro {
     public boolean eliminarArbitro(int id){
         String sql = "DELETE FROM arbitro WHERE id_arbitro = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -70,8 +74,7 @@ public class ControladorArbitro {
     public boolean modificarArbitro(Arbitro arbitro){
         String sql = "UPDATE arbitro SET nombreCompleto = ?, fecha_nacimiento = ?, partidos_arbitrados = ?, años_experiencia = ? WHERE id_arbitro = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, arbitro.getNombreCompleto());
             preparedStatement.setDate(2, Date.valueOf(arbitro.getFecha_nacimiento()));
             preparedStatement.setInt(3, arbitro.getPartidos_arbitrados());
@@ -90,10 +93,9 @@ public class ControladorArbitro {
     public boolean existeId(int id){
         String sql = "SELECT id_arbitro FROM arbitro WHERE id_arbitro = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return true;
             }
@@ -105,10 +107,9 @@ public class ControladorArbitro {
     public boolean existeNombre(String nombre){
         String sql = "SELECT nombreCompleto FROM arbitro WHERE nombreCompleto = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, nombre);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return true;
             }
@@ -121,9 +122,8 @@ public class ControladorArbitro {
         String sql = "SELECT nombreCompleto FROM arbitro";
         try {
             List<String> arbitro = new ArrayList<>();
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 arbitro.add(resultSet.getString("nombreCompleto"));
             }
@@ -139,11 +139,9 @@ public class ControladorArbitro {
     public int cualId(String nombre){
         String sql = "SELECT id_arbitro FROM arbitro WHERE nombreCompleto = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, nombre);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("id_arbitro");
             }
@@ -155,11 +153,9 @@ public class ControladorArbitro {
     public String cualNombre(int id){
         String sql = "SELECT nombreCompleto FROM arbitro WHERE id_arbitro = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getString("nombreCompleto");
             }
@@ -174,11 +170,10 @@ public class ControladorArbitro {
         String[] columnas = {"partido", "fecha", "hora", "equipo local", "equipo visitante", "resultado local", "resultado visitante", "arbitro1", "arbitro2"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             preparedStatement.setInt(2, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 int idPartido = resultSet.getInt("p.id_partido");
                 Date fecha = resultSet.getDate("p.fecha");
@@ -203,15 +198,55 @@ public class ControladorArbitro {
         String sql = "SELECT nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia FROM arbitro WHERE id_arbitro = ?";
         Arbitro arbitro = new Arbitro();
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 arbitro = new Arbitro(resultSet.getString("nombreCompleto"), resultSet.getDate("fecha_nacimiento").toLocalDate(), resultSet.getInt("partidos_arbitrados"), resultSet.getInt("años_experiencia"));
             }
             return arbitro;
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean imprimirArbitros(){
+        String sql = "SELECT * FROM arbitro";
+
+        // Carpeta documentos en la raíz del proyecto
+        File directorioDocumentos = new File(System.getProperty("user.dir"), "documentos");
+        if (!directorioDocumentos.exists()) {
+            directorioDocumentos.mkdir();
+        }
+
+        File documento = new File(directorioDocumentos, "arbitros.csv");
+
+        try (Statement statement = c.realizarConexion().createStatement();
+             ResultSet resultSet = statement.executeQuery(sql);
+             BufferedWriter escribir = new BufferedWriter(new FileWriter(documento))) {
+
+            // Escribir encabezado
+            escribir.write("ID,Nombre,Fecha de nacimiento,Partidos arbitrados,Años de experiencia");
+            escribir.newLine();
+
+            // Escribir filas
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("id_arbitro"));
+                String nombre = resultSet.getString("nombreCompleto");
+                String fecha = resultSet.getDate("fecha_nacimiento").toString();
+                String partidos = String.valueOf(resultSet.getInt("partidos_arbitrados"));
+                String anios = String.valueOf(resultSet.getInt("años_experiencia"));
+
+                // Escapar comas y comillas si existieran en el nombre
+                if (nombre.contains(",") || nombre.contains("\"")) {
+                    nombre = "\"" + nombre.replace("\"", "\"\"") + "\"";
+                }
+
+                escribir.write(String.join(",", id, nombre, fecha, partidos, anios));
+                escribir.newLine();
+            }
+            return true;
+        }catch (SQLException | IOException e){
             throw new RuntimeException(e);
         }
     }

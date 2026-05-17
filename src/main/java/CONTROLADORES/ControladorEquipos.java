@@ -6,19 +6,28 @@ import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorEquipos {
+    Conexion c = new Conexion();
+    PreparedStatement preparedStatement = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    String sql;
+
     public DefaultTableModel mostrarEquipos(){
-        String sql = "SELECT * FROM equipos";
+        sql = "SELECT * FROM equipos";
         String[] columnas = {"ID", "Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
                 int id = resultSet.getInt("id_equipo");
                 String nombre = resultSet.getString("nombre_equipo");
@@ -34,10 +43,9 @@ public class ControladorEquipos {
         return modelo;
     }
     public boolean anadirEquipo(Equipos equipo){
-        String sql = "INSERT INTO equipos(nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga) VALUES (?, ?, ?, ?)";
+        sql = "INSERT INTO equipos(nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga) VALUES (?, ?, ?, ?)";
         try{
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, equipo.getNombre_equipo());
             preparedStatement.setInt(2, equipo.getPartidos_perdidos());
             preparedStatement.setInt(3, equipo.getPartidos_ganados());
@@ -53,10 +61,9 @@ public class ControladorEquipos {
     }
 
     public boolean eliminarEquipo(int id){
-        String sql = "DELETE FROM equipos WHERE id_equipo = ?";
+        sql = "DELETE FROM equipos WHERE id_equipo = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -69,10 +76,9 @@ public class ControladorEquipos {
     }
 
     public boolean modificarEquipo(Equipos equipo){
-        String sql = "UPDATE equipos SET nombre_equipo= ?, partidos_perdidos = ?, partidos_ganados = ?, trofeos_liga = ? WHERE id_equipo = ?";
+        sql = "UPDATE equipos SET nombre_equipo= ?, partidos_perdidos = ?, partidos_ganados = ?, trofeos_liga = ? WHERE id_equipo = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, equipo.getNombre_equipo());
             preparedStatement.setInt(2, equipo.getPartidos_perdidos());
             preparedStatement.setInt(3, equipo.getPartidos_ganados());
@@ -89,10 +95,9 @@ public class ControladorEquipos {
     }
 
     public boolean existeId(int id){
-        String sql = "SELECT id_equipo FROM equipos WHERE id_equipo = ?";
+        sql = "SELECT id_equipo FROM equipos WHERE id_equipo = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -104,12 +109,11 @@ public class ControladorEquipos {
         }
     }
     public boolean existeNombre(String nombre){
-        String sql = "SELECT nombre_equipo FROM equipos WHERE nombre_equipo = ?";
+        sql = "SELECT nombre_equipo FROM equipos WHERE nombre_equipo = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, nombre);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return true;
             }
@@ -119,13 +123,11 @@ public class ControladorEquipos {
         }
     }
     public int cualId(String nombre){
-        String sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
+        sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
         try {
-         Conexion c = new Conexion();
-         PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+         preparedStatement = c.realizarConexion().prepareStatement(sql);
          preparedStatement.setString(1, nombre);
-
-         ResultSet resultSet = preparedStatement.executeQuery();
+         resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                return resultSet.getInt("id_equipo");
             }
@@ -135,13 +137,11 @@ public class ControladorEquipos {
         }
     }
     public String cualNombre(int id){
-        String sql = "SELECT nombre_equipo FROM equipos WHERE id_equipo = ?";
+        sql = "SELECT nombre_equipo FROM equipos WHERE id_equipo = ?";
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getString("nombre_equipo");
             }
@@ -151,12 +151,11 @@ public class ControladorEquipos {
         }
     }
     public String[] mostrarNombreEquipos(){
-       String sql = "SELECT nombre_equipo FROM equipos";
+       sql = "SELECT nombre_equipo FROM equipos";
        try {
            List<String> equipos = new ArrayList<>();
-           Conexion c = new Conexion();
-           Statement statement = c.realizarConexion().createStatement();
-           ResultSet resultSet = statement.executeQuery(sql);
+           statement = c.realizarConexion().createStatement();
+           resultSet = statement.executeQuery(sql);
            while (resultSet.next()){
                equipos.add(resultSet.getString("nombre_equipo"));
            }
@@ -170,11 +169,10 @@ public class ControladorEquipos {
        }
     }
     public String[] noMostrarNombreEquipo(String nombre){
-        String sql = "SELECT nombre_equipo FROM equipos WHERE UPPER(nombre_equipo) != UPPER(?)";
+        sql = "SELECT nombre_equipo FROM equipos WHERE UPPER(nombre_equipo) != UPPER(?)";
         try {
             List<String> equipos = new ArrayList<>();
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, nombre);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
@@ -191,12 +189,11 @@ public class ControladorEquipos {
     }
 
     public DefaultTableModel mostrarFilasAfectadasPorEquipoEnPartido(int id){
-        String sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro WHERE id_equipo_local = ? OR id_equipo_visitante = ?";
+        sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro WHERE id_equipo_local = ? OR id_equipo_visitante = ?";
         String[] columnas = {"partido", "fecha", "hora", "equipo local", "equipo visitante", "resultado local", "resultado visitante", "arbitro1", "arbitro2"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
             preparedStatement.setInt(2, id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -220,14 +217,13 @@ public class ControladorEquipos {
         return modelo;
     }
     public DefaultTableModel mostrarFilasAfectadasPorEquipoEnPatrocinios(int id){
-        String sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_equipo= ?";
+        sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_equipo= ?";
         String[] columnas = {"Equipo", "Patrocinador"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas);
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 String equipo = resultSet.getString("e.nombre_equipo");
                 String patrocinador = resultSet.getString("p.nombre_patrocinador");
@@ -241,18 +237,57 @@ public class ControladorEquipos {
     }
 
     public Equipos encontrarEquipo(int id) {
-        String sql = "SELECT nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga FROM equipos WHERE id_equipo = ?";
+        sql = "SELECT nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga FROM equipos WHERE id_equipo = ?";
         Equipos equipo = new Equipos();
         try {
-            Conexion c = new Conexion();
-            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 equipo = new Equipos(id, resultSet.getString("nombre_equipo"), resultSet.getInt("partidos_perdidos"), resultSet.getInt("partidos_ganados"), resultSet.getInt("trofeos_liga"));
             }
             return equipo;
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean imprimirEquipos(){
+        String sql = "SELECT * FROM equipos";
+
+        // Carpeta documentos en la raíz del proyecto
+        File directorioDocumentos = new File(System.getProperty("user.dir"), "documentos");
+        if (!directorioDocumentos.exists()) {
+            directorioDocumentos.mkdir();
+        }
+
+        File documento = new File(directorioDocumentos, "equipos.csv");
+
+        try (Statement statement = c.realizarConexion().createStatement();
+             ResultSet resultSet = statement.executeQuery(sql);
+             BufferedWriter escribir = new BufferedWriter(new FileWriter(documento))) {
+
+            // Encabezado CSV
+            escribir.write("ID,Nombre,Partidos Perdidos,Partidos Ganados,Trofeos Liga");
+            escribir.newLine();
+
+            // Filas
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("id_equipo"));
+                String nombre = resultSet.getString("nombre_equipo");
+                String perdidos = String.valueOf(resultSet.getInt("partidos_perdidos"));
+                String ganados = String.valueOf(resultSet.getInt("partidos_ganados"));
+                String trofeos = String.valueOf(resultSet.getInt("trofeos_Liga"));
+
+                // Escapar comas y comillas en nombres
+                if (nombre.contains(",") || nombre.contains("\"")) {
+                    nombre = "\"" + nombre.replace("\"", "\"\"") + "\"";
+                }
+
+                escribir.write(String.join(",", id, nombre, perdidos, ganados, trofeos));
+                escribir.newLine();
+            }
+            return true;
+        }catch (SQLException | IOException e){
             throw new RuntimeException(e);
         }
     }

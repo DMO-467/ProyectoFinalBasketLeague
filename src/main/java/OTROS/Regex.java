@@ -90,7 +90,15 @@ public class Regex {
 
     public boolean comprobarNumero(String numero){
         String filtro = "^\\d+$";
-        return Pattern.matches(filtro, numero);
+        if (Pattern.matches(filtro, numero)) {
+            if (Integer.parseInt(numero) >= 0) {
+                return true;
+            }
+            return false;
+        }else {
+            return false;
+        }
+
     }
     public boolean comprobarTexto(String texto){
         String filtro = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";

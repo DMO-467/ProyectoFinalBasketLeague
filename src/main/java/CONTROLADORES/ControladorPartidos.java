@@ -1,6 +1,6 @@
 package CONTROLADORES;
 
-import MODELOS.Equipos;
+
 import MODELOS.Partidos;
 import OTROS.Conexion;
 
@@ -136,12 +136,9 @@ public class ControladorPartidos {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-    public Time horaModificar(Time hora){
-        String horaTexto = String.valueOf(hora);
-        for (int i = 0; i < horaTexto.length(); i++) {
+    }/*
+    public boolean imprimirPartidos(){
 
-        }
     }
-
+    */
 }

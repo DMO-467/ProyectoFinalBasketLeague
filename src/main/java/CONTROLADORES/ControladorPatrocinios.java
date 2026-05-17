@@ -155,5 +155,9 @@ public class ControladorPatrocinios {
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
+    }/*
+    public boolean imprimirPatrocinios(){
+
     }
+    */
 }

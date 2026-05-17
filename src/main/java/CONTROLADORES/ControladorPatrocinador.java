@@ -178,6 +178,10 @@ public class ControladorPatrocinador {
             throw new RuntimeException(e);
         }
 
-    };
+    }/*
+    public boolean imprimirPatrocinadores(){
+
+    }
+    */
 
 }
