@@ -7,40 +7,63 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Regex {
-    public boolean verificacionInicioSesion(String usuario){
-        String sql = "SELECT contraseña FROM usuarios WHERE usuario = 'administrador'";
+
+    public String[] mostrarUsuarios(){
+        String sql = "SELECT usuario FROM usuarios";
         Conexion c = new Conexion();
-        String contrasena = "";
+        ArrayList<String> usuarios = new ArrayList<>();
         try {
             Statement statement = c.realizarConexion().createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
-            if (resultSet.next()) {
-                contrasena = resultSet.getString("contraseña");
+            while (resultSet.next()){
+                usuarios.add(resultSet.getString("usuario"));
             }
-            return contrasena.equals(usuario);
+            String[] usuariosCompletos = new String[usuarios.size()];
+            for (int i = 0; i < usuariosCompletos.length; i++) {
+                usuariosCompletos[i] = usuarios.get(i);
+            }
+            return usuariosCompletos;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean verificacionInicioSesion(String usuario, String contrasena){
+        String sql = "SELECT contraseña FROM usuarios WHERE usuario = ?";
+        Conexion c = new Conexion();
+        String verificacion = "";
+        try {
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, usuario);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                verificacion = resultSet.getString("contraseña");
+            }
+            return verificacion.equals(contrasena);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public boolean cambiarContrasena(String antigua, String nueva){
-        String sql = "SELECT contraseña FROM usuarios WHERE usuario = 'administrador'";
+    public boolean cambiarContrasena(String usuario, String antigua, String nueva){
+        String sql = "SELECT contraseña FROM usuarios WHERE usuario = ?";
         Conexion c = new Conexion();
         String contrasena = "";
         try {
-            Statement statement = c.realizarConexion().createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(sql);
+            preparedStatement.setString(1, usuario);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 contrasena = resultSet.getString("contraseña");
             }
             if (antigua.equals(contrasena)) {
                 String cambiar = "UPDATE usuarios SET contraseña = ? WHERE usuario = 'administrador'";
-                PreparedStatement preparedStatement = c.realizarConexion().prepareStatement(cambiar);
+                preparedStatement = c.realizarConexion().prepareStatement(cambiar);
                 preparedStatement.setString(1, nueva);
                 int rowsaffected = preparedStatement.executeUpdate();
                 if (rowsaffected > 0) {

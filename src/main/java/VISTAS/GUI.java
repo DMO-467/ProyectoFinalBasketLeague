@@ -1305,6 +1305,7 @@ public class GUI {
     }
 
     public void ventanaCambioPassword() {
+        Regex comprobacion = new Regex();
         JFrame frame = new JFrame("Cambiar contraseña");
         frame.setSize(350, 200);
         frame.setLocationRelativeTo(null);
@@ -1312,20 +1313,27 @@ public class GUI {
 
         JPanel panel = new JPanel(new GridBagLayout());
 
+        JLabel username = new JLabel("Usuario:");
+        JComboBox<String> usuarios = new JComboBox<>(comprobacion.mostrarUsuarios());
+        usuarios.setSelectedItem("administrador");
+        panel.add(username, configurarConstraints(0, 0));
+
         JLabel texto = new JLabel("Contraseña antigua:");
         javax.swing.JPasswordField contrasenaAntigua = new JPasswordField(15);
-        panel.add(texto, configurarConstraints(0, 0));
+        panel.add(texto, configurarConstraints(0, 1));
 
         JPasswordField contrasenaNueva = new JPasswordField(15);
-        panel.add(new JLabel("Contraseña nueva:"), configurarConstraints(0, 1));
-        panel.add(contrasenaNueva, configurarConstraints(1, 1));
-        panel.add(contrasenaAntigua, configurarConstraints(1, 0));
+        panel.add(new JLabel("Contraseña nueva:"), configurarConstraints(0, 2));
+        panel.add(usuarios, configurarConstraints(1, 0));
+        panel.add(contrasenaNueva, configurarConstraints(1, 2));
+        panel.add(contrasenaAntigua, configurarConstraints(1, 1));
 
         ActionListener accion = e -> {
+            String user = (String) usuarios.getSelectedItem();
             String password = new String(contrasenaAntigua.getPassword());
             String nueva = new String(contrasenaNueva.getPassword());
-            Regex comprobacion = new Regex();
-            if (comprobacion.cambiarContrasena(password, nueva)) {
+
+            if (comprobacion.cambiarContrasena(user, password, nueva)) {
                 mensaje("La contraseña se ha cambiado correctamente");
                 frame.dispose();
                 ventanaDeLogeo();
@@ -1335,7 +1343,7 @@ public class GUI {
 
         };
 
-        GridBagConstraints gbcBoton = configurarConstraints(1, 2);
+        GridBagConstraints gbcBoton = configurarConstraints(1, 3);
         gbcBoton.anchor = GridBagConstraints.CENTER;
         JButton confirmar = new JButton("Aceptar");
         panel.add(confirmar, gbcBoton);
@@ -1346,21 +1354,28 @@ public class GUI {
     }
 
     public void ventanaDeLogeo(){
+        Regex comprobacion = new Regex();
         JFrame inicio = new JFrame("Inicio de Sesión");
         inicio.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         inicio.setSize(400, 250);
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
         JPanel contrasena = new JPanel();
+        JLabel username = new JLabel("Usuario:");
+        JComboBox<String> usuarios = new JComboBox<>(comprobacion.mostrarUsuarios());
+        usuarios.setSelectedItem("administrador");
         JLabel texto = new JLabel("Contraseña");
         JPasswordField usuario = new JPasswordField();
         usuario.setPreferredSize(new  Dimension(100, 25));
+        contrasena.add(username);
+        contrasena.add(usuarios);
         contrasena.add(texto);
         contrasena.add(usuario);
         ActionListener accion = e -> {
+            String user = (String) usuarios.getSelectedItem();
             String password = new String(usuario.getPassword());
-            Regex comprobacion = new Regex();
-            if (comprobacion.verificacionInicioSesion(password)) {
+
+            if (comprobacion.verificacionInicioSesion(user, password)) {
                 paginaPrincipal();
                 inicio.setVisible(false);
             }else {
