@@ -126,11 +126,11 @@ public class GUI {
                                     g.mensaje("ERROR, no se ha podido añadir el arbitro");
                                 }
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
+                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero");
+                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
                         }
                     }else {
                         g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
@@ -206,13 +206,13 @@ public class GUI {
                               }
                           }
                       }else {
-                          g.mensaje("ERROR trofeos liga, solo se valen numeros");
+                          g.mensaje("ERROR trofeos liga, solo se valen numeros entre 0 y 200");
                       }
                   }else {
-                    g.mensaje("ERROR en partidos ganados, solo se valen numeros");
+                    g.mensaje("ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
                   }
               }else {
-                  g.mensaje("ERROR en partidos perdidos, solo se valen numeros");
+                  g.mensaje("ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
               }
           }else {
              g.mensaje("ERROR nombre no valido, Solo se valen letras");
@@ -328,11 +328,11 @@ public class GUI {
                             }
 
                         } else {
-                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero");
+                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero");
+                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                     }
 
                 } else {
@@ -847,11 +847,11 @@ public class GUI {
                                 }
 
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
+                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero");
+                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
                         }
                     }else {
                         g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
@@ -922,13 +922,13 @@ public class GUI {
                                 g.mensaje("No se ha podido modificar el equipo");
                             }
                         }else {
-                            g.mensaje("ERROR trofeos liga, solo se valen numeros");
+                            g.mensaje("ERROR trofeos liga, solo se valen numeros entre 0 y 200");
                         }
                     }else {
-                        g.mensaje("ERROR en partidos ganados, solo se valen numeros");
+                        g.mensaje("ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
                     }
                 }else {
-                    g.mensaje("ERROR en partidos perdidos, solo se valen numeros");
+                    g.mensaje("ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
                 }
             }else {
                 g.mensaje("ERROR nombre no valido, Solo se valen letras");
@@ -1036,11 +1036,11 @@ public class GUI {
                             }
 
                         } else {
-                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero");
+                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero");
+                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                     }
 
                 } else {
