@@ -88,10 +88,11 @@ public class Regex {
         return LocalDate.parse(texto, filtro);
     }
 
-    public boolean comprobarNumero(String numero){
+    public boolean comprobarNumero(String numero, int max){
         String filtro = "^\\d+$";
+        int num = Integer.parseInt(numero);
         if (Pattern.matches(filtro, numero)) {
-            if (Integer.parseInt(numero) >= 0) {
+            if (num >= 0 && num <= max) {
                 return true;
             }
             return false;

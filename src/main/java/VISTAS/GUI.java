@@ -111,25 +111,19 @@ public class GUI {
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
-                        if (comprobacion.comprobarNumero(partidosArbitrados)) {
+                        if (comprobacion.comprobarNumero(partidosArbitrados, 5000)) {
                             int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
-
-                            if (comprobacion.comprobarNumero(anosExperiencia)) {
+                            if (comprobacion.comprobarNumero(anosExperiencia, 60)) {
                                 int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
-                                if (anosExperienciaNumero < 60) {
-                                    Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                            partidosArbitradosNumero, anosExperienciaNumero);
+                                Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                        partidosArbitradosNumero, anosExperienciaNumero);
 
-                                    ControladorArbitro anadir = new ControladorArbitro();
+                                ControladorArbitro anadir = new ControladorArbitro();
 
-                                    if (anadir.anadirArbitro(arbitro)) {
-                                        g.mensaje("Fila añadida", g.mensajeDeAcierto);
-                                    } else {
-                                        g.mensaje("ERROR, no se ha podido añadir el arbitro");
-                                    }
-
-                                }else {
-                                    g.mensaje("ERROR, no puede tener mas de 60 años de experiencia");
+                                if (anadir.anadirArbitro(arbitro)) {
+                                    g.mensaje("Fila añadida", g.mensajeDeAcierto);
+                                } else {
+                                    g.mensaje("ERROR, no se ha podido añadir el arbitro");
                                 }
                             } else {
                                 g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero");
@@ -195,11 +189,11 @@ public class GUI {
           GUI g = new GUI();
           nombreEquipo = filtros.mayusculasNombres(nombreEquipo);
           if (filtros.comprobarTexto(nombreEquipo)) {
-              if (filtros.comprobarNumero(partidosPerdidosValor)) {
+              if (filtros.comprobarNumero(partidosPerdidosValor, 2000)) {
                   int partidosPerdidosFiltrado = Integer.parseInt(partidosPerdidosValor);
-                  if (filtros.comprobarNumero(partidosGanadosValor)) {
+                  if (filtros.comprobarNumero(partidosGanadosValor, 2000)) {
                       int partidosGanadosFiltrado = Integer.parseInt(partidosGanadosValor);
-                      if (filtros.comprobarNumero(trofeosLigaValor)) {
+                      if (filtros.comprobarNumero(trofeosLigaValor, 200)) {
                           int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
                           Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
                           if (comprobaciones.existeNombre(nombreEquipo)) {
@@ -298,10 +292,10 @@ public class GUI {
                     horaPartido = horaPartido + ":00";
                     Time horaPartidoParseado = Time.valueOf(horaPartido);
 
-                    if (filtros.comprobarNumero(resultadoLocalPartido)) {
+                    if (filtros.comprobarNumero(resultadoLocalPartido, 30)) {
                         int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
 
-                        if (filtros.comprobarNumero(resultadoVisitantePartido)) {
+                        if (filtros.comprobarNumero(resultadoVisitantePartido, 30)) {
                             int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
 
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
@@ -840,9 +834,9 @@ public class GUI {
                     LocalDate fechaNacimientoParseada = fechaSeleccionada.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
                         arbitro.setFecha_nacimiento(fechaNacimientoParseada);
-                        if (comprobacion.comprobarNumero(partidosArbitrados)) {
+                        if (comprobacion.comprobarNumero(partidosArbitrados, 5000)) {
                             arbitro.setPartidos_arbitrados(Integer.parseInt(partidosArbitrados));
-                            if (comprobacion.comprobarNumero(anosExperiencia)) {
+                            if (comprobacion.comprobarNumero(anosExperiencia, 60)) {
                                 arbitro.setAnos_experiencia(Integer.parseInt(anosExperiencia));
                                 ControladorArbitro anadir = new ControladorArbitro();
 
@@ -916,11 +910,11 @@ public class GUI {
             GUI g = new GUI();
             if (filtros.comprobarTexto(nombreEquipo)) {
                 equipo.setNombre_equipo(nombreEquipo);
-                if (filtros.comprobarNumero(partidosPerdidosValor)) {
+                if (filtros.comprobarNumero(partidosPerdidosValor, 2000)) {
                     equipo.setPartidos_perdidos(Integer.parseInt(partidosPerdidosValor));
-                    if (filtros.comprobarNumero(partidosGanadosValor)) {
+                    if (filtros.comprobarNumero(partidosGanadosValor, 2000)) {
                         equipo.setPartidos_ganados(Integer.parseInt(partidosGanadosValor));
-                        if (filtros.comprobarNumero(trofeosLigaValor)) {
+                        if (filtros.comprobarNumero(trofeosLigaValor, 200)) {
                             equipo.setTrofeos_liga(Integer.parseInt(trofeosLigaValor));
                             if (comprobaciones.modificarEquipo(equipo)) {
                                 g.mensaje("El equipo ha sido modificado correctamente", g.mensajeDeAcierto);
@@ -1015,10 +1009,10 @@ public class GUI {
                 if (filtros.comprobarHora(horaPartido)) {
                     horaPartido = horaPartido + ":00";
                     partido.setHora(Time.valueOf(horaPartido));
-                    if (filtros.comprobarNumero(resultadoLocalPartido)) {
+                    if (filtros.comprobarNumero(resultadoLocalPartido, 30)) {
                         partido.setResultado_local(Integer.parseInt(resultadoLocalPartido));
 
-                        if (filtros.comprobarNumero(resultadoVisitantePartido)) {
+                        if (filtros.comprobarNumero(resultadoVisitantePartido, 30)) {
                             int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
 
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
