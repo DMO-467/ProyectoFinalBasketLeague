@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
+// En esta clase se encuentran todas las ventanas de la interfaz grafica
 public class GUI {
     int tablaPartidos = 3;
     int nTabla = tablaPartidos;

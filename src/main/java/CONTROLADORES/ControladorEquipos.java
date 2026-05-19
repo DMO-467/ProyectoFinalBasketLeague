@@ -1,8 +1,7 @@
 package CONTROLADORES;
 
-import MODELOS.Arbitro;
+
 import MODELOS.Equipos;
-import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
 import javax.swing.table.DefaultTableModel;
@@ -15,15 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorEquipos {
+    // Declaramos las variables que se van a usar en todos los metodos para no crear objetos inecesarios que ocupen espacio en memoria
     Conexion c = new Conexion();
     PreparedStatement preparedStatement = null;
     Statement statement = null;
     ResultSet resultSet = null;
     String sql;
-
+// devuelve una tabla con todos los campos de la tabla equipos que se muestra en la pagina principal de la interfaz
     public DefaultTableModel mostrarEquipos(){
         sql = "SELECT * FROM equipos";
+        // Nombres de los campos que se muestran en la interfaz (es solo visual)
         String[] columnas = {"ID", "Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
+        // Creamos el objeto tabla y lo modificamos para que el usuario no pueda editar los campos clicando sobre ellos
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -40,6 +42,7 @@ public class ControladorEquipos {
                 int partidosGanados = resultSet.getInt("partidos_ganados");
                 int trofeosLiga = resultSet.getInt("trofeos_liga");
                 Object[] fila = {id, nombre, partidosPerdidos, partidosGanados, trofeosLiga};
+                // Añadimos las filas a la tabla
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -98,7 +101,7 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
-
+// Comprueba que el id dado se encuentra en la tabla equipos
     public boolean existeId(int id){
         sql = "SELECT id_equipo FROM equipos WHERE id_equipo = ?";
         try {
@@ -113,6 +116,7 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
+    // Comprueba que el nombre dado se encuentra en la tabla equipos
     public boolean existeNombre(String nombre){
         sql = "SELECT nombre_equipo FROM equipos WHERE nombre_equipo = ?";
         try {
@@ -127,6 +131,7 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
+    // Busca el id del equipo con el nombre dado
     public int cualId(String nombre){
         sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
         try {
@@ -141,6 +146,7 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
+    // Busca el nombre del equipo con él, id dado
     public String cualNombre(int id){
         sql = "SELECT nombre_equipo FROM equipos WHERE id_equipo = ?";
         try {
@@ -155,6 +161,7 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
+    // Devuelve un array con todos los nombres de todos los equipos de la tabla equipos
     public String[] mostrarNombreEquipos(){
        sql = "SELECT nombre_equipo FROM equipos";
        try {
@@ -173,6 +180,7 @@ public class ControladorEquipos {
            throw new RuntimeException(e);
        }
     }
+    // Muestra todos los nombres de equipos menos el que le pases
     public String[] noMostrarNombreEquipo(String nombre){
         sql = "SELECT nombre_equipo FROM equipos WHERE UPPER(nombre_equipo) != UPPER(?)";
         try {
@@ -192,7 +200,7 @@ public class ControladorEquipos {
             throw new RuntimeException(e);
         }
     }
-
+// Muestras las filas afectadas por la fila con el id de equipo dado de la tabla partidos
     public DefaultTableModel mostrarFilasAfectadasPorEquipoEnPartido(int id){
         sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro WHERE id_equipo_local = ? OR id_equipo_visitante = ?";
         String[] columnas = {"partido", "fecha", "hora", "equipo local", "equipo visitante", "resultado local", "resultado visitante", "arbitro1", "arbitro2"};
@@ -221,6 +229,7 @@ public class ControladorEquipos {
         }
         return modelo;
     }
+    // Muestras las filas afectadas por la fila con el id de equipo dado de la tabla patrocinios
     public DefaultTableModel mostrarFilasAfectadasPorEquipoEnPatrocinios(int id){
         sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_equipo= ?";
         String[] columnas = {"Equipo", "Patrocinador"};
@@ -240,7 +249,7 @@ public class ControladorEquipos {
         }
         return modelo;
     }
-
+// Devuelve todos los valores de un equipo dado su id
     public Equipos encontrarEquipo(int id) {
         sql = "SELECT nombre_equipo, partidos_perdidos, partidos_ganados, trofeos_liga FROM equipos WHERE id_equipo = ?";
         Equipos equipo = new Equipos();
@@ -256,6 +265,7 @@ public class ControladorEquipos {
             throw new RuntimeException(e);
         }
     }
+    // Genera un csv con todos los campos de la tabla equipos
     public boolean imprimirEquipos(){
         String sql = "SELECT * FROM equipos";
 

@@ -1,6 +1,6 @@
 package CONTROLADORES;
 
-import MODELOS.Arbitro;
+
 import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
@@ -14,15 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorPatrocinador {
+    // Declaramos las variables que vamos a reusar para hacer consultas a la base de datos
     Conexion c = new Conexion();
     PreparedStatement preparedStatement = null;
     Statement statement = null;
     ResultSet resultSet = null;
     String sql;
-
+// Muestra todos los patrocinadores de la tabla patrocinador en la interfaz grafica
     public DefaultTableModel mostrarPatrocinador(){
         sql = "SELECT * FROM patrocinador";
+        // Nombres de los campos en la interfaz grafica
         String[] columnas = {"ID", "Nombre", "Telefono", "Email"};
+        // Creamos el objeto tabla y lo modificamos para que no se pueda editar los datos clicando en los campos de las filas
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -38,6 +41,7 @@ public class ControladorPatrocinador {
                 int telefono = resultSet.getInt("telefono");
                 String email = resultSet.getString("email");
                 Object[] fila = {id, nombre, telefono, email};
+                // Añadimos filas a la tabla de la interfaz
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -45,7 +49,7 @@ public class ControladorPatrocinador {
         }
         return modelo;
     }
-
+// Devuelve el id del patrocinador dado su nombre
     public int cualId(String patrocinador){
         sql = "SELECT id_patrocinador FROM patrocinador WHERE  nombre_patrocinador= ?";
         try {
@@ -110,7 +114,7 @@ public class ControladorPatrocinador {
             throw new RuntimeException(ex);
         }
     }
-
+// Devuelve un array con todos los nombres de todos los patrocinadores de la tabla patrocinador
     public String[] mostrarNombrePatrocinador(){
         sql = "SELECT nombre_patrocinador FROM patrocinador";
         try {
@@ -129,7 +133,7 @@ public class ControladorPatrocinador {
             throw new RuntimeException(e);
         }
     }
-
+//  Comprueba que el patrocinador dado se encuentra en la tabla de patrocinador
     public boolean ExistePatrocinador(Patrocinador patrocinador){
         sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";
         try {
@@ -146,7 +150,7 @@ public class ControladorPatrocinador {
             throw new RuntimeException(e);
         }
     }
-
+// Muestra las filas afectadas por el patrocinador en la tabla patrocinios
     public DefaultTableModel mostrarFilasAfectadasPorPatrocinadorEnPatrocinios(int id){
         sql = "SELECT e.nombre_equipo, p.nombre_patrocinador FROM equipos e JOIN patrocinios pa ON e.id_equipo=pa.id_equipo JOIN patrocinador p ON pa.id_patrocinador=p.id_patrocinador WHERE pa.id_patrocinador= ?";
         String[] columnas = {"Equipo", "Patrocinador"};
@@ -166,7 +170,7 @@ public class ControladorPatrocinador {
         }
         return modelo;
     }
-
+// Devuelve todos los valores de un patrocinador dado su id
     public Patrocinador encontrarPatrocinador(int id){
         sql = "SELECT nombre_patrocinador, telefono, email FROM patrocinador WHERE id_patrocinador = ?";
         Patrocinador patrocinador = new Patrocinador();
@@ -183,7 +187,7 @@ public class ControladorPatrocinador {
         }
 
     }
-
+// Genera un csv con todas las filas de la tabla patrocinador
     public boolean imprimirPatrocinadores(){
         sql = "SELECT * FROM patrocinador";
 

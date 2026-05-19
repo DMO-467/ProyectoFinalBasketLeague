@@ -1,9 +1,9 @@
 package CONTROLADORES;
 
-import MODELOS.Patrocinador;
+
 import MODELOS.Patrocinios;
 import OTROS.Conexion;
-import OTROS.Regex;
+
 
 import javax.swing.table.DefaultTableModel;
 import java.io.BufferedWriter;
@@ -15,15 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorPatrocinios {
+    // Declaramos las variables que vamos a usar para comunicarnos con la base de datos de manera en que no tengamos que crear tropecientos objetos sin necesidad
     Conexion c = new Conexion();
     PreparedStatement preparedStatement = null;
     Statement statement = null;
     ResultSet resultSet = null;
     String sql;
-
+// Muestra los nombres de todos los equipos y patrocinadores de la tabla patrocinios en vez de sus ides
     public DefaultTableModel mostrarPatrocinios(){
         sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
+        // Son los nombres que se ven como campos en la interfaz
         String[] columnas = {"Patrocinador", "Equipo"};
+        // Creamos el objeto tabla y lo modificamos para que no se pueda editar clicando en ningun campo
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -37,6 +40,7 @@ public class ControladorPatrocinios {
                 String patrocinador = resultSet.getString("patrocinador");
                 String equipo = resultSet.getString("equipo");
                 Object[] fila = {patrocinador, equipo};
+                // Añadimos las filas de la consulta a la tabla
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -93,7 +97,7 @@ public class ControladorPatrocinios {
             throw new RuntimeException(ex);
         }
     }
-
+// Dado el nombre de un patrocinador nos devuelve su id
     public int localizarIdPatrocinador(String nombre){
         sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ?";
         try {
@@ -108,7 +112,7 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
     }
-
+// Dado el nombre de un equipo nos devuelve su id
     public int localizarIdEquipo(String nombre){
         sql = "SELECT id_equipo FROM equipos WHERE nombre_equipo = ?";
         try {
@@ -124,7 +128,7 @@ public class ControladorPatrocinios {
         }
 
     }
-
+// Comprueba que el patrocinio existe en la tabla patrocinios
     public boolean existePatrocinio(Patrocinios patrocinios){
         sql = "SELECT * FROM patrocinios WHERE id_patrocinador = ? AND id_equipo = ?";
         try {
@@ -140,7 +144,7 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
     }
-
+// Devuelve Todos los nombres de patrocinadores y equipos de sus respectivas tablas
     public String[] mostrarPatrociniosNombres(){
         sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
         try {
@@ -162,6 +166,7 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
     }
+    // Crea un csv con los nombres de equipos y patrocinadores que aparecen en la tabla patrocinios
     public boolean imprimirPatrocinios(){
         sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
 

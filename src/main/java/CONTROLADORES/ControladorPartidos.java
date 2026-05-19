@@ -21,9 +21,12 @@ public class ControladorPartidos {
         ResultSet resultSet = null;
         String sql;
 
+// Muestra una tabla con los campos de Partido menos los ides de equipos y arbitros que los sustituye por sus nombres y se muestra en el centro de la pagina principal de la interfaz
     public DefaultTableModel mostrarPartidos(){
         sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
+        // Son los nombres de los campos pero solo es visual para la interfaz
         String[] columnas = {"ID", "Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
+        // Creamos el objeto tabla y lo modificamos para que no se pueda editar clicando en los campos
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -45,6 +48,7 @@ public class ControladorPartidos {
                 String arbitro2 = resultSet.getString("arbitro2");
 
                 Object[] fila = {id, fecha, hora, equipoLocal, equipoVisitante, resultadoLocal, resultadoVisitante, arbitro1, arbitro2};
+                // Añadimos las filas a la tabla
                 modelo.addRow(fila);
             }
         }catch (SQLException ex){
@@ -111,7 +115,7 @@ public class ControladorPartidos {
             throw new RuntimeException(ex);
         }
     }
-
+// Muestra la fecha y los dos equipos de cada partido, pero además devuelve por detrás el resto de datos permitiendo poder mostrar un desplegable para el usuario que luego me permite localizar con facilidad la información restante del partido y esto lo hace mediante un objeto auxiliar que consta de un objeto partido y una cadena de caractes
     public PartidoItem[] mostrarPartidosEliminarOModificar(){
         sql = "SELECT p.id_partido, p.fecha, p.hora, p.id_equipo_local, p.id_equipo_visitante, p.resultado_local, p.resultado_visitante, p.arbitro1, p.arbitro2, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo";
         try {
@@ -150,7 +154,7 @@ public class ControladorPartidos {
             throw new RuntimeException(e);
         }
     }
-
+// Devuelve todos los valores de un partido dado su id
     public Partidos encontrarPartido(Integer id) {
         sql = "SELECT fecha, hora, id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante, arbitro1, arbitro2 FROM partidos WHERE id_partido = ?";
         Partidos partido = new Partidos();
@@ -167,6 +171,7 @@ public class ControladorPartidos {
             throw new RuntimeException(e);
         }
     }
+    // Crea un csv con todos los valores de la tabla partidos pero cambiando los ides de equipos y arbitros por sus nombres
     public boolean imprimirPartidos(){
         sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
 
