@@ -154,10 +154,9 @@ public class GUI {
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
-
+        boton.addActionListener(guardado);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(guardado);
     }
 
     public static void ventanaEquipos() {
@@ -225,12 +224,11 @@ public class GUI {
              g.mensaje("ERROR nombre no valido, Solo se valen letras");
           }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
-    public static void ventanaPartidos(String[] equipos, String[] arbitros) {
+    public void ventanaPartidos(String[] equipos, String[] arbitros) {
         JDialog frame = new JDialog((Frame) null, "Añadir partido", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(500, 400);
@@ -274,11 +272,7 @@ public class GUI {
 
         ActionListener accion = e -> {
             Regex filtros = new Regex();
-            ControladorPartidos comprobaciones = new ControladorPartidos();
             GUI interfaz = new GUI();
-            ControladorEquipos controladorEquipos = new ControladorEquipos();
-            ControladorArbitro controladorArbitro = new ControladorArbitro();
-
             Date fechaSeleccionada = fecha.getDate();
             String horaPartido = hora.getText();
             String resultadoLocalPartido = resultadoLocal.getText();
@@ -321,7 +315,7 @@ public class GUI {
                                             controladorArbitro.cualId(arbitro2Partido)
                                     );
 
-                                    if (comprobaciones.anadirPartido(partido)) {
+                                    if (controladorPartidos.anadirPartido(partido)) {
                                         interfaz.mensaje("Partido añadido correctamente", interfaz.mensajeDeAcierto);
                                     } else {
                                         interfaz.mensaje("ERROR, no se ha podido añadir el partido");
@@ -356,10 +350,9 @@ public class GUI {
         GridBagConstraints gbc = configurarConstraints(1, fila);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
     public static void ventanaPatrocinador() {
         JDialog frame = new JDialog((Frame) null, "Añadir patrocinador", true);
@@ -416,10 +409,9 @@ public class GUI {
                 g.mensaje("ERROR, nombre no valido (Solo se valen letras)");
             }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
     public static void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
         JDialog frame = new JDialog((Frame) null, "Añadir patrocinio", true);
@@ -461,10 +453,9 @@ public class GUI {
                 }
             }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
 
     public void ventanaConfirmarEliminacionArbitro(String arbitro){
@@ -496,12 +487,12 @@ public class GUI {
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
         inicio.add(mensaje, BorderLayout.NORTH);
         inicio.add(subeYBaja, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
-        cancelar.addActionListener(accion2);
     }
 
     public void ventanaConfirmarEliminacionEquipo(String equipo){
@@ -542,15 +533,15 @@ public class GUI {
         cContrasena.add(tablaPatrocinios);
         cContrasena.add(confirmar);
         cContrasena.add(cancelar);
-        inicio.add(mensaje, BorderLayout.NORTH);
-        inicio.add(subeYBaja, BorderLayout.CENTER);
-        inicio.add(cContrasena, BorderLayout.SOUTH);
-        inicio.setVisible(true);
         confirmar.addActionListener(accion);
         cancelar.addActionListener(accion2);
         tablaPartido.addActionListener(accion4);
         tablaPatrocinios.addActionListener(accion3);
-    };
+        inicio.add(mensaje, BorderLayout.NORTH);
+        inicio.add(subeYBaja, BorderLayout.CENTER);
+        inicio.add(cContrasena, BorderLayout.SOUTH);
+        inicio.setVisible(true);
+    }
 
     public void ventanaConfirmarEliminacionPartido(Partidos partido){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
@@ -580,12 +571,12 @@ public class GUI {
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(mensaje, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
-        cancelar.addActionListener(accion2);
     }
 
     public void ventanaConfirmarEliminacionPatrocinio(String patrocinador, String equipo){
@@ -621,13 +612,13 @@ public class GUI {
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(mensaje, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
-        cancelar.addActionListener(accion2);
-    };
+    }
 
     public void ventanaConfirmarEliminacionPatrocinador(String patrocinadorNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
@@ -658,16 +649,13 @@ public class GUI {
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
+        confirmar.addActionListener(accion);
+        cancelar.addActionListener(accion2);
         inicio.add(mensaje, BorderLayout.NORTH);
         inicio.add(subeYBaja, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
-        cancelar.addActionListener(accion2);
-    };
-
-
-
+    }
 
 
     public void ventanaEliminarArbitro(String[] arbitrosNombre){
@@ -688,10 +676,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        arbitros.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(contrasena, BorderLayout.CENTER);
         inicio.setVisible(true);
-        arbitros.addActionListener(accion);
     }
     public void ventanaEliminarEquipo(String[] equiposNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Equipo", true);
@@ -711,10 +699,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        equipos.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaEquipos, BorderLayout.CENTER);
         inicio.setVisible(true);
-        equipos.addActionListener(accion);
     }
     public void ventanaEliminarPartido(PartidoItem[] Partidos){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Partido", true);
@@ -737,10 +725,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        partidos.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPartidos, BorderLayout.CENTER);
         inicio.setVisible(true);
-        partidos.addActionListener(accion);
     }
     public void ventanaEliminarPatrocinio(String[] patrocinadores, String[] equipos){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinio", true);
@@ -769,11 +757,11 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        confirmar.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPatrocinios, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
     }
     public void ventanaEliminarPatrocinador(String[] patrocinadoresNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinador", true);
@@ -796,11 +784,11 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        confirmar.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPatrocinadores, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
     }
 
     public void ventanaConfirmarModificacionArbitro(Arbitro arbitro){
@@ -879,10 +867,9 @@ public class GUI {
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
-
+        boton.addActionListener(guardado);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(guardado);
     }
 
     public void ventanaConfirmarModificacionEquipo(Equipos equipo){
@@ -945,10 +932,9 @@ public class GUI {
                 g.mensaje("ERROR nombre no valido, Solo se valen letras");
             }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
 
     public void ventanaConfirmarModificacionPartido(Partidos partido){
@@ -1066,10 +1052,9 @@ public class GUI {
         GridBagConstraints gbc = configurarConstraints(1, fila);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
 
     public void ventanaConfirmarModificacionPatrocinio(Patrocinador patrocinador, Equipos equipo){
@@ -1110,10 +1095,9 @@ public class GUI {
                 g.mensaje("No se ha podido modificar la fila");
             }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
 
 
@@ -1172,10 +1156,9 @@ public class GUI {
                 g.mensaje("ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
             }
         };
-
+        boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
-        boton.addActionListener(accion);
     }
 
     public void ventanaModificarArbitro(String[] arbitrosNombre){
@@ -1196,10 +1179,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        arbitros.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(contrasena, BorderLayout.CENTER);
         inicio.setVisible(true);
-        arbitros.addActionListener(accion);
     }
     public void ventanaModificarEquipo(String[] equiposNombre){
         JDialog inicio = new JDialog((Frame) null, "Modificar Equipo", true);
@@ -1219,10 +1202,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        equipos.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaEquipos, BorderLayout.CENTER);
         inicio.setVisible(true);
-        equipos.addActionListener(accion);
     }
     public void ventanaModificarPartido(PartidoItem[] Partidos){
         JDialog inicio = new JDialog((Frame) null, "Modificar Partido", true);
@@ -1245,10 +1228,10 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        partidos.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPartidos, BorderLayout.CENTER);
         inicio.setVisible(true);
-        partidos.addActionListener(accion);
     }
     public void ventanaModificarPatrocinio(String[] equipos, String[] patrocinadores){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinio", true);
@@ -1277,11 +1260,11 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        confirmar.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPatrocinios, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
     }
     public void ventanaModificarPatrocinador(String[] patrocinadoresNombre){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinador", true);
@@ -1304,11 +1287,11 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
+        confirmar.addActionListener(accion);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(listaPatrocinadores, BorderLayout.CENTER);
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        confirmar.addActionListener(accion);
     }
 
     public void ventanaCambioPassword() {
