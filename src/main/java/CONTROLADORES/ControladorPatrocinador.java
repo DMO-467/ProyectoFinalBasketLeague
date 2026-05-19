@@ -23,7 +23,12 @@ public class ControladorPatrocinador {
     public DefaultTableModel mostrarPatrocinador(){
         sql = "SELECT * FROM patrocinador";
         String[] columnas = {"ID", "Nombre", "Telefono", "Email"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         try {
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);

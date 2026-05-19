@@ -20,7 +20,12 @@ public class ControladorArbitro {
     public DefaultTableModel mostrarArbitro(){
         String sql = "SELECT * FROM arbitro";
         String[] columnas = {"ID", "Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         try {
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);

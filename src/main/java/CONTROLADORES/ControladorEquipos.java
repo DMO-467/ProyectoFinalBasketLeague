@@ -24,7 +24,12 @@ public class ControladorEquipos {
     public DefaultTableModel mostrarEquipos(){
         sql = "SELECT * FROM equipos";
         String[] columnas = {"ID", "Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         try {
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);

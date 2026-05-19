@@ -1,6 +1,7 @@
 package CONTROLADORES;
 
 
+import MODELOS.PartidoItem;
 import MODELOS.Partidos;
 import OTROS.Conexion;
 
@@ -23,7 +24,12 @@ public class ControladorPartidos {
     public DefaultTableModel mostrarPartidos(){
         sql = "SELECT p.id_partido, p.fecha, p.hora, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante, p.resultado_local, p.resultado_visitante, a1.nombreCompleto AS arbitro1, a2.nombreCompleto AS arbitro2 FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo JOIN arbitro a1 ON p.arbitro1 = a1.id_arbitro JOIN arbitro a2 ON p.arbitro2 = a2.id_arbitro";
         String[] columnas = {"ID", "Fecha", "Hora", "Equipo local", "Equipo visitante", "Resultado local", "Resultado visitante", "Arbitro 1" , "Arbitro 2"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         try {
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);
@@ -106,21 +112,41 @@ public class ControladorPartidos {
         }
     }
 
-    public Integer[] mostrarIdesPartidos(){
-        sql = "SELECT id_partido FROM partidos";
+    public PartidoItem[] mostrarPartidosEliminarOModificar(){
+        sql = "SELECT p.id_partido, p.fecha, p.hora, p.id_equipo_local, p.id_equipo_visitante, p.resultado_local, p.resultado_visitante, p.arbitro1, p.arbitro2, el.nombre_equipo AS equipoLocal, ev.nombre_equipo AS equipoVisitante FROM partidos p JOIN equipos el ON p.id_equipo_local = el.id_equipo JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo";
         try {
+
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);
-            List<Integer> ides = new ArrayList<>();
-            while (resultSet.next()){
-                ides.add(resultSet.getInt("id_partido"));
+
+            List<PartidoItem> lista = new ArrayList<>();
+
+            while (resultSet.next()) {
+
+                Partidos partido = new Partidos(
+                        resultSet.getInt("id_partido"),
+                        resultSet.getDate("fecha").toLocalDate(),
+                        resultSet.getTime("hora"),
+                        resultSet.getInt("id_equipo_local"),
+                        resultSet.getInt("id_equipo_visitante"),
+                        resultSet.getInt("resultado_local"),
+                        resultSet.getInt("resultado_visitante"),
+                        resultSet.getInt("arbitro1"),
+                        resultSet.getInt("arbitro2")
+                );
+
+                String texto = resultSet.getDate("fecha").toLocalDate()
+                        + " - "
+                        + resultSet.getString("equipoLocal")
+                        + " vs "
+                        + resultSet.getString("equipoVisitante");
+
+                lista.add(new PartidoItem(partido, texto));
             }
-            Integer[] devolver = new Integer[ides.size()];
-            for (int i = 0; i < devolver.length; i++) {
-                devolver[i] = ides.get(i);
-            }
-            return devolver;
-        }catch (SQLException e){
+
+            return lista.toArray(new PartidoItem[0]);
+
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

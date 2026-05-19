@@ -24,7 +24,12 @@ public class ControladorPatrocinios {
     public DefaultTableModel mostrarPatrocinios(){
         sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
         String[] columnas = {"Patrocinador", "Equipo"};
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas);
+        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         try {
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);
