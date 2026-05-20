@@ -40,8 +40,8 @@ public class GUI {
         return gbc;
     }
 
-    public void mensaje(String dato, int tiempo){
-        final JDialog dialog = new JDialog();
+    public void mensaje(Component padre, String dato, int tiempo){
+        final JDialog dialog = new JDialog(javax.swing.SwingUtilities.getWindowAncestor(padre));
         int ancho = reglaDeTres(dato.length(), 200, 21);
         dialog.setSize(ancho, 100);
         dialog.setLayout(new BorderLayout());
@@ -49,16 +49,17 @@ public class GUI {
         JLabel label = new JLabel(dato, SwingConstants.CENTER);
         dialog.add(label, BorderLayout.CENTER);
 
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(padre);
         dialog.setVisible(true);
 
         new javax.swing.Timer(tiempo, e -> dialog.dispose()) {{
             setRepeats(false);
             start();
         }};
+        dialog.setVisible(true);
     }
-    public void mensaje(String dato) {
-        final JDialog dialog = new JDialog();
+    public void mensaje(Component padre, String dato) {
+        final JDialog dialog = new JDialog(javax.swing.SwingUtilities.getWindowAncestor(padre));
         dialog.setTitle("Aviso");
 
         int ancho = reglaDeTres(dato.length(), 200, 21);
@@ -103,6 +104,7 @@ public class GUI {
             panel.add(textos[i], configurarConstraints(1, i));
         }
 
+        JButton boton = new JButton("Guardar");
         ActionListener guardado = e -> {
             String nombreCompleto = nombre.getText();
             Date fechaSeleccionada = fecha.getDate();
@@ -126,32 +128,35 @@ public class GUI {
                                         partidosArbitradosNumero, anosExperienciaNumero);
 
                                 ControladorArbitro anadir = new ControladorArbitro();
-
-                                if (anadir.anadirArbitro(arbitro)) {
-                                    g.mensaje("Fila añadida", g.mensajeDeAcierto);
-                                } else {
-                                    g.mensaje("ERROR, no se ha podido añadir el arbitro");
+                                if (controladorArbitro.existeNombre(nombreCompleto)) {
+                                    g.mensaje(boton, "Este arbitro ya existe", g.mensajeDeAcierto);
+                                }else {
+                                    if (anadir.anadirArbitro(arbitro)) {
+                                        g.mensaje(boton, "Fila añadida", g.mensajeDeAcierto);
+                                    } else {
+                                        g.mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                    }
                                 }
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
+                                g.mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
+                            g.mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
                         }
                     }else {
-                        g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        g.mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
-                    g.mensaje("ERROR, selecciona una fecha");
+                    g.mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje("ERROR, nombre no valido. Solo se valen letras");
+                g.mensaje(boton,"ERROR, nombre no valido. Solo se valen letras");
             }
         };
 
-        JButton boton = new JButton("Guardar");
+
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
@@ -160,7 +165,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
-    public static void ventanaEquipos() {
+    public void ventanaEquipos() {
         JDialog frame = new JDialog((Frame) null, "Añadir equipo", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
@@ -204,25 +209,25 @@ public class GUI {
                           int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
                           Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
                           if (comprobaciones.existeNombre(nombreEquipo)) {
-                              g.mensaje("Este equipo ya existe");
+                              g.mensaje(boton,"Este equipo ya existe");
                           }else {
                               if (comprobaciones.anadirEquipo(equipo)) {
-                                  g.mensaje("Se ha añadido correctamente", g.mensajeDeAcierto);
+                                  g.mensaje(boton,"Se ha añadido correctamente", g.mensajeDeAcierto);
                               }else {
-                                  g.mensaje("No se ha podido añadir el equipo");
+                                  g.mensaje(boton,"No se ha podido añadir el equipo");
                               }
                           }
                       }else {
-                          g.mensaje("ERROR trofeos liga, solo se valen numeros entre 0 y 200");
+                          g.mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y 200");
                       }
                   }else {
-                    g.mensaje("ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
+                    g.mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
                   }
               }else {
-                  g.mensaje("ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
+                  g.mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
               }
           }else {
-             g.mensaje("ERROR nombre no valido, Solo se valen letras");
+             g.mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
           }
         };
         boton.addActionListener(accion);
@@ -270,6 +275,7 @@ public class GUI {
         JComboBox<String> cArbitro2 = new JComboBox<>(arbitros);
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
+        JButton boton = new JButton("Guardar");
 
         ActionListener accion = e -> {
             Regex filtros = new Regex();
@@ -317,37 +323,36 @@ public class GUI {
                                     );
 
                                     if (controladorPartidos.anadirPartido(partido)) {
-                                        interfaz.mensaje("Partido añadido correctamente", interfaz.mensajeDeAcierto);
+                                        interfaz.mensaje(boton,"Partido añadido correctamente", interfaz.mensajeDeAcierto);
                                     } else {
-                                        interfaz.mensaje("ERROR, no se ha podido añadir el partido");
+                                        interfaz.mensaje(boton,"ERROR, no se ha podido añadir el partido");
                                     }
 
                                 } else {
-                                    interfaz.mensaje("ERROR, los arbitros tienen que ser distintos");
+                                    interfaz.mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                 }
 
                             } else {
-                                interfaz.mensaje("ERROR, los equipos tienen que ser distintos");
+                                interfaz.mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                             }
 
                         } else {
-                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
+                            interfaz.mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
+                        interfaz.mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                     }
 
                 } else {
-                    interfaz.mensaje("ERROR, hora no valida, ejemplo: 16:12");
+                    interfaz.mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                 }
 
             } else {
-                interfaz.mensaje("ERROR, selecciona una fecha");
+                interfaz.mensaje(boton,"ERROR, selecciona una fecha");
             }
         };
 
-        JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, fila);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
@@ -392,22 +397,22 @@ public class GUI {
                     if (filtros.comprobarEmail(emailPatrocinador)) {
                         Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
                         if (anadir.ExistePatrocinador(p)) {
-                            g.mensaje("Este patrocinador ya existe");
+                            g.mensaje(boton,"Este patrocinador ya existe");
                         }else {
                             if (anadir.anadirPatrocinador(p)) {
-                                g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
+                                g.mensaje(boton,"Fila añadida correctamente", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("No se ha podido añadir al patrocinador");
+                                g.mensaje(boton,"No se ha podido añadir al patrocinador");
                             }
                         }
                     }else {
-                        g.mensaje("ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
+                        g.mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
                 }else {
-                    g.mensaje("ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
+                    g.mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje("ERROR, nombre no valido (Solo se valen letras)");
+                g.mensaje(boton,"ERROR, nombre no valido (Solo se valen letras)");
             }
         };
         boton.addActionListener(accion);
@@ -445,12 +450,12 @@ public class GUI {
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
             GUI g = new GUI();
             if (anadir.existePatrocinio(patrocinios)) {
-                g.mensaje("Este patrocinio ya existe");
+                g.mensaje(boton,"Este patrocinio ya existe");
             }else {
                 if (anadir.anadirPatrocinio(patrocinios)) {
-                    g.mensaje("Fila añadida correctamente", g.mensajeDeAcierto);
+                    g.mensaje(boton,"Fila añadida correctamente", g.mensajeDeAcierto);
                 }else {
-                    g.mensaje("No se ha podido añadir la fila");
+                    g.mensaje(boton,"No se ha podido añadir la fila");
                 }
             }
         };
@@ -468,12 +473,13 @@ public class GUI {
         JTable tabla = new JTable();
         JScrollPane subeYBaja = new JScrollPane(tabla);
         tabla.setModel(controladorArbitro.mostrarFilasAfectadasPorArbitro(controladorArbitro.cualId(arbitro)));
+        JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
-                mensaje("Arbitro eliminado correctamente", mensajeDeAcierto);
+                mensaje(confirmar,"Arbitro eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
             }else {
-                mensaje("No se ha podido eliminar al arbitro");
+                mensaje(confirmar,"No se ha podido eliminar al arbitro");
             }
         };
         ActionListener accion2 = e -> {
@@ -483,7 +489,7 @@ public class GUI {
         mensaje.setPreferredSize(new Dimension(100, 80));
         JLabel texto = new JLabel("Estas seguro de que quieres eliminar a " + arbitro + "? se eliminaran también las siguientes filas relacionadas");
         mensaje.add(texto);
-        JButton confirmar = new JButton("Confirmar");
+
         JButton cancelar = new JButton("Cancelar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -505,12 +511,13 @@ public class GUI {
         JTable tabla = new JTable();
         JScrollPane subeYBaja = new JScrollPane(tabla);
         tabla.setModel(controladorEquipos.mostrarFilasAfectadasPorEquipoEnPartido(controladorEquipos.cualId(equipo)));
+        JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorEquipos.eliminarEquipo(controladorEquipos.cualId(equipo))) {
-                mensaje("Equipo eliminado correctamente", mensajeDeAcierto);
+                mensaje(confirmar,"Equipo eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
             }else {
-                mensaje("No se ha podido eliminar al equipo");
+                mensaje(confirmar,"No se ha podido eliminar al equipo");
             }
         };
         ActionListener accion2 = e -> {
@@ -525,7 +532,7 @@ public class GUI {
         JPanel mensaje = new JPanel();
         JLabel texto = new JLabel("Seguro que quieres eliminar al " + equipo + "? Si lo haces eliminaras las siguientes filas relacionadas");
         mensaje.add(texto);
-        JButton confirmar = new JButton("Confirmar");
+
         JButton cancelar = new JButton("Cancelar");
         JButton tablaPartido = new JButton("Partidos");
         JButton tablaPatrocinios = new JButton("Patrocinios");
@@ -553,13 +560,14 @@ public class GUI {
         JPanel mensaje = new JPanel();
         JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este partido? fecha: " + partido.getFecha());
         mensaje.add(texto);
+        JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             ControladorPartidos controladorPartidos = new ControladorPartidos();
             if (controladorPartidos.eliminarPartido(partido.getId_partido())) {
-                mensaje("Partido eliminado correctamente", mensajeDeAcierto);
+                mensaje(confirmar,"Partido eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
             }else {
-                mensaje("No se ha podido eliminar al Partido");
+                mensaje(confirmar,"No se ha podido eliminar al Partido");
             }
         };
         ActionListener accion2 = e -> {
@@ -567,7 +575,7 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
-        JButton confirmar = new JButton("Confirmar");
+
         JButton cancelar = new JButton("Cancelar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -589,17 +597,18 @@ public class GUI {
         JPanel mensaje = new JPanel();
         JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este patrocinio: " + patrocinador + " " + equipo + "?");
         mensaje.add(texto);
+        JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             Patrocinios patrocinio = new Patrocinios(controladorPatrocinios.localizarIdPatrocinador(patrocinador), controladorPatrocinios.localizarIdEquipo(equipo));
             if (controladorPatrocinios.existePatrocinio(patrocinio)) {
                 if (controladorPatrocinios.eliminarPatrocinio(patrocinio)) {
-                    mensaje("Patrocinio eliminado correctamente", mensajeDeAcierto);
+                    mensaje(confirmar,"Patrocinio eliminado correctamente", mensajeDeAcierto);
                     inicio.setVisible(false);
                 }else {
-                    mensaje("No se ha podido eliminar el patrocinio");
+                    mensaje(confirmar,"No se ha podido eliminar el patrocinio");
                 }
             }else {
-                mensaje("ERROR, no existe este patrocinio");
+                mensaje(confirmar,"ERROR, no existe este patrocinio");
             }
 
         };
@@ -608,7 +617,7 @@ public class GUI {
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
-        JButton confirmar = new JButton("Confirmar");
+
         JButton cancelar = new JButton("Cancelar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -633,19 +642,20 @@ public class GUI {
         JTable tabla = new JTable();
         JScrollPane subeYBaja = new JScrollPane(tabla);
         tabla.setModel(controladorPatrocinador.mostrarFilasAfectadasPorPatrocinadorEnPatrocinios(controladorPatrocinador.cualId(patrocinadorNombre)));
+        JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorPatrocinador.eliminarPatrocinador(controladorPatrocinador.cualId(patrocinadorNombre))) {
-                mensaje("Patrocinador eliminado correctamente", mensajeDeAcierto);
+                mensaje(confirmar,"Patrocinador eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
             }else {
-                mensaje("No se ha podido eliminar el patrocinador");
+                mensaje(confirmar,"No se ha podido eliminar el patrocinador");
             }
 
         };
         ActionListener accion2 = e -> {
             inicio.dispose();
         };
-        JButton confirmar = new JButton("Confirmar");
+
         JButton cancelar = new JButton("Cancelar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -817,7 +827,7 @@ public class GUI {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
             panel.add(textos[i], configurarConstraints(1, i));
         }
-
+        JButton boton = new JButton("Guardar");
         ActionListener guardado = e -> {
             String nombreCompleto = nombre.getText();
             Date fechaSeleccionada = fecha.getDate();
@@ -840,31 +850,31 @@ public class GUI {
                                 ControladorArbitro anadir = new ControladorArbitro();
 
                                 if (anadir.modificarArbitro(arbitro)) {
-                                    g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
+                                    g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
                                 } else {
-                                    g.mensaje("ERROR, no se ha podido modificar el arbitro");
+                                    g.mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
                                 }
 
                             } else {
-                                g.mensaje("ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
+                                g.mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
                             }
 
                         } else {
-                            g.mensaje("ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
+                            g.mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
                         }
                     }else {
-                        g.mensaje("ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        g.mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
-                    g.mensaje("ERROR, selecciona una fecha");
+                    g.mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje("ERROR, nombre no valido solo se valen letras");
+                g.mensaje(boton,"ERROR, nombre no valido solo se valen letras");
             }
         };
 
-        JButton boton = new JButton("Guardar");
+
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
@@ -916,21 +926,21 @@ public class GUI {
                         if (filtros.comprobarNumero(trofeosLigaValor, 200)) {
                             equipo.setTrofeos_liga(Integer.parseInt(trofeosLigaValor));
                             if (comprobaciones.modificarEquipo(equipo)) {
-                                g.mensaje("El equipo ha sido modificado correctamente", g.mensajeDeAcierto);
+                                g.mensaje(boton,"El equipo ha sido modificado correctamente", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("No se ha podido modificar el equipo");
+                                g.mensaje(boton,"No se ha podido modificar el equipo");
                             }
                         }else {
-                            g.mensaje("ERROR trofeos liga, solo se valen numeros entre 0 y 200");
+                            g.mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y 200");
                         }
                     }else {
-                        g.mensaje("ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
+                        g.mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
                     }
                 }else {
-                    g.mensaje("ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
+                    g.mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
                 }
             }else {
-                g.mensaje("ERROR nombre no valido, Solo se valen letras");
+                g.mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
             }
         };
         boton.addActionListener(accion);
@@ -983,7 +993,7 @@ public class GUI {
         cArbitro2.setSelectedItem(controladorArbitro.cualNombre(partido.getArbitro2()));
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
-
+        JButton boton = new JButton("Guardar");
         ActionListener accion = e -> {
             Regex filtros = new Regex();
             ControladorPartidos comprobaciones = new ControladorPartidos();
@@ -1019,37 +1029,36 @@ public class GUI {
                                     partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
                                     partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
                                     if (comprobaciones.modificarPartido(partido)) {
-                                        interfaz.mensaje("Partido modificado correctamente", interfaz.mensajeDeAcierto);
+                                        interfaz.mensaje(boton,"Partido modificado correctamente", interfaz.mensajeDeAcierto);
                                     } else {
-                                        interfaz.mensaje("ERROR, no se ha podido modificar el partido");
+                                        interfaz.mensaje(boton,"ERROR, no se ha podido modificar el partido");
                                     }
 
                                 } else {
-                                    interfaz.mensaje("ERROR, los arbitros tienen que ser distintos");
+                                    interfaz.mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                 }
 
                             } else {
-                                interfaz.mensaje("ERROR, los equipos tienen que ser distintos");
+                                interfaz.mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                             }
 
                         } else {
-                            interfaz.mensaje("ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
+                            interfaz.mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        interfaz.mensaje("ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
+                        interfaz.mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                     }
 
                 } else {
-                    interfaz.mensaje("ERROR, hora no valida, ejemplo: 16:12");
+                    interfaz.mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                 }
 
             } else {
-                interfaz.mensaje("ERROR, selecciona una fecha");
+                interfaz.mensaje(boton,"ERROR, selecciona una fecha");
             }
         };
 
-        JButton boton = new JButton("Guardar");
         GridBagConstraints gbc = configurarConstraints(1, fila);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
@@ -1091,9 +1100,9 @@ public class GUI {
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
             GUI g = new GUI();
             if (anadir.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
-                g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
+                g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
             }else {
-                g.mensaje("No se ha podido modificar la fila");
+                g.mensaje(boton,"No se ha podido modificar la fila");
             }
         };
         boton.addActionListener(accion);
@@ -1139,22 +1148,22 @@ public class GUI {
                     if (filtros.comprobarEmail(emailPatrocinador)) {
                         patrocinador.setEmail(emailPatrocinador);
                         if (anadir.ExistePatrocinador(patrocinador)) {
-                            g.mensaje("Este patrocinador ya existe");
+                            g.mensaje(boton,"Este patrocinador ya existe");
                         }else {
                             if (anadir.modificarPatrocinador(patrocinador)) {
-                                g.mensaje("Fila modificada correctamente", g.mensajeDeAcierto);
+                                g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
                             }else {
-                                g.mensaje("No se ha podido modificar al patrocinador");
+                                g.mensaje(boton,"No se ha podido modificar al patrocinador");
                             }
                         }
                     }else {
-                        g.mensaje("ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
+                        g.mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
                 }else {
-                    g.mensaje("ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
+                    g.mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje("ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
+                g.mensaje(boton,"ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
             }
         };
         boton.addActionListener(accion);
@@ -1317,25 +1326,25 @@ public class GUI {
         panel.add(usuarios, configurarConstraints(1, 0));
         panel.add(contrasenaNueva, configurarConstraints(1, 2));
         panel.add(contrasenaAntigua, configurarConstraints(1, 1));
-
+        JButton confirmar = new JButton("Aceptar");
         ActionListener accion = e -> {
             String user = (String) usuarios.getSelectedItem();
             String password = new String(contrasenaAntigua.getPassword());
             String nueva = new String(contrasenaNueva.getPassword());
 
             if (comprobacion.cambiarContrasena(user, password, nueva)) {
-                mensaje("La contraseña se ha cambiado correctamente");
+                mensaje(confirmar, "La contraseña se ha cambiado correctamente");
                 frame.dispose();
                 ventanaDeLogeo();
             }else {
-                mensaje("Contraseña Incorrecta", 500);
+                mensaje(confirmar,"Contraseña Incorrecta", 500);
             }
 
         };
 
         GridBagConstraints gbcBoton = configurarConstraints(1, 3);
         gbcBoton.anchor = GridBagConstraints.CENTER;
-        JButton confirmar = new JButton("Aceptar");
+
         panel.add(confirmar, gbcBoton);
 
         frame.add(panel);
@@ -1368,7 +1377,7 @@ public class GUI {
                 paginaPrincipal();
                 inicio.setVisible(false);
             }else {
-                mensaje("Contraseña Incorrecta", 500);
+                mensaje(usuario,"Contraseña Incorrecta", 500);
             }
 
         };
@@ -1508,27 +1517,27 @@ public class GUI {
         ActionListener imprimirDocumento = e -> {
             if (nTabla == tablaArbitro) {
                 if (controladorArbitro.imprimirArbitros()) {
-                    mensaje("Se ha creado el documento arbitros correctamente", mensajeDeAcierto);
+                    mensaje(documento,"Se ha creado el documento arbitros correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaEquipos) {
                 if (controladorEquipos.imprimirEquipos()) {
-                    mensaje("Se ha creado el documento equipos correctamente", mensajeDeAcierto);
+                    mensaje(documento,"Se ha creado el documento equipos correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaPartidos) {
                 if (controladorPartidos.imprimirPartidos()) {
-                    mensaje("Se ha creado el documento partidos correctamente", mensajeDeAcierto);
+                    mensaje(documento,"Se ha creado el documento partidos correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaPatrocinador) {
                 if (controladorPatrocinador.imprimirPatrocinadores()) {
-                    mensaje("Se ha creado el documento patrocinadores correctamente", mensajeDeAcierto);
+                    mensaje(documento,"Se ha creado el documento patrocinadores correctamente", mensajeDeAcierto);
                 }
             }
             if (nTabla == tablaPatrocinios) {
                 if (controladorPatrocinios.imprimirPatrocinios()) {
-                    mensaje("Se ha creado el documento patrocinios correctamente", mensajeDeAcierto);
+                    mensaje(documento,"Se ha creado el documento patrocinios correctamente", mensajeDeAcierto);
                 }
             }
         };

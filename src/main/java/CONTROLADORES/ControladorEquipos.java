@@ -60,6 +60,7 @@ public class ControladorEquipos {
             preparedStatement.setInt(4, equipo.getTrofeos_liga());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
+
                 return true;
             }
             return false;
