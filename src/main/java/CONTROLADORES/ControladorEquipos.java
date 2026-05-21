@@ -4,6 +4,7 @@ package CONTROLADORES;
 import MODELOS.Equipos;
 import OTROS.Conexion;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -162,24 +163,25 @@ public class ControladorEquipos {
             throw new RuntimeException(ex);
         }
     }
-    // Devuelve un array con todos los nombres de todos los equipos de la tabla equipos
-    public String[] mostrarNombreEquipos(){
-       sql = "SELECT nombre_equipo FROM equipos";
-       try {
-           List<String> equipos = new ArrayList<>();
-           statement = c.realizarConexion().createStatement();
-           resultSet = statement.executeQuery(sql);
-           while (resultSet.next()){
-               equipos.add(resultSet.getString("nombre_equipo"));
-           }
-           String[] devolver = new String[equipos.size()];
-           for (int i = 0; i < devolver.length; i++) {
-               devolver[i] = equipos.get(i);
-           }
-           return devolver;
-       } catch (SQLException e) {
-           throw new RuntimeException(e);
-       }
+    // Devuelve un array dinamico con todos los nombres de todos los equipos de la tabla equipos
+    public DefaultComboBoxModel<String> mostrarNombreEquipos() {
+        sql = "SELECT nombre_equipo FROM equipos";
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+        try {
+            statement = c.realizarConexion().createStatement();
+            resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                model.addElement(resultSet.getString("nombre_equipo"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return model;
     }
     // Muestra todos los nombres de equipos menos el que le pases
     public String[] noMostrarNombreEquipo(String nombre){

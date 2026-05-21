@@ -3,6 +3,7 @@ package CONTROLADORES;
 import MODELOS.Arbitro;
 import OTROS.Conexion;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -131,24 +132,25 @@ public class ControladorArbitro {
         }
     }
 
-    // crea un array del campo nombreCompleto de la tabla arbitro
-    public String[] mostrarNombreArbitro(){
+    // crea un array del campo nombreCompleto de la tabla arbitro dinámico
+    public DefaultComboBoxModel<String> mostrarNombreArbitro() {
         String sql = "SELECT nombreCompleto FROM arbitro";
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
         try {
-            List<String> arbitro = new ArrayList<>();
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);
-            while (resultSet.next()){
-                arbitro.add(resultSet.getString("nombreCompleto"));
+
+            while (resultSet.next()) {
+                model.addElement(resultSet.getString("nombreCompleto"));
             }
-            String[] devolver = new String[arbitro.size()];
-            for (int i = 0; i < devolver.length; i++) {
-                devolver[i] = arbitro.get(i);
-            }
-            return devolver;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
+
+        return model;
     }
     // Muestra el id de un arbitro dado su nombre
     public int cualId(String nombre){
@@ -218,7 +220,7 @@ public class ControladorArbitro {
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                arbitro = new Arbitro(resultSet.getString("nombreCompleto"), resultSet.getDate("fecha_nacimiento").toLocalDate(), resultSet.getInt("partidos_arbitrados"), resultSet.getInt("años_experiencia"));
+                arbitro = new Arbitro(id, resultSet.getString("nombreCompleto"), resultSet.getDate("fecha_nacimiento").toLocalDate(), resultSet.getInt("partidos_arbitrados"), resultSet.getInt("años_experiencia"));
             }
             return arbitro;
         } catch (SQLException e) {

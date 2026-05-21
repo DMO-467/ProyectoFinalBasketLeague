@@ -4,6 +4,7 @@ package CONTROLADORES;
 import MODELOS.Patrocinador;
 import OTROS.Conexion;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -115,24 +116,25 @@ public class ControladorPatrocinador {
         }
     }
 // Devuelve un array con todos los nombres de todos los patrocinadores de la tabla patrocinador
-    public String[] mostrarNombrePatrocinador(){
-        sql = "SELECT nombre_patrocinador FROM patrocinador";
-        try {
-            List<String> patrocinador = new ArrayList<>();
-            statement = c.realizarConexion().createStatement();
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()){
-                patrocinador.add(resultSet.getString("nombre_patrocinador"));
-            }
-            String[] devolver = new String[patrocinador.size()];
-            for (int i = 0; i < devolver.length; i++) {
-                devolver[i] = patrocinador.get(i);
-            }
-            return devolver;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+public DefaultComboBoxModel<String> mostrarNombrePatrocinador() {
+    sql = "SELECT nombre_patrocinador FROM patrocinador";
+
+    DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+    try {
+        statement = c.realizarConexion().createStatement();
+        resultSet = statement.executeQuery(sql);
+
+        while (resultSet.next()) {
+            model.addElement(resultSet.getString("nombre_patrocinador"));
         }
+
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
     }
+
+    return model;
+}
 //  Comprueba que el patrocinador dado se encuentra en la tabla de patrocinador
     public boolean ExistePatrocinador(Patrocinador patrocinador){
         sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";

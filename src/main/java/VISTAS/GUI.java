@@ -14,6 +14,7 @@ import java.util.Date;
 
 // En esta clase se encuentran todas las ventanas de la interfaz grafica
 public class GUI {
+    private JTable tabla;
     // Declaramos las variables con las que identificamos las tablas en la pagina principal para ir cambiando de tabla
     int tablaPartidos = 3;
     int nTabla = tablaPartidos;
@@ -22,7 +23,8 @@ public class GUI {
     int tablaPatrocinador = 5;
     int tablaPatrocinios = 4;
     // Para aquellos mensajes de acierto le asignamos un tiempo para que desaparezca de la pantalla tras transcurrirlo (El numero es el que yo he considerado idoneo)
-    int mensajeDeAcierto = 800;
+    int mensajeDeAcierto = 1000;
+    int tiempoDeCierre = 1300;
     // Los controladores y el regex los uso en practicamente todas las ventanas para hacer todas las funciones de añadir eliminar...
     // por lo que los declaramos en la clase para no crear mas objetos de los necesarios
     ControladorArbitro controladorArbitro = new ControladorArbitro();
@@ -31,6 +33,10 @@ public class GUI {
     ControladorPartidos controladorPartidos = new ControladorPartidos();
     ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
     Regex comprobacion = new Regex();
+    private JComboBox<String> arbitros;
+    private JComboBox<String> equipos;
+    private JComboBox<PartidoItem> partidos;
+    private JComboBox<String> patrocinadores;
     // Los campos numericos tienen un limite de maximo para evitar que el programa falle por sobre pasar el limite asi que estas variables evitan ese problema y tambien ponen un limite mas logico
     int limitePartidosArbitrados = 5000;
     int limiteAñosExperiencia = 60;
@@ -51,23 +57,27 @@ public class GUI {
         return gbc;
     }
     // Este metodo es una ventana con la que muestro informacion al usuario y el parametro de Component permite que aparezcan los mensajes en las ventanas de dialogo (Jdialog)
-    public void mensaje(Component padre, String dato, int tiempo){
-        final JDialog dialog = new JDialog(javax.swing.SwingUtilities.getWindowAncestor(padre));
-        int ancho = reglaDeTres(dato.length(), 200, 21);
-        dialog.setSize(ancho, 100);
-        dialog.setLayout(new BorderLayout());
+    public void mensaje(Component padre, String texto, int tiempo) {
 
-        JLabel label = new JLabel(dato, SwingConstants.CENTER);
-        dialog.add(label, BorderLayout.CENTER);
-// Indica donde va a aparecer la ventana
-        dialog.setLocationRelativeTo(padre);
-        dialog.setVisible(true);
-// Aqui calculamos el tiempo para que haga la accion indicada en este caso cerrar la ventana
-        new javax.swing.Timer(tiempo, e -> dialog.dispose()) {{
-            setRepeats(false);
-            start();
-        }};
-        dialog.setVisible(true);
+        JWindow toast = new JWindow();
+
+        JLabel label = new JLabel(texto, SwingConstants.CENTER);
+        label.setOpaque(true);
+        label.setBackground(new Color(60, 60, 60));
+        label.setForeground(Color.WHITE);
+        label.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        toast.add(label);
+        toast.pack();
+
+        toast.setLocationRelativeTo(padre);
+
+        toast.setAlwaysOnTop(true);
+        toast.setVisible(true);
+
+        javax.swing.Timer timer = new javax.swing.Timer(tiempo, e -> toast.dispose());
+        timer.setRepeats(false);
+        timer.start();
     }
     // Metodo con el que muestro mensajes por pantalla pero sin tiempo (Lo uso para los errores ya que es importante que el usuario se detenga a leerlo)
     public void mensaje(Component padre, String dato) {
@@ -140,12 +150,17 @@ public class GUI {
                                 Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
                                         partidosArbitradosNumero, anosExperienciaNumero);
 
-                                ControladorArbitro anadir = new ControladorArbitro();
                                 if (controladorArbitro.existeNombre(nombreCompleto)) {
                                     mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
                                 }else {
-                                    if (anadir.anadirArbitro(arbitro)) {
+                                    if (controladorArbitro.anadirArbitro(arbitro)) {
+                                        refrescarTabla();
+
                                         mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                        t.setRepeats(false);
+                                        t.start();
+
                                     } else {
                                         mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
                                     }
@@ -223,7 +238,11 @@ public class GUI {
                               mensaje(boton,"Este equipo ya existe");
                           }else {
                               if (controladorEquipos.anadirEquipo(equipo)) {
-                                  mensaje(boton,"Se ha añadido correctamente", mensajeDeAcierto);
+                                  refrescarTabla();
+                                  mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                                  javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                  t.setRepeats(false);
+                                  t.start();
                               }else {
                                   mensaje(boton,"No se ha podido añadir el equipo");
                               }
@@ -247,7 +266,7 @@ public class GUI {
     }
 
     // Metodo que abre una ventana con los campos de la tabla partidos para poder añadir uno nuevo
-    public void ventanaPartidos(String[] equipos, String[] arbitros) {
+    public void ventanaPartidos() {
         JDialog frame = new JDialog((Frame) null, "Añadir partido", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(500, 400);
@@ -273,19 +292,19 @@ public class GUI {
 
         int fila = camposTexto.length;
 
-        JComboBox<String> cEquipoLocal = new JComboBox<>(equipos);
+        JComboBox<String> cEquipoLocal = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
         panel.add(new JLabel("Equipo local:"), configurarConstraints(0, fila));
         panel.add(cEquipoLocal, configurarConstraints(1, fila++));
 
-        JComboBox<String> cEquipoVisitante = new JComboBox<>(equipos);
+        JComboBox<String> cEquipoVisitante = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
         panel.add(new JLabel("Equipo visitante:"), configurarConstraints(0, fila));
         panel.add(cEquipoVisitante, configurarConstraints(1, fila++));
 
-        JComboBox<String> cArbitro1 = new JComboBox<>(arbitros);
+        JComboBox<String> cArbitro1 = new JComboBox<>(controladorArbitro.mostrarNombreArbitro());
         panel.add(new JLabel("Árbitro 1:"), configurarConstraints(0, fila));
         panel.add(cArbitro1, configurarConstraints(1, fila++));
 
-        JComboBox<String> cArbitro2 = new JComboBox<>(arbitros);
+        JComboBox<String> cArbitro2 = new JComboBox<>(controladorArbitro.mostrarNombreArbitro());
         panel.add(new JLabel("Árbitro 2:"), configurarConstraints(0, fila));
         panel.add(cArbitro2, configurarConstraints(1, fila++));
         JButton boton = new JButton("Guardar");
@@ -335,7 +354,12 @@ public class GUI {
                                     );
 
                                     if (controladorPartidos.anadirPartido(partido)) {
-                                        mensaje(boton,"Partido añadido correctamente", mensajeDeAcierto);
+                                        refrescarTabla();
+
+                                        mensaje(boton, "Partido añadido correctamente", mensajeDeAcierto);
+                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                        t.setRepeats(false);
+                                        t.start();
                                     } else {
                                         mensaje(boton,"ERROR, no se ha podido añadir el partido");
                                     }
@@ -412,7 +436,12 @@ public class GUI {
                             mensaje(boton,"Este patrocinador ya existe");
                         }else {
                             if (controladorPatrocinador.anadirPatrocinador(p)) {
-                                mensaje(boton,"Fila añadida correctamente", mensajeDeAcierto);
+                                refrescarTabla();
+
+                                mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                t.setRepeats(false);
+                                t.start();
                             }else {
                                 mensaje(boton,"No se ha podido añadir al patrocinador");
                             }
@@ -433,18 +462,18 @@ public class GUI {
     }
 
     // Metodo que abre una ventana con los campos de la tabla patrocinios para poder añadir uno nuevo
-    public void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
+    public void ventanaPatrocinios() {
         JDialog frame = new JDialog((Frame) null, "Añadir patrocinio", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(400, 200);
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
+        JComboBox<String> cPatrocinadores = new JComboBox<>(controladorPatrocinador.mostrarNombrePatrocinador());
         panel.add(new JLabel("Patrocinador:"), configurarConstraints(0, 0));
         panel.add(cPatrocinadores, configurarConstraints(1, 0));
 
-        JComboBox<String> cEquipos = new JComboBox<>(equipos);
+        JComboBox<String> cEquipos = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
         panel.add(new JLabel("Equipo:"), configurarConstraints(0, 1));
         panel.add(cEquipos, configurarConstraints(1, 1));
 
@@ -467,7 +496,12 @@ public class GUI {
                 mensaje(boton,"Este patrocinio ya existe");
             }else {
                 if (anadir.anadirPatrocinio(patrocinios)) {
-                    mensaje(boton,"Fila añadida correctamente", mensajeDeAcierto);
+                    refrescarTabla();
+
+                    mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                    javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                    t.setRepeats(false);
+                    t.start();
                 }else {
                     mensaje(boton,"No se ha podido añadir la fila");
                 }
@@ -491,8 +525,13 @@ public class GUI {
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorArbitro.eliminarArbitro(controladorArbitro.cualId(arbitro))) {
-                mensaje(confirmar,"Arbitro eliminado correctamente", mensajeDeAcierto);
-                inicio.setVisible(false);
+                refrescarTabla();
+                arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
+                mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
+                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
+                t.setRepeats(false);
+                t.start();
+
             }else {
                 mensaje(confirmar,"No se ha podido eliminar al arbitro");
             }
@@ -530,8 +569,12 @@ public class GUI {
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorEquipos.eliminarEquipo(controladorEquipos.cualId(equipo))) {
-                mensaje(confirmar,"Equipo eliminado correctamente", mensajeDeAcierto);
-                inicio.setVisible(false);
+                refrescarTabla();
+                equipos.setModel(controladorEquipos.mostrarNombreEquipos());
+                mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
+                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
+                t.setRepeats(false);
+                t.start();
             }else {
                 mensaje(confirmar,"No se ha podido eliminar al equipo");
             }
@@ -580,10 +623,18 @@ public class GUI {
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorPartidos.eliminarPartido(partido.getId_partido())) {
-                mensaje(confirmar,"Partido eliminado correctamente", mensajeDeAcierto);
-                inicio.setVisible(false);
+                refrescarTabla();
+                partidos.setModel(
+                        new DefaultComboBoxModel<>(
+                                controladorPartidos.mostrarPartidosEliminarOModificar()
+                        )
+                );
+                mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
+                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
+                t.setRepeats(false);
+                t.start();
             }else {
-                mensaje(confirmar,"No se ha podido eliminar al Partido");
+                mensaje(confirmar,"No se ha podido eliminar el Partido");
             }
         };
         ActionListener accion2 = e -> {
@@ -620,8 +671,12 @@ public class GUI {
             Patrocinios patrocinio = new Patrocinios(controladorPatrocinios.localizarIdPatrocinador(patrocinador), controladorPatrocinios.localizarIdEquipo(equipo));
             if (controladorPatrocinios.existePatrocinio(patrocinio)) {
                 if (controladorPatrocinios.eliminarPatrocinio(patrocinio)) {
-                    mensaje(confirmar,"Patrocinio eliminado correctamente", mensajeDeAcierto);
-                    inicio.setVisible(false);
+                    refrescarTabla();
+
+                    mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
+                    javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
+                    t.setRepeats(false);
+                    t.start();
                 }else {
                     mensaje(confirmar,"No se ha podido eliminar el patrocinio");
                 }
@@ -664,8 +719,12 @@ public class GUI {
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
             if (controladorPatrocinador.eliminarPatrocinador(controladorPatrocinador.cualId(patrocinadorNombre))) {
-                mensaje(confirmar,"Patrocinador eliminado correctamente", mensajeDeAcierto);
-                inicio.setVisible(false);
+                refrescarTabla();
+                patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
+                mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
+                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
+                t.setRepeats(false);
+                t.start();
             }else {
                 mensaje(confirmar,"No se ha podido eliminar el patrocinador");
             }
@@ -688,7 +747,7 @@ public class GUI {
     }
 
 // Ventana que muestra el nombre de los arbitro que hay en la base de datos para que el usuario elija el que desea eliminar
-    public void ventanaEliminarArbitro(String[] arbitrosNombre){
+    public void ventanaEliminarArbitro(){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Arbitro", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
@@ -696,7 +755,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel contrasena = new JPanel();
         JLabel texto = new JLabel("Arbitro:");
-        JComboBox<String> arbitros = new JComboBox<>(arbitrosNombre);
+        arbitros = new JComboBox<>();
+        arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
         arbitros.setPreferredSize(new  Dimension(100, 25));
         contrasena.add(texto);
         contrasena.add(arbitros);
@@ -713,7 +773,7 @@ public class GUI {
     }
 
     // Ventana que muestra el nombre de los equipos que hay en la base de datos para que el usuario elija el que desea eliminar
-    public void ventanaEliminarEquipo(String[] equiposNombre){
+    public void ventanaEliminarEquipo(){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Equipo", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
@@ -721,7 +781,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaEquipos = new JPanel();
         JLabel texto = new JLabel("equipo:");
-        JComboBox<String> equipos = new JComboBox<>(equiposNombre);
+        equipos = new JComboBox<>();
+        equipos.setModel(controladorEquipos.mostrarNombreEquipos());
         equipos.setPreferredSize(new  Dimension(100, 25));
         listaEquipos.add(texto);
         listaEquipos.add(equipos);
@@ -738,7 +799,7 @@ public class GUI {
     }
 
     // Ventana que muestra el nombre de los partidos que hay en la base de datos para que el usuario elija el que desea eliminar
-    public void ventanaEliminarPartido(PartidoItem[] Partidos){
+    public void ventanaEliminarPartido(){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Partido", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(580, 250);
@@ -746,7 +807,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaPartidos = new JPanel();
         JLabel texto = new JLabel("partido:");
-        JComboBox<PartidoItem> partidos = new JComboBox<>(Partidos);
+        partidos = new JComboBox<>();
+        partidos.setModel(new DefaultComboBoxModel<>(controladorPartidos.mostrarPartidosEliminarOModificar()));
         partidos.setPreferredSize(new  Dimension(280, 30));
         listaPartidos.add(texto);
         listaPartidos.add(partidos);
@@ -766,7 +828,7 @@ public class GUI {
     }
 
     // Ventana que muestra el nombre de los equipos y patrocinios que hay en la base de datos para que el usuario elija el patrocinio que desea eliminar
-    public void ventanaEliminarPatrocinio(String[] patrocinadores, String[] equipos){
+    public void ventanaEliminarPatrocinio(){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinio", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
@@ -774,9 +836,9 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaPatrocinios = new JPanel();
         JLabel texto = new JLabel("patrocinador:");
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
+        JComboBox<String> cPatrocinadores = new JComboBox<>(controladorPatrocinador.mostrarNombrePatrocinador());
         JLabel texto2 = new JLabel("Equipo:");
-        JComboBox<String> cEquipos = new JComboBox<>(equipos);
+        JComboBox<String> cEquipos = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
         cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
         cEquipos.setPreferredSize(new Dimension(100, 25));
         JButton confirmar = new JButton("Confirmar");
@@ -801,7 +863,7 @@ public class GUI {
     }
 
     // Ventana que muestra el nombre de los patrocinadores que hay en la base de datos para que el usuario elija el que desea eliminar
-    public void ventanaEliminarPatrocinador(String[] patrocinadoresNombre){
+    public void ventanaEliminarPatrocinador(){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinador", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
@@ -809,15 +871,16 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaPatrocinadores = new JPanel();
         JLabel texto = new JLabel("patrocinador:");
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadoresNombre);
-        cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
+        patrocinadores = new JComboBox<>();
+        patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
+        patrocinadores.setPreferredSize(new  Dimension(100, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
         listaPatrocinadores.add(texto);
-        listaPatrocinadores.add(cPatrocinadores);
+        listaPatrocinadores.add(patrocinadores);
         ActionListener accion = e -> {
-            String patrocinador = (String) cPatrocinadores.getSelectedItem();
+            String patrocinador = (String) patrocinadores.getSelectedItem();
             ventanaConfirmarEliminacionPatrocinador(patrocinador);
         };
         JPanel espacio = new JPanel();
@@ -873,9 +936,13 @@ public class GUI {
                             arbitro.setPartidos_arbitrados(Integer.parseInt(partidosArbitrados));
                             if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 arbitro.setAnos_experiencia(Integer.parseInt(anosExperiencia));
-
                                 if (controladorArbitro.modificarArbitro(arbitro)) {
+                                    refrescarTabla();
+                                    arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
                                     mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
+
+                                    frame.dispose();
+
                                 } else {
                                     mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
                                 }
@@ -949,6 +1016,8 @@ public class GUI {
                         if (comprobacion.comprobarNumero(trofeosLigaValor, limiteTrofeosLiga)) {
                             equipo.setTrofeos_liga(Integer.parseInt(trofeosLigaValor));
                             if (controladorEquipos.modificarEquipo(equipo)) {
+                                refrescarTabla();
+                                equipos.setModel(controladorEquipos.mostrarNombreEquipos());
                                 mensaje(boton,"El equipo ha sido modificado correctamente", mensajeDeAcierto);
                             }else {
                                 mensaje(boton,"No se ha podido modificar el equipo");
@@ -1049,6 +1118,12 @@ public class GUI {
                                     partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
                                     partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
                                     if (controladorPartidos.modificarPartido(partido)) {
+                                        refrescarTabla();
+                                        partidos.setModel(
+                                                new DefaultComboBoxModel<>(
+                                                        controladorPartidos.mostrarPartidosEliminarOModificar()
+                                                )
+                                        );
                                         mensaje(boton,"Partido modificado correctamente", mensajeDeAcierto);
                                     } else {
                                         mensaje(boton,"ERROR, no se ha podido modificar el partido");
@@ -1121,6 +1196,7 @@ public class GUI {
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
 
             if (controladorPatrocinios.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
+                refrescarTabla();
                 mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
             }else {
                 mensaje(boton,"No se ha podido modificar la fila");
@@ -1169,6 +1245,8 @@ public class GUI {
                             mensaje(boton,"Este patrocinador ya existe");
                         }else {
                             if (controladorPatrocinador.modificarPatrocinador(patrocinador)) {
+                                refrescarTabla();
+                                patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
                                 mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
                             }else {
                                 mensaje(boton,"No se ha podido modificar al patrocinador");
@@ -1190,7 +1268,7 @@ public class GUI {
     }
 
     // En esta ventana el usuario selecciona el nombre del arbitro que desea modificar
-    public void ventanaModificarArbitro(String[] arbitrosNombre){
+    public void ventanaModificarArbitro(){
         JDialog inicio = new JDialog((Frame) null, "Modificar arbitro", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
@@ -1198,7 +1276,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel contrasena = new JPanel();
         JLabel texto = new JLabel("Arbitro:");
-        JComboBox<String> arbitros = new JComboBox<>(arbitrosNombre);
+        arbitros = new JComboBox<>();
+        arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
         arbitros.setPreferredSize(new  Dimension(100, 25));
         contrasena.add(texto);
         contrasena.add(arbitros);
@@ -1215,7 +1294,7 @@ public class GUI {
     }
 
     // En esta ventana el usuario selecciona el nombre del equipo que desea modificar
-    public void ventanaModificarEquipo(String[] equiposNombre){
+    public void ventanaModificarEquipo(){
         JDialog inicio = new JDialog((Frame) null, "Modificar Equipo", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(400, 250);
@@ -1223,7 +1302,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaEquipos = new JPanel();
         JLabel texto = new JLabel("equipo:");
-        JComboBox<String> equipos = new JComboBox<>(equiposNombre);
+        equipos = new JComboBox<>();
+        equipos.setModel(controladorEquipos.mostrarNombreEquipos());
         equipos.setPreferredSize(new  Dimension(100, 25));
         listaEquipos.add(texto);
         listaEquipos.add(equipos);
@@ -1240,7 +1320,7 @@ public class GUI {
     }
 
     // En esta ventana el usuario selecciona la fecha y los nombres de los equipos del partido que desea modificar
-    public void ventanaModificarPartido(PartidoItem[] Partidos){
+    public void ventanaModificarPartido(){
         JDialog inicio = new JDialog((Frame) null, "Modificar Partido", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(580, 250);
@@ -1248,7 +1328,8 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaPartidos = new JPanel();
         JLabel texto = new JLabel("partido:");
-        JComboBox<PartidoItem> partidos = new JComboBox<>(Partidos);
+        partidos = new JComboBox<>();
+        partidos.setModel(new DefaultComboBoxModel<>(controladorPartidos.mostrarPartidosEliminarOModificar()));
         partidos.setPreferredSize(new  Dimension(280, 30));
         listaPartidos.add(texto);
         listaPartidos.add(partidos);
@@ -1303,7 +1384,7 @@ public class GUI {
     }
 
     // En esta ventana el usuario selecciona el nombre del patrocinador que desea modificar
-    public void ventanaModificarPatrocinador(String[] patrocinadoresNombre){
+    public void ventanaModificarPatrocinador(){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinador", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
@@ -1311,15 +1392,16 @@ public class GUI {
         inicio.setLocationRelativeTo(null);
         JPanel listaPatrocinadores = new JPanel();
         JLabel texto = new JLabel("patrocinador:");
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadoresNombre);
-        cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
+        patrocinadores = new JComboBox<>();
+        patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
+        patrocinadores.setPreferredSize(new  Dimension(100, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
         listaPatrocinadores.add(texto);
-        listaPatrocinadores.add(cPatrocinadores);
+        listaPatrocinadores.add(patrocinadores);
         ActionListener accion = e -> {
-            String patrocinador = (String) cPatrocinadores.getSelectedItem();
+            String patrocinador = (String) patrocinadores.getSelectedItem();
             ventanaConfirmarModificacionPatrocinador(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)));
         };
         JPanel espacio = new JPanel();
@@ -1429,6 +1511,31 @@ public class GUI {
         inicio.setVisible(true);
 
     }
+    public void refrescarTabla() {
+
+        if (nTabla == tablaArbitro) {
+            tabla.setModel(controladorArbitro.mostrarArbitro());
+        }
+
+        if (nTabla == tablaEquipos) {
+            tabla.setModel(controladorEquipos.mostrarEquipos());
+        }
+
+        if (nTabla == tablaPartidos) {
+            tabla.setModel(controladorPartidos.mostrarPartidos());
+        }
+
+        if (nTabla == tablaPatrocinador) {
+            tabla.setModel(controladorPatrocinador.mostrarPatrocinador());
+        }
+
+        if (nTabla == tablaPatrocinios) {
+            tabla.setModel(controladorPatrocinios.mostrarPatrocinios());
+        }
+
+        tabla.revalidate();
+        tabla.repaint();
+    }
     // Página principal del programa donde puede seleccionar la tabla que desea ver o administrar
     public void paginaPrincipal(){
         JFrame fondo = new JFrame("Basket League");
@@ -1448,7 +1555,7 @@ public class GUI {
         tablas.add(patrocinios);
         tablas.add(patrocinadores);
         fondo.add(tablas, BorderLayout.NORTH);
-        JTable tabla = new JTable();
+        tabla = new JTable();
         JScrollPane subeYBaja = new JScrollPane(tabla);
         fondo.add(subeYBaja, BorderLayout.CENTER);
         JButton anadir = new JButton("Añadir");
@@ -1497,52 +1604,52 @@ public class GUI {
                 ventanaEquipos();
             }
             if (nTabla == tablaPartidos) {
-                ventanaPartidos(controladorEquipos.mostrarNombreEquipos(), controladorArbitro.mostrarNombreArbitro());
+                ventanaPartidos();
             }
             if (nTabla == tablaPatrocinador) {
 
                 ventanaPatrocinador();
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaPatrocinios(controladorPatrocinador.mostrarNombrePatrocinador(), controladorEquipos.mostrarNombreEquipos());
+                ventanaPatrocinios();
             }
 
         };
         anadir.addActionListener(anade);
         ActionListener elimina = e -> {
             if (nTabla == tablaArbitro) {
-                ventanaEliminarArbitro(controladorArbitro.mostrarNombreArbitro());
+                ventanaEliminarArbitro();
             }
             if (nTabla == tablaEquipos) {
-                ventanaEliminarEquipo(controladorEquipos.mostrarNombreEquipos());
+                ventanaEliminarEquipo();
             }
             if (nTabla == tablaPartidos) {
-                ventanaEliminarPartido(controladorPartidos.mostrarPartidosEliminarOModificar());
+                ventanaEliminarPartido();
             }
             if (nTabla == tablaPatrocinador) {
-                ventanaEliminarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());
+                ventanaEliminarPatrocinador();
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaEliminarPatrocinio(controladorPatrocinador.mostrarNombrePatrocinador(), controladorEquipos.mostrarNombreEquipos());
+                ventanaEliminarPatrocinio();
             }
 
         };
         eliminar.addActionListener(elimina);
         ActionListener modifica = e -> {
             if (nTabla == tablaArbitro) {
-                ventanaModificarArbitro(controladorArbitro.mostrarNombreArbitro());
+                ventanaModificarArbitro();
             }
             if (nTabla == tablaEquipos) {
-                ventanaModificarEquipo(controladorEquipos.mostrarNombreEquipos());
+                ventanaModificarEquipo();
             }
             if (nTabla == tablaPartidos) {
-                ventanaModificarPartido(controladorPartidos.mostrarPartidosEliminarOModificar());
+                ventanaModificarPartido();
             }
             if (nTabla == tablaPatrocinador) {
-                ventanaModificarPatrocinador(controladorPatrocinador.mostrarNombrePatrocinador());
+                ventanaModificarPatrocinador();
             }
             if (nTabla == tablaPatrocinios) {
-                ventanaModificarPatrocinio(controladorEquipos.mostrarNombreEquipos(), controladorPatrocinador.mostrarNombrePatrocinador());
+                //ventanaModificarPatrocinio(controladorEquipos.mostrarNombreEquipos(), controladorPatrocinador.mostrarNombrePatrocinador());
             }
         };
         modificar.addActionListener(modifica);
