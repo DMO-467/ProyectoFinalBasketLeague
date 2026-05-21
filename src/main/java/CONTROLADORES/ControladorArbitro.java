@@ -50,7 +50,7 @@ public class ControladorArbitro {
         return modelo;
     }
     public boolean anadirArbitro(Arbitro arbitro){
-        String sql = "INSERT INTO arbitro(nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia) VALUES (?, ?, ?, ?)";
+        sql = "INSERT INTO arbitro(nombreCompleto, fecha_nacimiento, partidos_arbitrados, años_experiencia) VALUES (?, ?, ?, ?)";
         try{
             preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, arbitro.getNombreCompleto());

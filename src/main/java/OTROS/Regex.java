@@ -36,9 +36,9 @@ public class Regex {
     }
     // Comprueba que la contraseña es correcta dado el usuario y el valor introducido como contraseña
     public boolean verificacionInicioSesion(String usuario, String contrasena){
-        if (contrasena == null) {
-            return false;
-        }
+        //if (contrasena == null) {
+            //return false;
+            //}
         String sql = "SELECT contraseña FROM usuarios WHERE usuario = ?";
         Conexion c = new Conexion();
         String verificacion = "";
@@ -56,9 +56,9 @@ public class Regex {
     }
     // Cambia en la base de datos en la tabla usuarios el valor de la contraseña del usuario indicado
     public boolean cambiarContrasena(String usuario, String antigua, String nueva){
-        if (antigua == null || nueva == null) {
-            return false;
-        }
+        //if (antigua == null || nueva == null) {
+            //    return false;
+            //}
         String sql = "SELECT contraseña FROM usuarios WHERE usuario = ?";
         Conexion c = new Conexion();
         String contrasena = "";
@@ -85,25 +85,25 @@ public class Regex {
     }
 // Regex de un telefono de españa
     public boolean comprobarTelefono(String telefono){
-        if (telefono == null) {
-            return false;
-        }
+        //if (telefono.trim().isEmpty()) {
+        //    return false;
+        //}
         String filtro = "^[679]\\d{8}|[679]\\d{11}$";
         return Pattern.matches(filtro, String.valueOf(telefono));
 
     }
     public boolean comprobarEmail(String email){
-        if (email == null) {
-            return false;
-        }
+        //if (email.trim().isEmpty()) {
+        //    return false;
+        //}
         String filtro = "^\\w+@\\w+\\.[a-z]{2,3}$";
         return Pattern.matches(filtro, email);
     }
     // Comprueba que la fecha de nacimiento del árbitro que se va a introducir sea cierta y que tenga minimo 16 años
     public boolean comprobarFecha(LocalDate fecha){
-        if (fecha == null) {
-            return false;
-        }
+        //if (fecha == null) {
+        //    return false;
+        //}
         try {
             int edad = Period.between(fecha, LocalDate.now()).getYears();
             return edad >= 16;
@@ -113,9 +113,9 @@ public class Regex {
     }
     // Comprueba que la fecha de partido sea anterior a mañana
     public boolean comprobarFechaPartido(String fecha){
-        if (fecha == null) {
-            return false;
-        }
+        //if (fecha.trim().isEmpty()) {
+        //    return false;
+        //}
         try {
             DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
@@ -134,12 +134,11 @@ public class Regex {
     }
 // Comprueba que la cadena de caracteres introducida es un numero positivo inferior a la cantidad dada
     public boolean comprobarNumero(String numero, int max){
-        if (numero == null) {
-            return false;
-        }
+
         String filtro = "^\\d+$";
-        int num = Integer.parseInt(numero);
+
         if (Pattern.matches(filtro, numero)) {
+            int num = Integer.parseInt(numero);
             if (num >= 0 && num <= max) {
                 return true;
             }
@@ -151,23 +150,25 @@ public class Regex {
     }
     // Comprueba que el texto tenga el formato que debe
     public boolean comprobarTexto(String texto){
-        if (texto == null) {
-            return false;
-        }
+        //if (texto.trim().isEmpty()) {
+         //   return false;
+        //}
         String filtro = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";
         return Pattern.matches(filtro,texto);
     }
 // Comprueba que se introduce una hora existente
     public boolean comprobarHora(String hora){
-        if (hora == null) {
-            return false;
-        }
+        //if (hora.trim().isEmpty()) {
+        //    return false;
+        //}
         String filtro = "^(2[0123]:[012345][0-9])|(1[0-9]:[012345][0-9])|(0[0-9]:[012345][0-9])|([0-9]:[012345][0-9])$";
         return Pattern.matches(filtro, hora);
     }
     // Cambia el texto dado a un texto con las iniciales en mayusculas
     public String mayusculasNombres(String texto) {
-
+        if(texto == null || texto.trim().isEmpty()){
+            return "";
+        }
         return Arrays.stream(texto.trim().split("\\s+"))
                 .map(p -> p.substring(0, 1).toUpperCase()
                         + p.substring(1).toLowerCase())

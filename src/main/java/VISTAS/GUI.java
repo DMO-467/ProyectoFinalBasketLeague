@@ -14,23 +14,34 @@ import java.util.Date;
 
 // En esta clase se encuentran todas las ventanas de la interfaz grafica
 public class GUI {
+    // Declaramos las variables con las que identificamos las tablas en la pagina principal para ir cambiando de tabla
     int tablaPartidos = 3;
     int nTabla = tablaPartidos;
     int tablaArbitro = 1;
     int tablaEquipos = 2;
     int tablaPatrocinador = 5;
     int tablaPatrocinios = 4;
+    // Para aquellos mensajes de acierto le asignamos un tiempo para que desaparezca de la pantalla tras transcurrirlo (El numero es el que yo he considerado idoneo)
     int mensajeDeAcierto = 800;
+    // Los controladores y el regex los uso en practicamente todas las ventanas para hacer todas las funciones de añadir eliminar...
+    // por lo que los declaramos en la clase para no crear mas objetos de los necesarios
     ControladorArbitro controladorArbitro = new ControladorArbitro();
     ControladorEquipos controladorEquipos = new ControladorEquipos();
     ControladorPatrocinios controladorPatrocinios = new ControladorPatrocinios();
     ControladorPartidos controladorPartidos = new ControladorPartidos();
     ControladorPatrocinador controladorPatrocinador = new ControladorPatrocinador();
     Regex comprobacion = new Regex();
-
+    // Los campos numericos tienen un limite de maximo para evitar que el programa falle por sobre pasar el limite asi que estas variables evitan ese problema y tambien ponen un limite mas logico
+    int limitePartidosArbitrados = 5000;
+    int limiteAñosExperiencia = 60;
+    int limitePartidosJugados = 2000;
+    int limiteTrofeosLiga = 200;
+    int limiteResultadoEquipo = 30;
+// Con esta funcion calculo el tamaño idoneo de las ventanas ya que hacemos una regla de tres con la distancia de las palabras y sale el mejor tamaño para la ventana
     private static int reglaDeTres(int n, int a, int b){
         return n*a/b;
     }
+    // En esta clase diseñamos la posicion de los elementos de las ventanas para que aparezcan de la mejor forma
     private static GridBagConstraints configurarConstraints(int x, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = x;
@@ -39,7 +50,7 @@ public class GUI {
         gbc.anchor = GridBagConstraints.WEST;
         return gbc;
     }
-
+    // Este metodo es una ventana con la que muestro informacion al usuario y el parametro de Component permite que aparezcan los mensajes en las ventanas de dialogo (Jdialog)
     public void mensaje(Component padre, String dato, int tiempo){
         final JDialog dialog = new JDialog(javax.swing.SwingUtilities.getWindowAncestor(padre));
         int ancho = reglaDeTres(dato.length(), 200, 21);
@@ -48,16 +59,17 @@ public class GUI {
 
         JLabel label = new JLabel(dato, SwingConstants.CENTER);
         dialog.add(label, BorderLayout.CENTER);
-
+// Indica donde va a aparecer la ventana
         dialog.setLocationRelativeTo(padre);
         dialog.setVisible(true);
-
+// Aqui calculamos el tiempo para que haga la accion indicada en este caso cerrar la ventana
         new javax.swing.Timer(tiempo, e -> dialog.dispose()) {{
             setRepeats(false);
             start();
         }};
         dialog.setVisible(true);
     }
+    // Metodo con el que muestro mensajes por pantalla pero sin tiempo (Lo uso para los errores ya que es importante que el usuario se detenga a leerlo)
     public void mensaje(Component padre, String dato) {
         final JDialog dialog = new JDialog(javax.swing.SwingUtilities.getWindowAncestor(padre));
         dialog.setTitle("Aviso");
@@ -77,15 +89,17 @@ public class GUI {
 
         dialog.setVisible(true);
     }
-
+// Metodo que abre una ventana con los campos de la tabla arbitro para poder añadir uno nuevo
     public void ventanaArbitro() {
+        // Es un Dialog para que no se pueda interactuar con el resto de cosas externas a la ventana y pese menos
         JDialog frame = new JDialog((Frame) null, "Añadir arbitro", true);
+        // Solo cierra la ventana Dialog despues sigue abierta la aplicacion
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-
+    // Son los nombres de los campos de la tabla (No exactamente como estan llamados en la base de datos)
         String[] campos = {"Nombre Completo", "Fecha de nacimiento", "Partidos arbitrados", "Años experiencia"};
         int columnas = 15;
 
@@ -98,20 +112,19 @@ public class GUI {
         JTextField anos = new JTextField(columnas);
 
         JComponent[] textos = {nombre, fecha, partidos, anos};
-
+// Añado a cada campo de texto que se ha creado su texto correspodiente con el nombre del campo que se va a añadir
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
             panel.add(textos[i], configurarConstraints(1, i));
         }
 
         JButton boton = new JButton("Guardar");
+        // En esta accion compruebo que todos los campos añadidos son validos e inserto el nuevo arbitro a la base de datos
         ActionListener guardado = e -> {
             String nombreCompleto = nombre.getText();
             Date fechaSeleccionada = fecha.getDate();
             String partidosArbitrados = partidos.getText();
             String anosExperiencia = anos.getText();
-            Regex comprobacion = new Regex();
-            GUI g = new GUI();
             nombreCompleto = comprobacion.mayusculasNombres(nombreCompleto);
             if (comprobacion.comprobarTexto(nombreCompleto)) {
                 if (fechaSeleccionada != null) {
@@ -120,39 +133,39 @@ public class GUI {
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
-                        if (comprobacion.comprobarNumero(partidosArbitrados, 5000)) {
+                        if (comprobacion.comprobarNumero(partidosArbitrados, limitePartidosArbitrados)) {
                             int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
-                            if (comprobacion.comprobarNumero(anosExperiencia, 60)) {
+                            if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
                                 Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
                                         partidosArbitradosNumero, anosExperienciaNumero);
 
                                 ControladorArbitro anadir = new ControladorArbitro();
                                 if (controladorArbitro.existeNombre(nombreCompleto)) {
-                                    g.mensaje(boton, "Este arbitro ya existe", g.mensajeDeAcierto);
+                                    mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
                                 }else {
                                     if (anadir.anadirArbitro(arbitro)) {
-                                        g.mensaje(boton, "Fila añadida", g.mensajeDeAcierto);
+                                        mensaje(boton, "Fila añadida", mensajeDeAcierto);
                                     } else {
-                                        g.mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                        mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
                                     }
                                 }
                             } else {
-                                g.mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
+                                mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y " + limiteAñosExperiencia);
                             }
 
                         } else {
-                            g.mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
+                            mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y " + limitePartidosArbitrados);
                         }
                     }else {
-                        g.mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
-                    g.mensaje(boton,"ERROR, selecciona una fecha");
+                    mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje(boton,"ERROR, nombre no valido. Solo se valen letras");
+                mensaje(boton,"ERROR, nombre no valido. Solo se valen letras");
             }
         };
 
@@ -164,7 +177,7 @@ public class GUI {
         frame.add(panel);
         frame.setVisible(true);
     }
-
+    // Metodo que abre una ventana con los campos de la tabla equipos para poder añadir uno nuevo
     public void ventanaEquipos() {
         JDialog frame = new JDialog((Frame) null, "Añadir equipo", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -180,7 +193,7 @@ public class GUI {
         JTextField[] valores = {nombre, partidosPerdidos, partidosGanados, trofeosLiga};
 
         String[] campos = {"Nombre", "Partidos perdidos", "Partidos ganados", "Trofeos liga"};
-
+        // Añade el nombre de los campos con sus respectivos campos de texto
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
             panel.add(valores[i], configurarConstraints(1, i));
@@ -190,50 +203,50 @@ public class GUI {
         GridBagConstraints gbc = configurarConstraints(1, campos.length);
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(boton, gbc);
-
+// Corrobora que los campos añadidos por el usuario son válidos y crea el nuevo equipo en la base de datos
         ActionListener accion = e -> {
           String nombreEquipo = nombre.getText();
           String partidosPerdidosValor = partidosPerdidos.getText();
           String partidosGanadosValor = partidosGanados.getText();
           String trofeosLigaValor = trofeosLiga.getText();
-          ControladorEquipos comprobaciones = new ControladorEquipos();
-          Regex filtros = new Regex();
-          GUI g = new GUI();
-          nombreEquipo = filtros.mayusculasNombres(nombreEquipo);
-          if (filtros.comprobarTexto(nombreEquipo)) {
-              if (filtros.comprobarNumero(partidosPerdidosValor, 2000)) {
+
+          nombreEquipo = comprobacion.mayusculasNombres(nombreEquipo);
+          if (comprobacion.comprobarTexto(nombreEquipo)) {
+              if (comprobacion.comprobarNumero(partidosPerdidosValor, limitePartidosJugados)) {
                   int partidosPerdidosFiltrado = Integer.parseInt(partidosPerdidosValor);
-                  if (filtros.comprobarNumero(partidosGanadosValor, 2000)) {
+                  if (comprobacion.comprobarNumero(partidosGanadosValor, limitePartidosJugados)) {
                       int partidosGanadosFiltrado = Integer.parseInt(partidosGanadosValor);
-                      if (filtros.comprobarNumero(trofeosLigaValor, 200)) {
+                      if (comprobacion.comprobarNumero(trofeosLigaValor, limiteTrofeosLiga)) {
                           int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
                           Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
-                          if (comprobaciones.existeNombre(nombreEquipo)) {
-                              g.mensaje(boton,"Este equipo ya existe");
+                          if (controladorEquipos.existeNombre(nombreEquipo)) {
+                              mensaje(boton,"Este equipo ya existe");
                           }else {
-                              if (comprobaciones.anadirEquipo(equipo)) {
-                                  g.mensaje(boton,"Se ha añadido correctamente", g.mensajeDeAcierto);
+                              if (controladorEquipos.anadirEquipo(equipo)) {
+                                  mensaje(boton,"Se ha añadido correctamente", mensajeDeAcierto);
                               }else {
-                                  g.mensaje(boton,"No se ha podido añadir el equipo");
+                                  mensaje(boton,"No se ha podido añadir el equipo");
                               }
                           }
                       }else {
-                          g.mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y 200");
+                          mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y " + limiteTrofeosLiga);
                       }
                   }else {
-                    g.mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
+                    mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y " + limitePartidosJugados);
                   }
               }else {
-                  g.mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
+                  mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y " + limitePartidosJugados);
               }
           }else {
-             g.mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
+             mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
           }
         };
         boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
     }
+
+    // Metodo que abre una ventana con los campos de la tabla partidos para poder añadir uno nuevo
     public void ventanaPartidos(String[] equipos, String[] arbitros) {
         JDialog frame = new JDialog((Frame) null, "Añadir partido", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -278,8 +291,7 @@ public class GUI {
         JButton boton = new JButton("Guardar");
 
         ActionListener accion = e -> {
-            Regex filtros = new Regex();
-            GUI interfaz = new GUI();
+
             Date fechaSeleccionada = fecha.getDate();
             String horaPartido = hora.getText();
             String resultadoLocalPartido = resultadoLocal.getText();
@@ -296,15 +308,15 @@ public class GUI {
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
 
-                if (filtros.comprobarHora(horaPartido)) {
+                if (comprobacion.comprobarHora(horaPartido)) {
 
                     horaPartido = horaPartido + ":00";
                     Time horaPartidoParseado = Time.valueOf(horaPartido);
 
-                    if (filtros.comprobarNumero(resultadoLocalPartido, 30)) {
+                    if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
                         int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
 
-                        if (filtros.comprobarNumero(resultadoVisitantePartido, 30)) {
+                        if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
                             int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
 
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
@@ -323,33 +335,33 @@ public class GUI {
                                     );
 
                                     if (controladorPartidos.anadirPartido(partido)) {
-                                        interfaz.mensaje(boton,"Partido añadido correctamente", interfaz.mensajeDeAcierto);
+                                        mensaje(boton,"Partido añadido correctamente", mensajeDeAcierto);
                                     } else {
-                                        interfaz.mensaje(boton,"ERROR, no se ha podido añadir el partido");
+                                        mensaje(boton,"ERROR, no se ha podido añadir el partido");
                                     }
 
                                 } else {
-                                    interfaz.mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
+                                    mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                 }
 
                             } else {
-                                interfaz.mensaje(boton,"ERROR, los equipos tienen que ser distintos");
+                                mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                             }
 
                         } else {
-                            interfaz.mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
+                            mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
                         }
 
                     } else {
-                        interfaz.mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
+                        mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
                     }
 
                 } else {
-                    interfaz.mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
+                    mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                 }
 
             } else {
-                interfaz.mensaje(boton,"ERROR, selecciona una fecha");
+                mensaje(boton,"ERROR, selecciona una fecha");
             }
         };
 
@@ -360,7 +372,9 @@ public class GUI {
         frame.add(panel);
         frame.setVisible(true);
     }
-    public static void ventanaPatrocinador() {
+    // Metodo que abre una ventana con los campos de la tabla patrocinador para poder añadir uno nuevo
+
+    public void ventanaPatrocinador() {
         JDialog frame = new JDialog((Frame) null, "Añadir patrocinador", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(400, 250);
@@ -372,7 +386,7 @@ public class GUI {
         JTextField email = new JTextField(15);
         JTextField[] jTextFields = {nombre, telefono, email};
         String[] campos = {"Nombre", "Telefono", "Email"};
-
+// Coloca el nombre del campo que se añade al lado del campo de texto
         for (int i = 0; i < campos.length; i++) {
             panel.add(new JLabel(campos[i] + ":"), configurarConstraints(0, i));
             panel.add(jTextFields[i], configurarConstraints(1, i));
@@ -384,42 +398,42 @@ public class GUI {
         panel.add(boton, gbc);
 
         ActionListener accion = e -> {
-            Regex filtros = new Regex();
-            ControladorPatrocinador anadir = new ControladorPatrocinador();
-            GUI g = new GUI();
+
             String nombrePatrocinador = nombre.getText();
             String telefonoPatrocinador = telefono.getText();
             String emailPatrocinador = email.getText();
-            nombrePatrocinador = filtros.mayusculasNombres(nombrePatrocinador);
-            if (filtros.comprobarTexto(nombrePatrocinador)) {
-                if (filtros.comprobarTelefono(telefonoPatrocinador)) {
+            nombrePatrocinador = comprobacion.mayusculasNombres(nombrePatrocinador);
+            if (comprobacion.comprobarTexto(nombrePatrocinador)) {
+                if (comprobacion.comprobarTelefono(telefonoPatrocinador)) {
                     int numeroTelefonico = Integer.parseInt(telefonoPatrocinador);
-                    if (filtros.comprobarEmail(emailPatrocinador)) {
+                    if (comprobacion.comprobarEmail(emailPatrocinador)) {
                         Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
-                        if (anadir.ExistePatrocinador(p)) {
-                            g.mensaje(boton,"Este patrocinador ya existe");
+                        if (controladorPatrocinador.ExistePatrocinador(p)) {
+                            mensaje(boton,"Este patrocinador ya existe");
                         }else {
-                            if (anadir.anadirPatrocinador(p)) {
-                                g.mensaje(boton,"Fila añadida correctamente", g.mensajeDeAcierto);
+                            if (controladorPatrocinador.anadirPatrocinador(p)) {
+                                mensaje(boton,"Fila añadida correctamente", mensajeDeAcierto);
                             }else {
-                                g.mensaje(boton,"No se ha podido añadir al patrocinador");
+                                mensaje(boton,"No se ha podido añadir al patrocinador");
                             }
                         }
                     }else {
-                        g.mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
+                        mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
                 }else {
-                    g.mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
+                    mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje(boton,"ERROR, nombre no valido (Solo se valen letras)");
+                mensaje(boton,"ERROR, nombre no valido (Solo se valen letras)");
             }
         };
         boton.addActionListener(accion);
         frame.add(panel);
         frame.setVisible(true);
     }
-    public static void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
+
+    // Metodo que abre una ventana con los campos de la tabla patrocinios para poder añadir uno nuevo
+    public void ventanaPatrocinios(String[] patrocinadores, String[] equipos) {
         JDialog frame = new JDialog((Frame) null, "Añadir patrocinio", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(400, 200);
@@ -448,14 +462,14 @@ public class GUI {
             ides[0] = anadir.localizarIdPatrocinador(seleccionados[0]);
             ides[1] = anadir.localizarIdEquipo(seleccionados[1]);
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
-            GUI g = new GUI();
+
             if (anadir.existePatrocinio(patrocinios)) {
-                g.mensaje(boton,"Este patrocinio ya existe");
+                mensaje(boton,"Este patrocinio ya existe");
             }else {
                 if (anadir.anadirPatrocinio(patrocinios)) {
-                    g.mensaje(boton,"Fila añadida correctamente", g.mensajeDeAcierto);
+                    mensaje(boton,"Fila añadida correctamente", mensajeDeAcierto);
                 }else {
-                    g.mensaje(boton,"No se ha podido añadir la fila");
+                    mensaje(boton,"No se ha podido añadir la fila");
                 }
             }
         };
@@ -464,6 +478,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // Este metodo genera una ventana con las filas afectas por la fila que se va a eliminar en la tabla arbitro
     public void ventanaConfirmarEliminacionArbitro(String arbitro){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -502,6 +517,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // Este metodo genera una ventana con las filas afectas por la fila que se va a eliminar en la tabla equipos
     public void ventanaConfirmarEliminacionEquipo(String equipo){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -551,6 +567,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // Esta ventana pregunta al usuario si está seguro de que desea eliminar la fila seleccionada en la tabla partidos
     public void ventanaConfirmarEliminacionPartido(Partidos partido){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -562,7 +579,6 @@ public class GUI {
         mensaje.add(texto);
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
-            ControladorPartidos controladorPartidos = new ControladorPartidos();
             if (controladorPartidos.eliminarPartido(partido.getId_partido())) {
                 mensaje(confirmar,"Partido eliminado correctamente", mensajeDeAcierto);
                 inicio.setVisible(false);
@@ -580,6 +596,7 @@ public class GUI {
         JPanel botones = new JPanel();
         botones.add(confirmar);
         botones.add(cancelar);
+        // Al ser un JDialog se añade primero la función al boton si lo haces al revés no llegará a coger la función el boton por lo que no hará nada al clickar
         confirmar.addActionListener(accion);
         cancelar.addActionListener(accion2);
         inicio.add(espacio, BorderLayout.NORTH);
@@ -588,6 +605,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // Esta ventana pregunta al usuario si está seguro de que desea eliminar la fila seleccionada en la tabla patrocinios
     public void ventanaConfirmarEliminacionPatrocinio(String patrocinador, String equipo){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -630,6 +648,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // Este metodo genera una ventana con las filas afectas por la fila que se va a eliminar en la tabla patrocinador
     public void ventanaConfirmarEliminacionPatrocinador(String patrocinadorNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -668,7 +687,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
-
+// Ventana que muestra el nombre de los arbitro que hay en la base de datos para que el usuario elija el que desea eliminar
     public void ventanaEliminarArbitro(String[] arbitrosNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Arbitro", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -692,6 +711,8 @@ public class GUI {
         inicio.add(contrasena, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // Ventana que muestra el nombre de los equipos que hay en la base de datos para que el usuario elija el que desea eliminar
     public void ventanaEliminarEquipo(String[] equiposNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Equipo", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -715,6 +736,8 @@ public class GUI {
         inicio.add(listaEquipos, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // Ventana que muestra el nombre de los partidos que hay en la base de datos para que el usuario elija el que desea eliminar
     public void ventanaEliminarPartido(PartidoItem[] Partidos){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Partido", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -741,6 +764,8 @@ public class GUI {
         inicio.add(listaPartidos, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // Ventana que muestra el nombre de los equipos y patrocinios que hay en la base de datos para que el usuario elija el patrocinio que desea eliminar
     public void ventanaEliminarPatrocinio(String[] patrocinadores, String[] equipos){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinio", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -774,6 +799,8 @@ public class GUI {
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
     }
+
+    // Ventana que muestra el nombre de los patrocinadores que hay en la base de datos para que el usuario elija el que desea eliminar
     public void ventanaEliminarPatrocinador(String[] patrocinadoresNombre){
         JDialog inicio = new JDialog((Frame) null, "Eliminar Patrocinador", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -802,6 +829,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // En esta ventana el usuario puede modificar los campos de la tabla arbitro de una fila seleccionada anteriormente
     public void ventanaConfirmarModificacionArbitro(Arbitro arbitro){
         JDialog frame = new JDialog((Frame) null, "Modificar Arbitro", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -834,8 +862,6 @@ public class GUI {
             String partidosArbitrados = partidos.getText();
             String anosExperiencia = anos.getText();
 
-            Regex comprobacion = new Regex();
-            GUI g = new GUI();
             nombreCompleto = comprobacion.mayusculasNombres(nombreCompleto);
             if (comprobacion.comprobarTexto(nombreCompleto)) {
                 arbitro.setNombreCompleto(nombreCompleto);
@@ -843,34 +869,33 @@ public class GUI {
                     LocalDate fechaNacimientoParseada = fechaSeleccionada.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     if (comprobacion.comprobarFecha(fechaNacimientoParseada)) {
                         arbitro.setFecha_nacimiento(fechaNacimientoParseada);
-                        if (comprobacion.comprobarNumero(partidosArbitrados, 5000)) {
+                        if (comprobacion.comprobarNumero(partidosArbitrados, limitePartidosArbitrados)) {
                             arbitro.setPartidos_arbitrados(Integer.parseInt(partidosArbitrados));
-                            if (comprobacion.comprobarNumero(anosExperiencia, 60)) {
+                            if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 arbitro.setAnos_experiencia(Integer.parseInt(anosExperiencia));
-                                ControladorArbitro anadir = new ControladorArbitro();
 
-                                if (anadir.modificarArbitro(arbitro)) {
-                                    g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
+                                if (controladorArbitro.modificarArbitro(arbitro)) {
+                                    mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
                                 } else {
-                                    g.mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
+                                    mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
                                 }
 
                             } else {
-                                g.mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y 60");
+                                mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y " + limiteAñosExperiencia);
                             }
 
                         } else {
-                            g.mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y 5000");
+                            mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y " + limitePartidosArbitrados);
                         }
                     }else {
-                        g.mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
                     }
                 } else {
-                    g.mensaje(boton,"ERROR, selecciona una fecha");
+                    mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                g.mensaje(boton,"ERROR, nombre no valido solo se valen letras");
+                mensaje(boton,"ERROR, nombre no valido solo se valen letras");
             }
         };
 
@@ -883,6 +908,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // En esta ventana el usuario puede modificar los campos de la tabla equipos de una fila seleccionada anteriormente
     public void ventanaConfirmarModificacionEquipo(Equipos equipo){
         JDialog frame = new JDialog((Frame) null, "Modificar Equipo", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -914,33 +940,30 @@ public class GUI {
             String partidosPerdidosValor = partidosPerdidos.getText();
             String partidosGanadosValor = partidosGanados.getText();
             String trofeosLigaValor = trofeosLiga.getText();
-            ControladorEquipos comprobaciones = new ControladorEquipos();
-            Regex filtros = new Regex();
-            GUI g = new GUI();
-            if (filtros.comprobarTexto(nombreEquipo)) {
+            if (comprobacion.comprobarTexto(nombreEquipo)) {
                 equipo.setNombre_equipo(nombreEquipo);
-                if (filtros.comprobarNumero(partidosPerdidosValor, 2000)) {
+                if (comprobacion.comprobarNumero(partidosPerdidosValor, limitePartidosJugados)) {
                     equipo.setPartidos_perdidos(Integer.parseInt(partidosPerdidosValor));
-                    if (filtros.comprobarNumero(partidosGanadosValor, 2000)) {
+                    if (comprobacion.comprobarNumero(partidosGanadosValor, limitePartidosJugados)) {
                         equipo.setPartidos_ganados(Integer.parseInt(partidosGanadosValor));
-                        if (filtros.comprobarNumero(trofeosLigaValor, 200)) {
+                        if (comprobacion.comprobarNumero(trofeosLigaValor, limiteTrofeosLiga)) {
                             equipo.setTrofeos_liga(Integer.parseInt(trofeosLigaValor));
-                            if (comprobaciones.modificarEquipo(equipo)) {
-                                g.mensaje(boton,"El equipo ha sido modificado correctamente", g.mensajeDeAcierto);
+                            if (controladorEquipos.modificarEquipo(equipo)) {
+                                mensaje(boton,"El equipo ha sido modificado correctamente", mensajeDeAcierto);
                             }else {
-                                g.mensaje(boton,"No se ha podido modificar el equipo");
+                                mensaje(boton,"No se ha podido modificar el equipo");
                             }
                         }else {
-                            g.mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y 200");
+                            mensaje(boton,"ERROR trofeos liga, solo se valen numeros entre 0 y " + limiteTrofeosLiga);
                         }
                     }else {
-                        g.mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y 2000");
+                        mensaje(boton,"ERROR en partidos ganados, solo se valen numeros entre 0 y " + limitePartidosJugados);
                     }
                 }else {
-                    g.mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y 2000");
+                    mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y " + limitePartidosJugados);
                 }
             }else {
-                g.mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
             }
         };
         boton.addActionListener(accion);
@@ -948,6 +971,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // En esta ventana el usuario puede modificar los campos de la tabla partidos de una fila seleccionada anteriormente
     public void ventanaConfirmarModificacionPartido(Partidos partido){
         JDialog frame = new JDialog((Frame) null, "Modificar Partido", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -995,9 +1019,6 @@ public class GUI {
         panel.add(cArbitro2, configurarConstraints(1, fila++));
         JButton boton = new JButton("Guardar");
         ActionListener accion = e -> {
-            Regex filtros = new Regex();
-            ControladorPartidos comprobaciones = new ControladorPartidos();
-            GUI interfaz = new GUI();
 
             Date fechaSeleccionada = fecha.getDate();
             String horaPartido = hora.getText();
@@ -1013,49 +1034,48 @@ public class GUI {
                 partido.setFecha(fechaSeleccionada.toInstant()
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate());
-                if (filtros.comprobarHora(horaPartido)) {
+                if (comprobacion.comprobarHora(horaPartido)) {
                     horaPartido = horaPartido + ":00";
                     partido.setHora(Time.valueOf(horaPartido));
-                    if (filtros.comprobarNumero(resultadoLocalPartido, 30)) {
+                    if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
                         partido.setResultado_local(Integer.parseInt(resultadoLocalPartido));
 
-                        if (filtros.comprobarNumero(resultadoVisitantePartido, 30)) {
-                            int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
-
+                        if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
+                            partido.setResultado_visitante(Integer.parseInt(resultadoVisitantePartido));
                             if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
                                 partido.setId_equipo_local(controladorEquipos.cualId(equipoLocalPartido));
                                 partido.setId_equipo_visitante(controladorEquipos.cualId(equipoVisitantePartido));
                                 if (!arbitro1Partido.equals(arbitro2Partido)) {
                                     partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
                                     partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
-                                    if (comprobaciones.modificarPartido(partido)) {
-                                        interfaz.mensaje(boton,"Partido modificado correctamente", interfaz.mensajeDeAcierto);
+                                    if (controladorPartidos.modificarPartido(partido)) {
+                                        mensaje(boton,"Partido modificado correctamente", mensajeDeAcierto);
                                     } else {
-                                        interfaz.mensaje(boton,"ERROR, no se ha podido modificar el partido");
+                                        mensaje(boton,"ERROR, no se ha podido modificar el partido");
                                     }
 
                                 } else {
-                                    interfaz.mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
+                                    mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                 }
 
                             } else {
-                                interfaz.mensaje(boton,"ERROR, los equipos tienen que ser distintos");
+                                mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                             }
 
                         } else {
-                            interfaz.mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
+                            mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        interfaz.mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
+                        mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                     }
 
                 } else {
-                    interfaz.mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
+                    mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                 }
 
             } else {
-                interfaz.mensaje(boton,"ERROR, selecciona una fecha");
+                mensaje(boton,"ERROR, selecciona una fecha");
             }
         };
 
@@ -1067,6 +1087,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // En esta ventana el usuario puede modificar los campos de la tabla patrocinios seleccionando un patrocinador y un equipo existentes en sus tablas correspondientes de una fila seleccionada anteriormente
     public void ventanaConfirmarModificacionPatrocinio(Patrocinador patrocinador, Equipos equipo){
         JDialog frame = new JDialog((Frame) null, "Asignar Patrocinio", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1092,17 +1113,17 @@ public class GUI {
         String[] seleccionados = new String[2];
         int[] ides = new int[2];
         ActionListener accion = e -> {
-            ControladorPatrocinios anadir = new ControladorPatrocinios();
+
             seleccionados[0] = (String) cPatrocinadores.getSelectedItem();
             seleccionados[1] = (String) cEquipos.getSelectedItem();
-            ides[0] = anadir.localizarIdPatrocinador(seleccionados[0]);
-            ides[1] = anadir.localizarIdEquipo(seleccionados[1]);
+            ides[0] = controladorPatrocinios.localizarIdPatrocinador(seleccionados[0]);
+            ides[1] = controladorPatrocinios.localizarIdEquipo(seleccionados[1]);
             Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
-            GUI g = new GUI();
-            if (anadir.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
-                g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
+
+            if (controladorPatrocinios.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
+                mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
             }else {
-                g.mensaje(boton,"No se ha podido modificar la fila");
+                mensaje(boton,"No se ha podido modificar la fila");
             }
         };
         boton.addActionListener(accion);
@@ -1110,7 +1131,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
-
+    // En esta ventana el usuario puede modificar los campos de la tabla patrocinador de una fila seleccionada anteriormente
     public void ventanaConfirmarModificacionPatrocinador(Patrocinador patrocinador){
         JDialog frame = new JDialog((Frame) null, "Modificar Patrocinador", true);
         frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1135,35 +1156,32 @@ public class GUI {
         panel.add(boton, gbc);
 
         ActionListener accion = e -> {
-            Regex filtros = new Regex();
-            ControladorPatrocinador anadir = new ControladorPatrocinador();
-            GUI g = new GUI();
             String nombrePatrocinador = nombre.getText();
             String telefonoPatrocinador = telefono.getText();
             String emailPatrocinador = email.getText();
-            if (filtros.comprobarTexto(nombrePatrocinador)) {
+            if (comprobacion.comprobarTexto(nombrePatrocinador)) {
                 patrocinador.setNombre_patrocinador(nombrePatrocinador);
-                if (filtros.comprobarTelefono(telefonoPatrocinador)) {
+                if (comprobacion.comprobarTelefono(telefonoPatrocinador)) {
                     patrocinador.setTelefono(Integer.parseInt(telefonoPatrocinador));
-                    if (filtros.comprobarEmail(emailPatrocinador)) {
+                    if (comprobacion.comprobarEmail(emailPatrocinador)) {
                         patrocinador.setEmail(emailPatrocinador);
-                        if (anadir.ExistePatrocinador(patrocinador)) {
-                            g.mensaje(boton,"Este patrocinador ya existe");
+                        if (controladorPatrocinador.ExistePatrocinador(patrocinador)) {
+                            mensaje(boton,"Este patrocinador ya existe");
                         }else {
-                            if (anadir.modificarPatrocinador(patrocinador)) {
-                                g.mensaje(boton,"Fila modificada correctamente", g.mensajeDeAcierto);
+                            if (controladorPatrocinador.modificarPatrocinador(patrocinador)) {
+                                mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
                             }else {
-                                g.mensaje(boton,"No se ha podido modificar al patrocinador");
+                                mensaje(boton,"No se ha podido modificar al patrocinador");
                             }
                         }
                     }else {
-                        g.mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
+                        mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
                 }else {
-                    g.mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
+                    mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                g.mensaje(boton,"ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
+                mensaje(boton,"ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
             }
         };
         boton.addActionListener(accion);
@@ -1171,6 +1189,7 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    // En esta ventana el usuario selecciona el nombre del arbitro que desea modificar
     public void ventanaModificarArbitro(String[] arbitrosNombre){
         JDialog inicio = new JDialog((Frame) null, "Modificar arbitro", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1194,6 +1213,8 @@ public class GUI {
         inicio.add(contrasena, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // En esta ventana el usuario selecciona el nombre del equipo que desea modificar
     public void ventanaModificarEquipo(String[] equiposNombre){
         JDialog inicio = new JDialog((Frame) null, "Modificar Equipo", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1217,6 +1238,8 @@ public class GUI {
         inicio.add(listaEquipos, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // En esta ventana el usuario selecciona la fecha y los nombres de los equipos del partido que desea modificar
     public void ventanaModificarPartido(PartidoItem[] Partidos){
         JDialog inicio = new JDialog((Frame) null, "Modificar Partido", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1243,6 +1266,8 @@ public class GUI {
         inicio.add(listaPartidos, BorderLayout.CENTER);
         inicio.setVisible(true);
     }
+
+    // En esta ventana el usuario selecciona el nombre del patrocinador y equipo que forman parte de un patrocinio que desea modificar
     public void ventanaModificarPatrocinio(String[] equipos, String[] patrocinadores){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinio", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1276,6 +1301,8 @@ public class GUI {
         inicio.add(botones, BorderLayout.SOUTH);
         inicio.setVisible(true);
     }
+
+    // En esta ventana el usuario selecciona el nombre del patrocinador que desea modificar
     public void ventanaModificarPatrocinador(String[] patrocinadoresNombre){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinador", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -1304,6 +1331,7 @@ public class GUI {
         inicio.setVisible(true);
     }
 
+    // ventana donde el usuario puede cambiar su contraseña introduciendo la anterior y la nueva que quiere introducir
     public void ventanaCambioPassword() {
         JFrame frame = new JFrame("Cambiar contraseña");
         frame.setSize(350, 200);
@@ -1351,7 +1379,7 @@ public class GUI {
         frame.setVisible(true);
         confirmar.addActionListener(accion);
     }
-
+// Ventana inicial donde introduce sus credenciales para entrar al programa
     public void ventanaDeLogeo(){
         JFrame inicio = new JFrame("Inicio de Sesión");
         inicio.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -1388,15 +1416,20 @@ public class GUI {
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
         JButton cambiar = new JButton("Cambiar contraseña");
+        JButton iniciar = new JButton("Comenzar");
         JPanel cContrasena = new JPanel();
         cContrasena.add(cambiar);
+        cContrasena.add(iniciar);
+        iniciar.addActionListener(accion);
+        usuario.addActionListener(accion);
+        cambiar.addActionListener(accion2);
         inicio.add(espacio, BorderLayout.NORTH);
         inicio.add(contrasena, BorderLayout.CENTER);
         inicio.add(cContrasena, BorderLayout.SOUTH);
         inicio.setVisible(true);
-        usuario.addActionListener(accion);
-        cambiar.addActionListener(accion2);
+
     }
+    // Página principal del programa donde puede seleccionar la tabla que desea ver o administrar
     public void paginaPrincipal(){
         JFrame fondo = new JFrame("Basket League");
         fondo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -1428,8 +1461,7 @@ public class GUI {
         opciones.add(modificar);
         opciones.add(documento);
         fondo.add(opciones, BorderLayout.SOUTH);
-        ControladorPartidos tablaPrincipal = new ControladorPartidos();
-        tabla.setModel(tablaPrincipal.mostrarPartidos());
+        tabla.setModel(controladorPartidos.mostrarPartidos());
         fondo.setVisible(true);
         ActionListener listaArbitro = e -> {
             nTabla = tablaArbitro;
