@@ -43,7 +43,7 @@ public class GUI {
     int limiteAñosExperiencia = 60;
     int limitePartidosJugados = 2000;
     int limiteTrofeosLiga = 200;
-    int limiteResultadoEquipo = 30;
+    int limiteResultadoEquipo = 200;
 // Con esta funcion calculo el tamaño idoneo de las ventanas ya que hacemos una regla de tres con la distancia de las palabras y sale el mejor tamaño para la ventana
     private static int reglaDeTres(int n, int a, int b){
         return n*a/b;
@@ -671,6 +671,11 @@ public class GUI {
         ActionListener accion = e -> {
                 if (controladorPatrocinios.eliminarPatrocinio(patrocinioItem.getPatrocinio())) {
                     refrescarTabla();
+                    patrocinios.setModel(
+                            new DefaultComboBoxModel<>(
+                                    controladorPatrocinios.mostrarPatrociniosNombre()
+                            )
+                    );
                     mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
                     javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
                     t.setRepeats(false);
