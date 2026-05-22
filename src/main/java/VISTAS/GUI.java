@@ -37,6 +37,7 @@ public class GUI {
     private JComboBox<String> equipos;
     private JComboBox<PartidoItem> partidos;
     private JComboBox<String> patrocinadores;
+    private JComboBox<PatrocinioItem> patrocinios;
     // Los campos numericos tienen un limite de maximo para evitar que el programa falle por sobre pasar el limite asi que estas variables evitan ese problema y tambien ponen un limite mas logico
     int limitePartidosArbitrados = 5000;
     int limiteAñosExperiencia = 60;
@@ -657,22 +658,19 @@ public class GUI {
     }
 
     // Esta ventana pregunta al usuario si está seguro de que desea eliminar la fila seleccionada en la tabla patrocinios
-    public void ventanaConfirmarEliminacionPatrocinio(String patrocinador, String equipo){
+    public void ventanaConfirmarEliminacionPatrocinio(PatrocinioItem patrocinioItem){
         JDialog inicio = new JDialog((Frame) null, "Eliminar", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(700, 250);
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
         JPanel mensaje = new JPanel();
-        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este patrocinio: " + patrocinador + " " + equipo + "?");
+        JLabel texto = new JLabel("¿Estas seguro de que quieres eliminar este patrocinio: " + patrocinioItem.toString() + "?");
         mensaje.add(texto);
         JButton confirmar = new JButton("Confirmar");
         ActionListener accion = e -> {
-            Patrocinios patrocinio = new Patrocinios(controladorPatrocinios.localizarIdPatrocinador(patrocinador), controladorPatrocinios.localizarIdEquipo(equipo));
-            if (controladorPatrocinios.existePatrocinio(patrocinio)) {
-                if (controladorPatrocinios.eliminarPatrocinio(patrocinio)) {
+                if (controladorPatrocinios.eliminarPatrocinio(patrocinioItem.getPatrocinio())) {
                     refrescarTabla();
-
                     mensaje(confirmar, "Fila eliminada", mensajeDeAcierto);
                     javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> inicio.dispose());
                     t.setRepeats(false);
@@ -680,10 +678,6 @@ public class GUI {
                 }else {
                     mensaje(confirmar,"No se ha podido eliminar el patrocinio");
                 }
-            }else {
-                mensaje(confirmar,"ERROR, no existe este patrocinio");
-            }
-
         };
         ActionListener accion2 = e -> {
             inicio.dispose();
@@ -835,23 +829,18 @@ public class GUI {
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
         JPanel listaPatrocinios = new JPanel();
-        JLabel texto = new JLabel("patrocinador:");
-        JComboBox<String> cPatrocinadores = new JComboBox<>(controladorPatrocinador.mostrarNombrePatrocinador());
-        JLabel texto2 = new JLabel("Equipo:");
-        JComboBox<String> cEquipos = new JComboBox<>(controladorEquipos.mostrarNombreEquipos());
-        cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
-        cEquipos.setPreferredSize(new Dimension(100, 25));
+        JLabel texto = new JLabel("patrocinio:");
+        patrocinios = new JComboBox<>();
+        patrocinios.setModel(new DefaultComboBoxModel<>(controladorPatrocinios.mostrarPatrociniosNombre()));
+        patrocinios.setPreferredSize(new  Dimension(150, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
         listaPatrocinios.add(texto);
-        listaPatrocinios.add(cPatrocinadores);
-        listaPatrocinios.add(texto2);
-        listaPatrocinios.add(cEquipos);
+        listaPatrocinios.add(patrocinios);
         ActionListener accion = e -> {
-            String patrocinador = (String) cPatrocinadores.getSelectedItem();
-            String equipo = (String) cEquipos.getSelectedItem();
-            ventanaConfirmarEliminacionPatrocinio(patrocinador, equipo);
+            PatrocinioItem patrocinio = (PatrocinioItem) patrocinios.getSelectedItem();
+            ventanaConfirmarEliminacionPatrocinio(patrocinio);
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -941,7 +930,9 @@ public class GUI {
                                     arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
                                     mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
 
-                                    frame.dispose();
+                                    javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                    t.setRepeats(false);
+                                    t.start();
 
                                 } else {
                                     mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
@@ -1019,6 +1010,9 @@ public class GUI {
                                 refrescarTabla();
                                 equipos.setModel(controladorEquipos.mostrarNombreEquipos());
                                 mensaje(boton,"El equipo ha sido modificado correctamente", mensajeDeAcierto);
+                                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                t.setRepeats(false);
+                                t.start();
                             }else {
                                 mensaje(boton,"No se ha podido modificar el equipo");
                             }
@@ -1125,6 +1119,9 @@ public class GUI {
                                                 )
                                         );
                                         mensaje(boton,"Partido modificado correctamente", mensajeDeAcierto);
+                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                        t.setRepeats(false);
+                                        t.start();
                                     } else {
                                         mensaje(boton,"ERROR, no se ha podido modificar el partido");
                                     }
@@ -1193,11 +1190,19 @@ public class GUI {
             seleccionados[1] = (String) cEquipos.getSelectedItem();
             ides[0] = controladorPatrocinios.localizarIdPatrocinador(seleccionados[0]);
             ides[1] = controladorPatrocinios.localizarIdEquipo(seleccionados[1]);
-            Patrocinios patrocinios = new Patrocinios(ides[0], ides[1]);
+            Patrocinios patrocinio = new Patrocinios(ides[0], ides[1]);
 
-            if (controladorPatrocinios.modificarPatrocinio(patrocinios, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
+            if (controladorPatrocinios.modificarPatrocinio(patrocinio, patrocinador.getId_patrocinador(), equipo.getId_equipo())) {
                 refrescarTabla();
+                patrocinios.setModel(
+                        new DefaultComboBoxModel<>(
+                                controladorPatrocinios.mostrarPatrociniosNombre()
+                        )
+                );
                 mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
+                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                t.setRepeats(false);
+                t.start();
             }else {
                 mensaje(boton,"No se ha podido modificar la fila");
             }
@@ -1248,6 +1253,9 @@ public class GUI {
                                 refrescarTabla();
                                 patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
                                 mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
+                                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                t.setRepeats(false);
+                                t.start();
                             }else {
                                 mensaje(boton,"No se ha podido modificar al patrocinador");
                             }
@@ -1349,30 +1357,25 @@ public class GUI {
     }
 
     // En esta ventana el usuario selecciona el nombre del patrocinador y equipo que forman parte de un patrocinio que desea modificar
-    public void ventanaModificarPatrocinio(String[] equipos, String[] patrocinadores){
+    public void ventanaModificarPatrocinio(){
         JDialog inicio = new JDialog((Frame) null, "Modificar Patrocinio", true);
         inicio.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         inicio.setSize(500, 250);
         inicio.setLayout(new BorderLayout());
         inicio.setLocationRelativeTo(null);
         JPanel listaPatrocinios = new JPanel();
-        JLabel texto = new JLabel("patrocinador:");
-        JComboBox<String> cPatrocinadores = new JComboBox<>(patrocinadores);
-        JLabel texto2 = new JLabel("Equipo:");
-        JComboBox<String> cEquipos = new JComboBox<>(equipos);
-        cPatrocinadores.setPreferredSize(new  Dimension(100, 25));
-        cEquipos.setPreferredSize(new Dimension(100, 25));
+        JLabel texto = new JLabel("patrocinios:");
+        patrocinios = new JComboBox<>();
+        patrocinios.setModel(new DefaultComboBoxModel<>(controladorPatrocinios.mostrarPatrociniosNombre()));
+        patrocinios.setPreferredSize(new  Dimension(150, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
         listaPatrocinios.add(texto);
-        listaPatrocinios.add(cPatrocinadores);
-        listaPatrocinios.add(texto2);
-        listaPatrocinios.add(cEquipos);
+        listaPatrocinios.add(patrocinios);
         ActionListener accion = e -> {
-            String patrocinador = (String) cPatrocinadores.getSelectedItem();
-            String equipo = (String) cEquipos.getSelectedItem();
-            ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(controladorPatrocinador.cualId(patrocinador)), controladorEquipos.encontrarEquipo(controladorEquipos.cualId(equipo)));
+            PatrocinioItem patrocinio = (PatrocinioItem) patrocinios.getSelectedItem();
+            ventanaConfirmarModificacionPatrocinio(controladorPatrocinador.encontrarPatrocinador(patrocinio.getPatrocinio().getId_patrocinador()), controladorEquipos.encontrarEquipo(patrocinio.getPatrocinio().getId_equipo()));
         };
         JPanel espacio = new JPanel();
         espacio.setPreferredSize(new Dimension(100, 80));
@@ -1649,7 +1652,7 @@ public class GUI {
                 ventanaModificarPatrocinador();
             }
             if (nTabla == tablaPatrocinios) {
-                //ventanaModificarPatrocinio(controladorEquipos.mostrarNombreEquipos(), controladorPatrocinador.mostrarNombrePatrocinador());
+                ventanaModificarPatrocinio();
             }
         };
         modificar.addActionListener(modifica);

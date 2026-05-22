@@ -1,6 +1,9 @@
 package CONTROLADORES;
 
 
+import MODELOS.PartidoItem;
+import MODELOS.Partidos;
+import MODELOS.PatrocinioItem;
 import MODELOS.Patrocinios;
 import OTROS.Conexion;
 
@@ -144,28 +147,35 @@ public class ControladorPatrocinios {
             throw new RuntimeException(e);
         }
     }
-// Devuelve Todos los nombres de patrocinadores y equipos de sus respectivas tablas
-    public String[] mostrarPatrociniosNombres(){
-        sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
+    // Devuelve Todos los patrocinios que hay pero en lugar de los ides se muestran los nombres
+    public PatrocinioItem[] mostrarPatrociniosNombre(){
+        sql = "SELECT p.id_patrocinador, p.nombre_patrocinador AS patrocinador, e.id_equipo, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
         try {
+
             statement = c.realizarConexion().createStatement();
             resultSet = statement.executeQuery(sql);
-            List<String> patrocinios = new ArrayList<>();
-            while (resultSet.next()){
-                String patrocinador = resultSet.getString("patrocinador");
-                String equipo = resultSet.getString("equipo");
-                String patrocinio = patrocinador + equipo;
-                patrocinios.add(patrocinio);
+
+            List<PatrocinioItem> lista = new ArrayList<>();
+
+            while (resultSet.next()) {
+
+                Patrocinios patrocinio = new Patrocinios(resultSet.getInt("id_patrocinador"), resultSet.getInt("id_equipo"));
+
+                String texto =
+                         resultSet.getString("patrocinador")
+                        + " - "
+                        + resultSet.getString("equipo");
+
+                lista.add(new PatrocinioItem(patrocinio, texto));
             }
-            String[] devolver = new String[patrocinios.size()];
-            for (int i = 0; i < devolver.length; i++) {
-                devolver[i] = patrocinios.get(i);
-            }
-            return devolver;
-        }catch (SQLException e){
+
+            return lista.toArray(new PatrocinioItem[0]);
+
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
     // Crea un csv con los nombres de equipos y patrocinadores que aparecen en la tabla patrocinios
     public boolean imprimirPatrocinios(){
         sql = "SELECT p.nombre_patrocinador AS patrocinador, e.nombre_equipo AS equipo FROM patrocinador p INNER JOIN patrocinios pe ON p.id_patrocinador=pe.id_patrocinador INNER JOIN equipos e ON pe.id_equipo=e.id_equipo";
