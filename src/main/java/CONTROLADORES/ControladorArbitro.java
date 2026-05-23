@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -261,6 +263,14 @@ public class ControladorArbitro {
             }
             return true;
         }catch (SQLException | IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean trabajaMenosQueVive(LocalDate fechaNacimiento, int anosTrabajados){
+        try {
+            int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+            return edad - anosTrabajados >= 16;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

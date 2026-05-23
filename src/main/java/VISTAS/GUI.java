@@ -148,23 +148,27 @@ public class GUI {
                             int partidosArbitradosNumero = Integer.parseInt(partidosArbitrados);
                             if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
-                                Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                        partidosArbitradosNumero, anosExperienciaNumero);
+                                if (controladorArbitro.trabajaMenosQueVive(fechaNacimientoParseada, anosExperienciaNumero)) {
+                                    Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                            partidosArbitradosNumero, anosExperienciaNumero);
 
-                                if (controladorArbitro.existeNombre(nombreCompleto)) {
-                                    mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
-                                }else {
-                                    if (controladorArbitro.anadirArbitro(arbitro)) {
-                                        refrescarTabla();
+                                    if (controladorArbitro.existeNombre(nombreCompleto)) {
+                                        mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
+                                    }else {
+                                        if (controladorArbitro.anadirArbitro(arbitro)) {
+                                            refrescarTabla();
 
-                                        mensaje(boton, "Fila añadida", mensajeDeAcierto);
-                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                        t.setRepeats(false);
-                                        t.start();
+                                            mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                                            javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                            t.setRepeats(false);
+                                            t.start();
 
-                                    } else {
-                                        mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                        } else {
+                                            mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                        }
                                     }
+                                }else {
+                                    mensaje(boton, "ERROR, no se puede introducir un valor de años trabajados superior a la edad del arbitro");
                                 }
                             } else {
                                 mensaje(boton,"ERROR, años de experiencia no validos. Debe de ser un numero entre 0 y " + limiteAñosExperiencia);
@@ -929,18 +933,23 @@ public class GUI {
                         if (comprobacion.comprobarNumero(partidosArbitrados, limitePartidosArbitrados)) {
                             arbitro.setPartidos_arbitrados(Integer.parseInt(partidosArbitrados));
                             if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
-                                arbitro.setAnos_experiencia(Integer.parseInt(anosExperiencia));
-                                if (controladorArbitro.modificarArbitro(arbitro)) {
-                                    refrescarTabla();
-                                    arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
-                                    mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
+                                int anosExperienciaParseado = Integer.parseInt(anosExperiencia);
+                                if (controladorArbitro.trabajaMenosQueVive(fechaNacimientoParseada, anosExperienciaParseado)) {
+                                    arbitro.setAnos_experiencia(anosExperienciaParseado);
+                                    if (controladorArbitro.modificarArbitro(arbitro)) {
+                                        refrescarTabla();
+                                        arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
+                                        mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
 
-                                    javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                    t.setRepeats(false);
-                                    t.start();
+                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                        t.setRepeats(false);
+                                        t.start();
 
-                                } else {
-                                    mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
+                                    } else {
+                                        mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
+                                    }
+                                }else {
+                                    mensaje(boton, "ERROR, los años de experiencia tienen que ser menos que la edad del arbitro");
                                 }
 
                             } else {
