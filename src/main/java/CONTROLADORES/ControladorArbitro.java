@@ -274,4 +274,14 @@ public class ControladorArbitro {
             throw new RuntimeException(e);
         }
     }
+    public boolean partidosJugadosXAnos(int partidos, int anosExperiencia){
+        int partidosLimite = 110;
+        int ano = 1;
+        int partidos2;
+        partidos2 = partidosLimite*anosExperiencia/ano;
+        if (partidos2 >= partidos) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -106,7 +106,10 @@ public class Regex {
         //}
         try {
             int edad = Period.between(fecha, LocalDate.now()).getYears();
-            return edad >= 16;
+            if (edad >= 16 && edad <= 60) {
+                return true;
+            }
+            return false;
         }catch (Exception e){
             return false;
         }
@@ -119,7 +122,7 @@ public class Regex {
         try {
             DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
-            if (fechaConvertida.isBefore(LocalDate.now()) || fechaConvertida.equals(LocalDate.now())) {
+            if (fechaConvertida.getYear() >= 1892) {
                 return true;
             }
             return false;
@@ -134,26 +137,28 @@ public class Regex {
     }
 // Comprueba que la cadena de caracteres introducida es un numero positivo inferior a la cantidad dada
     public boolean comprobarNumero(String numero, int max){
-
         String filtro = "^\\d+$";
+        try {
 
-        if (Pattern.matches(filtro, numero)) {
-            int num = Integer.parseInt(numero);
-            if (num >= 0 && num <= max) {
-                return true;
+            if (Pattern.matches(filtro, numero)) {
+                int num = Integer.parseInt(numero);
+                if (num >= 0 && num <= max) {
+                    return true;
+                }
+                return false;
+            }else {
+                return false;
             }
-            return false;
-        }else {
+        }catch (NumberFormatException e){
             return false;
         }
-
     }
     // Comprueba que el texto tenga el formato que debe
     public boolean comprobarTexto(String texto){
         //if (texto.trim().isEmpty()) {
          //   return false;
         //}
-        String filtro = "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*$";
+        String filtro = "^[A-ZÁÉÍÓÚÑÇ][a-záéíóúñç]+(\\s[A-ZÁÉÍÓÚÑÇ][a-záéíóúñç]+)*$";
         return Pattern.matches(filtro,texto);
     }
 // Comprueba que se introduce una hora existente
@@ -166,6 +171,7 @@ public class Regex {
     }
     // Cambia el texto dado a un texto con las iniciales en mayusculas
     public String mayusculasNombres(String texto) {
+        texto = texto.toLowerCase();
         if(texto == null || texto.trim().isEmpty()){
             return "";
         }

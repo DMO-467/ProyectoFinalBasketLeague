@@ -149,23 +149,27 @@ public class GUI {
                             if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 int anosExperienciaNumero = Integer.parseInt(anosExperiencia);
                                 if (controladorArbitro.trabajaMenosQueVive(fechaNacimientoParseada, anosExperienciaNumero)) {
-                                    Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
-                                            partidosArbitradosNumero, anosExperienciaNumero);
+                                    if (controladorArbitro.partidosJugadosXAnos(partidosArbitradosNumero, anosExperienciaNumero)) {
+                                        Arbitro arbitro = new Arbitro(nombreCompleto, fechaNacimientoParseada,
+                                                partidosArbitradosNumero, anosExperienciaNumero);
 
-                                    if (controladorArbitro.existeNombre(nombreCompleto)) {
-                                        mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
-                                    }else {
-                                        if (controladorArbitro.anadirArbitro(arbitro)) {
-                                            refrescarTabla();
+                                        if (controladorArbitro.existeNombre(nombreCompleto)) {
+                                            mensaje(boton, "Este arbitro ya existe", mensajeDeAcierto);
+                                        }else {
+                                            if (controladorArbitro.anadirArbitro(arbitro)) {
+                                                refrescarTabla();
 
-                                            mensaje(boton, "Fila añadida", mensajeDeAcierto);
-                                            javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                            t.setRepeats(false);
-                                            t.start();
+                                                mensaje(boton, "Fila añadida", mensajeDeAcierto);
+                                                javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                                t.setRepeats(false);
+                                                t.start();
 
-                                        } else {
-                                            mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                            } else {
+                                                mensaje(boton,"ERROR, no se ha podido añadir el arbitro");
+                                            }
                                         }
+                                    }else {
+                                        mensaje(boton, "ERROR, no se puede arbitrar tantos partidos en tan poco tiempo (110 partidos por año)");
                                     }
                                 }else {
                                     mensaje(boton, "ERROR, no se puede introducir un valor de años trabajados superior a la edad del arbitro");
@@ -178,14 +182,14 @@ public class GUI {
                             mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y " + limitePartidosArbitrados);
                         }
                     }else {
-                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años y maximo 60");
                     }
                 } else {
                     mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                mensaje(boton,"ERROR, nombre no valido. Solo se valen letras");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
             }
         };
 
@@ -262,7 +266,7 @@ public class GUI {
                   mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y " + limitePartidosJugados);
               }
           }else {
-             mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
+             mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
           }
         };
         boton.addActionListener(accion);
@@ -327,67 +331,72 @@ public class GUI {
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
 
             if (fechaSeleccionada != null) {
+                if (comprobacion.comprobarFechaPartido(fechaSeleccionada.toString())) {
+                    LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
 
-                LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
 
-                if (comprobacion.comprobarHora(horaPartido)) {
+                    if (comprobacion.comprobarHora(horaPartido)) {
 
-                    horaPartido = horaPartido + ":00";
-                    Time horaPartidoParseado = Time.valueOf(horaPartido);
+                        horaPartido = horaPartido + ":00";
+                        Time horaPartidoParseado = Time.valueOf(horaPartido);
 
-                    if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
-                        int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
+                        if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
+                            int resultadoLocalPartidoParseado = Integer.parseInt(resultadoLocalPartido);
 
-                        if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
-                            int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
+                            if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
+                                int resultadoVisitantePartidoParseado = Integer.parseInt(resultadoVisitantePartido);
 
-                            if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
+                                if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
 
-                                if (!arbitro1Partido.equals(arbitro2Partido)) {
+                                    if (!arbitro1Partido.equals(arbitro2Partido)) {
 
-                                    Partidos partido = new Partidos(
-                                            fechaPartidoParseada,
-                                            horaPartidoParseado,
-                                            controladorEquipos.cualId(equipoLocalPartido),
-                                            controladorEquipos.cualId(equipoVisitantePartido),
-                                            resultadoLocalPartidoParseado,
-                                            resultadoVisitantePartidoParseado,
-                                            controladorArbitro.cualId(arbitro1Partido),
-                                            controladorArbitro.cualId(arbitro2Partido)
-                                    );
+                                        Partidos partido = new Partidos(
+                                                fechaPartidoParseada,
+                                                horaPartidoParseado,
+                                                controladorEquipos.cualId(equipoLocalPartido),
+                                                controladorEquipos.cualId(equipoVisitantePartido),
+                                                resultadoLocalPartidoParseado,
+                                                resultadoVisitantePartidoParseado,
+                                                controladorArbitro.cualId(arbitro1Partido),
+                                                controladorArbitro.cualId(arbitro2Partido)
+                                        );
 
-                                    if (controladorPartidos.anadirPartido(partido)) {
-                                        refrescarTabla();
+                                        if (controladorPartidos.anadirPartido(partido)) {
+                                            refrescarTabla();
 
-                                        mensaje(boton, "Partido añadido correctamente", mensajeDeAcierto);
-                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                        t.setRepeats(false);
-                                        t.start();
+                                            mensaje(boton, "Partido añadido correctamente", mensajeDeAcierto);
+                                            javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                            t.setRepeats(false);
+                                            t.start();
+                                        } else {
+                                            mensaje(boton,"ERROR, no se ha podido añadir el partido");
+                                        }
+
                                     } else {
-                                        mensaje(boton,"ERROR, no se ha podido añadir el partido");
+                                        mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                     }
 
                                 } else {
-                                    mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
+                                    mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                                 }
 
                             } else {
-                                mensaje(boton,"ERROR, los equipos tienen que ser distintos");
+                                mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
                             }
 
                         } else {
-                            mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
+                            mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
                         }
 
                     } else {
-                        mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y " + limiteResultadoEquipo);
+                        mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                     }
-
-                } else {
-                    mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
+                }else {
+                    mensaje(boton,"ERROR, la fecha del partido no puede ser anterior a 1892");
                 }
+
 
             } else {
                 mensaje(boton,"ERROR, selecciona una fecha");
@@ -458,7 +467,7 @@ public class GUI {
                     mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                mensaje(boton,"ERROR, nombre no valido (Solo se valen letras)");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
             }
         };
         boton.addActionListener(accion);
@@ -935,18 +944,22 @@ public class GUI {
                             if (comprobacion.comprobarNumero(anosExperiencia, limiteAñosExperiencia)) {
                                 int anosExperienciaParseado = Integer.parseInt(anosExperiencia);
                                 if (controladorArbitro.trabajaMenosQueVive(fechaNacimientoParseada, anosExperienciaParseado)) {
-                                    arbitro.setAnos_experiencia(anosExperienciaParseado);
-                                    if (controladorArbitro.modificarArbitro(arbitro)) {
-                                        refrescarTabla();
-                                        arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
-                                        mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
+                                    if (controladorArbitro.partidosJugadosXAnos(arbitro.getPartidos_arbitrados(), anosExperienciaParseado)) {
+                                        arbitro.setAnos_experiencia(anosExperienciaParseado);
+                                        if (controladorArbitro.modificarArbitro(arbitro)) {
+                                            refrescarTabla();
+                                            arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
+                                            mensaje(boton,"Fila modificada correctamente", mensajeDeAcierto);
 
-                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                        t.setRepeats(false);
-                                        t.start();
+                                            javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                            t.setRepeats(false);
+                                            t.start();
 
-                                    } else {
-                                        mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
+                                        } else {
+                                            mensaje(boton,"ERROR, no se ha podido modificar el arbitro");
+                                        }
+                                    }else {
+                                        mensaje(boton, "ERROR, no se puede arbitrar tantos partidos en tan poco tiempo (110 partidos por año)");
                                     }
                                 }else {
                                     mensaje(boton, "ERROR, los años de experiencia tienen que ser menos que la edad del arbitro");
@@ -960,14 +973,14 @@ public class GUI {
                             mensaje(boton,"ERROR, partidos arbitrados no valido. Debe de ser un numero entre 0 y " + limitePartidosArbitrados);
                         }
                     }else {
-                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener minimo 16 años");
+                        mensaje(boton,"ERROR, fecha de nacimiento no valida. Debe de tener mínimo 16 años y maximo 60");
                     }
                 } else {
                     mensaje(boton,"ERROR, selecciona una fecha");
                 }
 
             } else {
-                mensaje(boton,"ERROR, nombre no valido solo se valen letras");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
             }
         };
 
@@ -1040,7 +1053,7 @@ public class GUI {
                     mensaje(boton,"ERROR en partidos perdidos, solo se valen numeros entre 0 y " + limitePartidosJugados);
                 }
             }else {
-                mensaje(boton,"ERROR nombre no valido, Solo se valen letras");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
             }
         };
         boton.addActionListener(accion);
@@ -1108,58 +1121,61 @@ public class GUI {
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
 
             if (fechaSeleccionada != null) {
-                partido.setFecha(fechaSeleccionada.toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate());
-                if (comprobacion.comprobarHora(horaPartido)) {
-                    horaPartido = horaPartido + ":00";
-                    partido.setHora(Time.valueOf(horaPartido));
-                    if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
-                        partido.setResultado_local(Integer.parseInt(resultadoLocalPartido));
+                if (comprobacion.comprobarFechaPartido(fechaSeleccionada.toString())) {
+                    partido.setFecha(fechaSeleccionada.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate());
+                    if (comprobacion.comprobarHora(horaPartido)) {
+                        horaPartido = horaPartido + ":00";
+                        partido.setHora(Time.valueOf(horaPartido));
+                        if (comprobacion.comprobarNumero(resultadoLocalPartido, limiteResultadoEquipo)) {
+                            partido.setResultado_local(Integer.parseInt(resultadoLocalPartido));
 
-                        if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
-                            partido.setResultado_visitante(Integer.parseInt(resultadoVisitantePartido));
-                            if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
-                                partido.setId_equipo_local(controladorEquipos.cualId(equipoLocalPartido));
-                                partido.setId_equipo_visitante(controladorEquipos.cualId(equipoVisitantePartido));
-                                if (!arbitro1Partido.equals(arbitro2Partido)) {
-                                    partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
-                                    partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
-                                    if (controladorPartidos.modificarPartido(partido)) {
-                                        refrescarTabla();
-                                        partidos.setModel(
-                                                new DefaultComboBoxModel<>(
-                                                        controladorPartidos.mostrarPartidosEliminarOModificar()
-                                                )
-                                        );
-                                        mensaje(boton,"Partido modificado correctamente", mensajeDeAcierto);
-                                        javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
-                                        t.setRepeats(false);
-                                        t.start();
+                            if (comprobacion.comprobarNumero(resultadoVisitantePartido, limiteResultadoEquipo)) {
+                                partido.setResultado_visitante(Integer.parseInt(resultadoVisitantePartido));
+                                if (!equipoLocalPartido.equals(equipoVisitantePartido)) {
+                                    partido.setId_equipo_local(controladorEquipos.cualId(equipoLocalPartido));
+                                    partido.setId_equipo_visitante(controladorEquipos.cualId(equipoVisitantePartido));
+                                    if (!arbitro1Partido.equals(arbitro2Partido)) {
+                                        partido.setArbitro1(controladorArbitro.cualId(arbitro1Partido));
+                                        partido.setArbitro2(controladorArbitro.cualId(arbitro2Partido));
+                                        if (controladorPartidos.modificarPartido(partido)) {
+                                            refrescarTabla();
+                                            partidos.setModel(
+                                                    new DefaultComboBoxModel<>(
+                                                            controladorPartidos.mostrarPartidosEliminarOModificar()
+                                                    )
+                                            );
+                                            mensaje(boton,"Partido modificado correctamente", mensajeDeAcierto);
+                                            javax.swing.Timer t = new javax.swing.Timer(tiempoDeCierre, es -> frame.dispose());
+                                            t.setRepeats(false);
+                                            t.start();
+                                        } else {
+                                            mensaje(boton,"ERROR, no se ha podido modificar el partido");
+                                        }
+
                                     } else {
-                                        mensaje(boton,"ERROR, no se ha podido modificar el partido");
+                                        mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
                                     }
 
                                 } else {
-                                    mensaje(boton,"ERROR, los arbitros tienen que ser distintos");
+                                    mensaje(boton,"ERROR, los equipos tienen que ser distintos");
                                 }
 
                             } else {
-                                mensaje(boton,"ERROR, los equipos tienen que ser distintos");
+                                mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
                             }
 
                         } else {
-                            mensaje(boton,"ERROR, resultado visitante no valido, tiene que ser un numero entre 0 y 30");
+                            mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
                         }
 
                     } else {
-                        mensaje(boton,"ERROR, resultado local no valido, tiene que ser un numero entre 0 y 30");
+                        mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
                     }
-
-                } else {
-                    mensaje(boton,"ERROR, hora no valida, ejemplo: 16:12");
+                }else {
+                    mensaje(boton,"ERROR, la fecha tiene que ser posterior a 1892");
                 }
-
             } else {
                 mensaje(boton,"ERROR, selecciona una fecha");
             }
@@ -1281,7 +1297,7 @@ public class GUI {
                     mensaje(boton,"ERROR, telefono no valido. Tiene que: Empezar por 6, 7 o 9 y tener 9 o 12 digitos");
                 }
             }else {
-                mensaje(boton,"ERROR, nombre no valido (Solo se valen letras y cada palabra empieza con una mayuscula)");
+                mensaje(boton,"ERROR nombre no valido, Solo se valen letras y minimo 2");
             }
         };
         boton.addActionListener(accion);
