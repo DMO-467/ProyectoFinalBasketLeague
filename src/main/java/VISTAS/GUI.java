@@ -244,7 +244,7 @@ public class GUI {
                           int trofeosLigaFiltrado = Integer.parseInt(trofeosLigaValor);
                           Equipos equipo = new Equipos(nombreEquipo, partidosPerdidosFiltrado, partidosGanadosFiltrado, trofeosLigaFiltrado);
                           if (controladorEquipos.existeNombre(nombreEquipo)) {
-                              mensaje(boton,"Este equipo ya existe");
+                              mensaje(boton,"Este equipo ya existe", mensajeDeAcierto);
                           }else {
                               if (controladorEquipos.anadirEquipo(equipo)) {
                                   refrescarTabla();
@@ -447,7 +447,7 @@ public class GUI {
                     if (comprobacion.comprobarEmail(emailPatrocinador)) {
                         Patrocinador p = new Patrocinador(nombrePatrocinador, numeroTelefonico, emailPatrocinador);
                         if (controladorPatrocinador.ExistePatrocinador(p)) {
-                            mensaje(boton,"Este patrocinador ya existe");
+                            mensaje(boton,"Este patrocinador ya existe", mensajeDeAcierto);
                         }else {
                             if (controladorPatrocinador.anadirPatrocinador(p)) {
                                 refrescarTabla();

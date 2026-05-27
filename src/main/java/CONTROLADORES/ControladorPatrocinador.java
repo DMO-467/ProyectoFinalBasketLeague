@@ -137,12 +137,10 @@ public DefaultComboBoxModel<String> mostrarNombrePatrocinador() {
 }
 //  Comprueba que el patrocinador dado se encuentra en la tabla de patrocinador
     public boolean ExistePatrocinador(Patrocinador patrocinador){
-        sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ? AND telefono = ? AND email = ?";
+        sql = "SELECT id_patrocinador FROM patrocinador WHERE nombre_patrocinador = ?";
         try {
             preparedStatement = c.realizarConexion().prepareStatement(sql);
             preparedStatement.setString(1, patrocinador.getNombre_patrocinador());
-            preparedStatement.setInt(2, patrocinador.getTelefono());
-            preparedStatement.setString(3, patrocinador.getEmail());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return true;
