@@ -331,11 +331,10 @@ public class GUI {
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
 
             if (fechaSeleccionada != null) {
-                if (comprobacion.comprobarFechaPartido(fechaSeleccionada.toString())) {
-                    LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
-
+                LocalDate fechaPartidoParseada = fechaSeleccionada.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                if (comprobacion.comprobarFechaPartido(fechaPartidoParseada)) {
 
                     if (comprobacion.comprobarHora(horaPartido)) {
 
@@ -769,7 +768,7 @@ public class GUI {
         JLabel texto = new JLabel("Arbitro:");
         arbitros = new JComboBox<>();
         arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
-        arbitros.setPreferredSize(new  Dimension(100, 25));
+        arbitros.setPreferredSize(new  Dimension(150, 25));
         contrasena.add(texto);
         contrasena.add(arbitros);
         ActionListener accion = e -> {
@@ -795,7 +794,7 @@ public class GUI {
         JLabel texto = new JLabel("equipo:");
         equipos = new JComboBox<>();
         equipos.setModel(controladorEquipos.mostrarNombreEquipos());
-        equipos.setPreferredSize(new  Dimension(100, 25));
+        equipos.setPreferredSize(new  Dimension(150, 25));
         listaEquipos.add(texto);
         listaEquipos.add(equipos);
         ActionListener accion = e -> {
@@ -821,7 +820,7 @@ public class GUI {
         JLabel texto = new JLabel("partido:");
         partidos = new JComboBox<>();
         partidos.setModel(new DefaultComboBoxModel<>(controladorPartidos.mostrarPartidosEliminarOModificar()));
-        partidos.setPreferredSize(new  Dimension(280, 30));
+        partidos.setPreferredSize(new  Dimension(320, 30));
         listaPartidos.add(texto);
         listaPartidos.add(partidos);
         ActionListener accion = e -> {
@@ -850,7 +849,7 @@ public class GUI {
         JLabel texto = new JLabel("patrocinio:");
         patrocinios = new JComboBox<>();
         patrocinios.setModel(new DefaultComboBoxModel<>(controladorPatrocinios.mostrarPatrociniosNombre()));
-        patrocinios.setPreferredSize(new  Dimension(150, 25));
+        patrocinios.setPreferredSize(new  Dimension(220, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -880,7 +879,7 @@ public class GUI {
         JLabel texto = new JLabel("patrocinador:");
         patrocinadores = new JComboBox<>();
         patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
-        patrocinadores.setPreferredSize(new  Dimension(100, 25));
+        patrocinadores.setPreferredSize(new  Dimension(120, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -1025,6 +1024,7 @@ public class GUI {
             String partidosPerdidosValor = partidosPerdidos.getText();
             String partidosGanadosValor = partidosGanados.getText();
             String trofeosLigaValor = trofeosLiga.getText();
+            nombreEquipo = comprobacion.mayusculasNombres(nombreEquipo);
             if (comprobacion.comprobarTexto(nombreEquipo)) {
                 equipo.setNombre_equipo(nombreEquipo);
                 if (comprobacion.comprobarNumero(partidosPerdidosValor, limitePartidosJugados)) {
@@ -1121,10 +1121,10 @@ public class GUI {
             String arbitro2Partido = (String) cArbitro2.getSelectedItem();
 
             if (fechaSeleccionada != null) {
-                if (comprobacion.comprobarFechaPartido(fechaSeleccionada.toString())) {
-                    partido.setFecha(fechaSeleccionada.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate());
+                partido.setFecha(fechaSeleccionada.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate());
+                if (comprobacion.comprobarFechaPartido(partido.getFecha())) {
                     if (comprobacion.comprobarHora(horaPartido)) {
                         horaPartido = horaPartido + ":00";
                         partido.setHora(Time.valueOf(horaPartido));
@@ -1270,15 +1270,13 @@ public class GUI {
             String nombrePatrocinador = nombre.getText();
             String telefonoPatrocinador = telefono.getText();
             String emailPatrocinador = email.getText();
+            nombrePatrocinador = comprobacion.mayusculasNombres(nombrePatrocinador);
             if (comprobacion.comprobarTexto(nombrePatrocinador)) {
                 patrocinador.setNombre_patrocinador(nombrePatrocinador);
                 if (comprobacion.comprobarTelefono(telefonoPatrocinador)) {
                     patrocinador.setTelefono(Integer.parseInt(telefonoPatrocinador));
                     if (comprobacion.comprobarEmail(emailPatrocinador)) {
                         patrocinador.setEmail(emailPatrocinador);
-                        if (controladorPatrocinador.ExistePatrocinador(patrocinador)) {
-                            mensaje(boton,"Este patrocinador ya existe");
-                        }else {
                             if (controladorPatrocinador.modificarPatrocinador(patrocinador)) {
                                 refrescarTabla();
                                 patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
@@ -1289,7 +1287,6 @@ public class GUI {
                             }else {
                                 mensaje(boton,"No se ha podido modificar al patrocinador");
                             }
-                        }
                     }else {
                         mensaje(boton,"ERROR, email no valido (Tiene que tener: texto@texto.extensionMax(3))");
                     }
@@ -1316,7 +1313,7 @@ public class GUI {
         JLabel texto = new JLabel("Arbitro:");
         arbitros = new JComboBox<>();
         arbitros.setModel(controladorArbitro.mostrarNombreArbitro());
-        arbitros.setPreferredSize(new  Dimension(100, 25));
+        arbitros.setPreferredSize(new  Dimension(150, 25));
         contrasena.add(texto);
         contrasena.add(arbitros);
         ActionListener accion = e -> {
@@ -1342,7 +1339,7 @@ public class GUI {
         JLabel texto = new JLabel("equipo:");
         equipos = new JComboBox<>();
         equipos.setModel(controladorEquipos.mostrarNombreEquipos());
-        equipos.setPreferredSize(new  Dimension(100, 25));
+        equipos.setPreferredSize(new  Dimension(150, 25));
         listaEquipos.add(texto);
         listaEquipos.add(equipos);
         ActionListener accion = e -> {
@@ -1368,7 +1365,7 @@ public class GUI {
         JLabel texto = new JLabel("partido:");
         partidos = new JComboBox<>();
         partidos.setModel(new DefaultComboBoxModel<>(controladorPartidos.mostrarPartidosEliminarOModificar()));
-        partidos.setPreferredSize(new  Dimension(280, 30));
+        partidos.setPreferredSize(new  Dimension(320, 30));
         listaPartidos.add(texto);
         listaPartidos.add(partidos);
         ActionListener accion = e -> {
@@ -1397,7 +1394,7 @@ public class GUI {
         JLabel texto = new JLabel("patrocinios:");
         patrocinios = new JComboBox<>();
         patrocinios.setModel(new DefaultComboBoxModel<>(controladorPatrocinios.mostrarPatrociniosNombre()));
-        patrocinios.setPreferredSize(new  Dimension(150, 25));
+        patrocinios.setPreferredSize(new  Dimension(220, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);
@@ -1427,7 +1424,7 @@ public class GUI {
         JLabel texto = new JLabel("patrocinador:");
         patrocinadores = new JComboBox<>();
         patrocinadores.setModel(controladorPatrocinador.mostrarNombrePatrocinador());
-        patrocinadores.setPreferredSize(new  Dimension(100, 25));
+        patrocinadores.setPreferredSize(new  Dimension(120, 25));
         JButton confirmar = new JButton("Confirmar");
         JPanel botones = new JPanel();
         botones.add(confirmar);

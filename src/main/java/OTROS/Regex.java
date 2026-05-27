@@ -115,14 +115,9 @@ public class Regex {
         }
     }
     // Comprueba que la fecha de partido sea anterior a mañana
-    public boolean comprobarFechaPartido(String fecha){
-        //if (fecha.trim().isEmpty()) {
-        //    return false;
-        //}
+    public boolean comprobarFechaPartido(LocalDate fecha){
         try {
-            DateTimeFormatter filtro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate fechaConvertida = LocalDate.parse(fecha, filtro);
-            if (fechaConvertida.getYear() >= 1892) {
+            if (fecha.getYear() >= 1892) {
                 return true;
             }
             return false;
